@@ -1,0 +1,880 @@
+#include "allvars.h"
+
+MyIDtype *nMergers, *lostmass, *lostmass_host;
+
+void calculateMassFunction()
+{
+  MyIDtype ihalo, *c_massfunction, usedhalos;
+  double *massfunction,*m;
+  double Mass,minmass,maxmass,logbin;
+  double logminmass, logmaxmass;
+  int i,n_bin,block;
+  minmass = 1.;
+  maxmass = 1000.;
+  logminmass = log(minmass);
+  logmaxmass = log(maxmass);
+  n_bin = 50;
+
+  c_massfunction = calloc(n_bin,sizeof(MyIDtype));
+  massfunction = calloc(n_bin,sizeof(double));
+  m= calloc(n_bin,sizeof(double));
+  logbin =  (logmaxmass - logminmass)/ n_bin;
+ 
+  for(ihalo = 0; ihalo < TotNhalos; ihalo++)
+    {
+      if(SubTree[ihalo] == NULLPOINT)
+	{
+	  Mass = HaloTable[ihalo].Vmax;
+	  if(Mass > 1.e-30)
+	    {
+	      block = (int) ((log(Mass)-logminmass)/logbin);
+	      if( block < n_bin)
+		{
+		  c_massfunction[block]++;
+		}
+	    }
+	}
+    }
+  usedhalos = 0;
+  for(i=0;i<n_bin;i++)
+    {
+      usedhalos += c_massfunction[i];
+    }
+  for(i=0;i<n_bin;i++)
+    {
+      m[i] = exp(logbin*i + logminmass);
+      massfunction[i] = (double) c_massfunction[i]/ (double) usedhalos;
+      //printf("%lf\t%lf\t%llu\n",m[i],massfunction[i],c_massfunction[i]);
+    }
+  free(m);
+  free(c_massfunction);
+  free(massfunction);
+}
+/*---------------------------------------------------------------------
+  Analyse properties of mergers
+  -----------------------------------------------------------------------
+*/
+void merger_analysis(int highlim_npart)
+{
+  unsigned int isnap, jsnap, nStep, block;
+  MyIDtype i,j,ihalo,jhalo,MaxNmergers;
+  double  latemass;
+  double binsize;
+  long double summass,dummydouble;
+  FILE *fp1, *fp2, *fp3;
+  char lostmassOutput_host[MAXSTRING],lostmassOutput[MAXSTRING], nMergerOutput[MAXSTRING];
+
+  sprintf(lostmassOutput,"%s_%dLostmass.dat",inputFile,highlim_npart);
+  sprintf(lostmassOutput_host,"%s_%dLostmass_host.dat",inputFile,highlim_npart);
+  sprintf(nMergerOutput,"%s_%dNmergers.dat",inputFile,highlim_npart);
+
+  /* set up bins for histogram */
+  binsize = 0.05;
+  nStep = (int) (2./binsize);
+
+  MaxNmergers = 30;
+  /* initialise output data  */
+  nMergers = calloc(MaxNmergers, sizeof(MyIDtype));
+  lostmass = calloc(nStep, sizeof(MyIDtype));
+  lostmass_host = calloc(nStep, sizeof(MyIDtype));
+
+  /* Loop over all halos in the last snapshot  */
+  for(i=TotNhalos-SnapNhalos[LASTSNAP]; i < TotNhalos; i++)
+    {
+      ihalo = i;
+      if(HaloTable[ihalo].Mvir > 1.e-30)
+	{
+	  count_mergers(ihalo,nStep,binsize);
+	}
+    }
+  fp1 = fopen(lostmassOutput, "w+");
+  fp2 = fopen(lostmassOutput_host, "w+");
+  for(i=0;i<nStep;i++)
+    {
+      fprintf(fp1,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,lostmass[i]);
+      fprintf(fp2,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,lostmass_host[i]);
+    }
+  fclose(fp1);
+  fclose(fp2);
+
+  fp1 = fopen(nMergerOutput, "w+");
+  for(i=0;i<MaxNmergers;i++)
+    {
+      fprintf(fp1,"%llu\t%llu\n",i,nMergers[i]);
+    }
+  fclose(fp1);
+  free(nMergers);
+  free(lostmass);
+}
+
+void count_mergers(MyIDtype haloid, int nStep, double binsize)
+{
+  MyIDtype ihalo,count,jhalo;
+  double mass_in, mass_out, mass_lost;
+  int block;
+  unsigned int isnap, jsnap;
+  
+  //printf("counting mergers for %llu\n",haloid);
+  if(output.progs[haloid].nProgs > 0)
+    {
+
+      count = 0;
+      mass_out = HaloTable[haloid].Mvir;
+      mass_in = 0.;
+      for(ihalo = 0; ihalo < output.progs[haloid].nProgs; ihalo++)
+	{
+	  jhalo = output.progs[haloid].progID[ihalo];
+	  if(HaloTable[jhalo].Mvir > 1.e-30)
+	    {
+	      count_mergers(jhalo,nStep,binsize);
+	      mass_in += HaloTable[jhalo].Mvir;
+	      count++;
+	    }
+	}
+      mass_lost = (mass_out - mass_in)/(0.5*(mass_in + mass_out));
+      //block = (int) ((atan(mass_lost)/asin(1.) +1.)/binsize);
+      block = (int) (((mass_lost)/2 +1.)/binsize);
+      if(block == nStep)
+	block = nStep-1;
+      
+      if(SubTree[haloid] == NULLPOINT)
+	{
+	  lostmass_host[block]++;
+	}
+      lostmass[block]++;
+      nMergers[count]++;
+    }
+  else
+    {
+      nMergers[0]++;
+    }
+}
+/*---------------------------------------------------------------------
+  Analyse properties of main branches between snapshots
+  -----------------------------------------------------------------------
+*/
+void snapshot_stats(int snapid, int highlim_npart)
+{
+  unsigned int count_id,nStep,iSnap,jSnap,kSnap,block,count,savedblock;
+  MyIDtype i,j,k,ihalo,jhalo,khalo,sumhalo,start_hid;
+  double binsize,lastmass,corr_self,firstslope,secondslope,saveddouble,massboundery,Vmax,distance;
+  double V_j[3],V_i[3],R_i[3],R_j[3],Rvir,Rmax,disp[3],expected_R[3],avg_V[3],sum_R;
+  long double Radius;
+  MyIDtype *MeanBeta;
+  MyIDtype *MeanBeta_l,*MeanBeta_h,*MeanBeta_host;
+  MyIDtype *dispCorr_host;
+  char meanbetaOutput[MAXSTRING];
+  char l_meanbetaOutput[MAXSTRING],h_meanbetaOutput[MAXSTRING],host_meanbetaOutput[MAXSTRING];
+  char host_dispOutput[MAXSTRING];
+
+  int *flag, checkref;
+  FILE *rc1;
+  FILE *fp1, *fp2, *fp3, *fp4, *fp5, *fp6, *fp7, *fp8, *fp9;
+  printf("Start analysis for a snapshot\n");
+  /*
+    Set up filenames for outputs
+  */
+
+  // set highmass/ low mass at 100 particle masses
+  massboundery = p_mass*(float) highlim_npart;
+
+  // set binsize for histograms
+  binsize = 0.05;
+  nStep = (int) (2./binsize);
+
+  /*
+    set up initial values for output data
+  */
+
+
+  start_hid = 0;
+  for(count_id=0;count_id<snapid;count_id++)
+    {
+      start_hid += SnapNhalos[count_id];
+    }
+
+  MeanBeta = calloc(nStep,sizeof(MyIDtype));
+  MeanBeta_l = calloc(nStep,sizeof(MyIDtype));
+  MeanBeta_h = calloc(nStep,sizeof(MyIDtype));
+  MeanBeta_host = calloc(nStep,sizeof(MyIDtype));
+
+  dispCorr_host = calloc(nStep,sizeof(MyIDtype));
+
+
+  /*
+    Loop over halos in the last snapshot
+  */
+  for(i=start_hid; i < start_hid+SnapNhalos[snapid]; i++)
+    {
+      /* record properties of the halo in the last snapshot */
+      lastmass = HaloTable[i].Mvir; 
+      if(lastmass > 1.e-35)
+	{
+	  ihalo = i;
+	  iSnap = HaloTable[ihalo].SnapID; 
+
+	  if(output.progs[ihalo].nProgs > 0 )
+	    {
+	      /* snapshot ID for ihalo  */
+	      iSnap = HaloTable[ihalo].SnapID;
+
+	      /* set the main progenitor of ihalo to be jhalo */
+	      jhalo = output.progs[ihalo].progID[0];
+	  
+	      jSnap = HaloTable[jhalo].SnapID;
+	  
+	      if(HaloTable[jhalo].Mvir > 1.e-35)
+		{
+		  /* 6D space for ihalo */
+		  R_i[0] = HaloTable[ihalo].Xc;
+		  R_i[1] = HaloTable[ihalo].Yc;
+		  R_i[2] = HaloTable[ihalo].Zc;
+
+		  V_i[0] = HaloTable[ihalo].VXc;
+		  V_i[1] = HaloTable[ihalo].VYc;
+		  V_i[2] = HaloTable[ihalo].VZc;
+
+
+		  /* 6D space for jhalo  */
+		  R_j[0] = HaloTable[jhalo].Xc;
+		  R_j[1] = HaloTable[jhalo].Yc;
+		  R_j[2] = HaloTable[jhalo].Zc;
+
+		  V_j[0] = HaloTable[jhalo].VXc;
+		  V_j[1] = HaloTable[jhalo].VYc;
+		  V_j[2] = HaloTable[jhalo].VZc;
+
+		  /* record Rmin and Rmax for jhalo  */
+		  
+		  /*
+		    calculate delta_r = (r_n - (r_{n-1} +vt)) / Rvir *in units km,s*
+		  */
+
+		  Radius = 0.;
+		  for(k=0;k<3;k++)
+		    {
+		      // change a\dot{x} => \dot{x}/h as well (r is in kpc/h)
+		      //avg_V[k] = 0.5/h*(V_i[k]/expansion_factor[iSnap]+V_j[k]/expansion_factor[jSnap]);
+		      avg_V[k] = V_j[k]/expansion_factor[jSnap];
+		      //avg_V[k] = 0.5/h*(V_i[k]+V_j[k]);
+		      //avg_V[k] = snap_stats[jsnap].Vrms/expansion_factor[jSnap]/h;
+		      expected_R[k] = fmod((R_j[k] + avg_V[k]*(snapTimeYear[iSnap] - snapTimeYear[jSnap])*year2second/kpc2km) + Boxsize,Boxsize);
+		      sum_R = (avg_V[k])*(snapTimeYear[iSnap] - snapTimeYear[jSnap])*year2second/kpc2km;
+		      
+		      Radius += (long double) (sum_R * sum_R);
+		      disp[k] = MIN(fabs(R_j[k] - R_i[k]),Boxsize - fabs(R_j[k] - R_i[k]));
+		    
+		      //disp[k] = MIN(fabs(R_j[k] - R_i[k]),Boxsize - fabs(R_j[k] - R_i[k])) ;
+		      //disp[k] = MIN( fabs(R_i[k]*kpc2km - expected_R[k]),Boxsize*kpc2km - fabs(R_i[k]*kpc2km - expected_R[k]) ); 
+		      //disp[k] /= (Rvir*kpc2km);
+		    }
+		  //Vmax = MAX(snap_stats[iSnap].Vmax/expansion_factor[iSnap],snap_stats[jSnap].Vmax/expansion_factor[iSnap])/h;
+		  Rmax =  HaloTable[ihalo].Rmax + HaloTable[jhalo].Rmax;
+		  Rvir = HaloTable[ihalo].Rvir + HaloTable[jhalo].Rvir;
+		  Radius = (sqrt(Radius)+Rvir);
+		  distance =  sqrt(disp[0]*disp[0]+disp[1]*disp[1]+disp[2]*disp[2]);
+		  distance /= (double) Radius;
+		  //distance /= (Vmax*(snapTimeYear[iSnap] - snapTimeYear[jSnap])*year2second);
+	      	  /*
+		    calculate arctan(delta_r)/pi
+		  */
+		  firstslope = atan(distance)/(asin(1.));
+		  /*
+		    put in histogram
+		  */
+		  block = (int) ((firstslope+1.)/binsize);
+		  //printf("Block %d\n",block);
+		  if(block == nStep) 
+		    block = nStep-1;
+
+		  if(SubTree[ihalo] == NULLPOINT )
+		    {
+		      dispCorr_host[block]++;
+		    }
+
+		  /* calculate beta */
+		  firstslope = atan((HaloTable[ihalo].Mvir - HaloTable[jhalo].Mvir) /(HaloTable[ihalo].Mvir + HaloTable[jhalo].Mvir)/(snapTime[iSnap] - snapTime[jSnap]) * (snapTime[iSnap] + snapTime[jSnap]) )/(asin(1.)); 
+		  /* put it histogram */
+		  block = (int) ((firstslope+1.)/binsize);
+		  //printf("Block %d\n",block);
+		  if(block == nStep) 
+		    block = nStep-1;
+		  /* discard when beta = 0 */
+		  MeanBeta[block]++;
+
+		  if(HaloTable[ihalo].Mvir < massboundery)
+		    MeanBeta_l[block]++;
+		  else
+		    MeanBeta_h[block]++;
+
+		  if(SubTree[ihalo] == NULLPOINT)
+		    MeanBeta_host[block]++;		  
+		}
+	    }
+	}
+    }
+
+  printf("Set up filenames\n");
+  sprintf(meanbetaOutput,"%s_%dMeanBeta.%d.dat",inputFile,highlim_npart,snapid);
+  sprintf(l_meanbetaOutput,"%s_%dMeanBetaLowmass.%d.dat",inputFile,highlim_npart,snapid);
+  sprintf(h_meanbetaOutput,"%s_%dMeanBetaHighmass.%d.dat",inputFile,highlim_npart,snapid);
+  sprintf(host_meanbetaOutput,"%s_%dMeanBetaHost.%d.dat",inputFile,highlim_npart,snapid);
+  sprintf(host_dispOutput,"%s_%dDispMainHost.%d.dat",inputFile,highlim_npart,snapid);
+
+
+  printf("finish make new file names\n");
+
+  fp2 = fopen(meanbetaOutput,"w+");
+  fp3 = fopen(host_dispOutput,"w+");
+
+  for(i=0;i<nStep;i++)
+    {
+
+      fprintf(fp2,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,MeanBeta[i]);
+      fprintf(fp3,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,dispCorr_host[i]);
+    }
+  fclose(fp2);
+  fclose(fp3);
+
+  
+  free(MeanBeta);
+  free(dispCorr_host);
+
+  printf("finish lot 1\n");
+  fp1 = fopen(l_meanbetaOutput,"w+");
+  fp2 = fopen(h_meanbetaOutput,"w+");
+  fp3 = fopen(host_meanbetaOutput, "w+");
+  for(i=0;i<nStep;i++)
+    {
+      fprintf(fp1,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,MeanBeta_l[i]);
+      fprintf(fp2,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,MeanBeta_h[i]);
+      fprintf(fp3,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,MeanBeta_host[i]);
+    }
+  fclose(fp1);
+  fclose(fp2);
+  fclose(fp3);
+
+  free(MeanBeta_l);
+  free(MeanBeta_h);
+  free(MeanBeta_host);
+  printf("finish lot 2\n");
+}
+
+void main_branch_analysis(int highlim_npart)
+{
+  unsigned int snapid,nStep,iSnap,jSnap,kSnap,block,count,savedblock;
+  MyIDtype i,j,k,ihalo,jhalo,khalo,sumhalo;
+  double binsize,lastmass,corr_self,firstslope,secondslope,saveddouble,massboundery,Vmax,distance;
+  double V_j[3],V_i[3],R_i[3],R_j[3],Rvir,Rmax,disp[3],expected_R[3],avg_V[3],sum_R;
+  long double Radius;
+  MyIDtype *Corr,*CorrBeta,*Mean,*MeanBeta,*linkdepth,*dispCorr, *AlphaSub, *BetaSub,*highmasslinkdepth,*lowmasslinkdepth,*hostlinkdepth;
+  MyIDtype *Mean_l,*Mean_h;
+  MyIDtype *MeanBeta_l,*MeanBeta_h;
+  MyIDtype *Corr_l,*Corr_h;
+  MyIDtype *CorrBeta_l,*CorrBeta_h;
+  MyIDtype *dispCorr_l, *dispCorr_h;
+  MyIDtype *dispCorr_resi, *dispCorr_host;
+  char meanOutput[MAXSTRING],corrOutput[MAXSTRING],meanbetaOutput_pp[MAXSTRING],meanbetaOutput[MAXSTRING],depthOutput[MAXSTRING],mainbranchmassOutput[MAXSTRING],dispOutput[MAXSTRING];
+  char corrbetaOutput[MAXSTRING],corrbetaOutput_pp[MAXSTRING],alphasubOutput[MAXSTRING],betasubOutput[MAXSTRING];
+  char lowmassLinkdepth[MAXSTRING],highmassLinkdepth[MAXSTRING],host_Linkdepth[MAXSTRING];
+  char l_meanOutput[MAXSTRING],h_meanOutput[MAXSTRING];
+  char l_meanbetaOutput[MAXSTRING],h_meanbetaOutput[MAXSTRING];
+  char l_corrOutput[MAXSTRING],h_corrOutput[MAXSTRING];
+  char l_corrbetaOutput[MAXSTRING],h_corrbetaOutput[MAXSTRING];
+  char l_depthOutput[MAXSTRING], h_depthOutput[MAXSTRING];
+  char l_dispOutput[MAXSTRING],h_dispOutput[MAXSTRING];
+  char resi_dispOutput[MAXSTRING],host_dispOutput[MAXSTRING],host_dispOutput_pp[MAXSTRING];
+  double* meanmainbranch;
+  MyIDtype* TotMainbranch;
+  
+  int *flag, checkref;
+  FILE *rc1;
+  FILE *fp1, *fp2, *fp3, *fp4, *fp5, *fp6, *fp7, *fp8, *fp9;
+  printf("Start main tree analysis\n");
+  /*
+    Set up filenames for outputs
+  */
+  printf("Start setting filenames\n");
+
+  sprintf(host_dispOutput_pp,"%s_%dDispMainHost_pp.dat",inputFile,highlim_npart);
+  sprintf(corrbetaOutput_pp,"%s_%dBetaCorrHighmass.dat",inputFile,highlim_npart);
+
+
+  // set highmass/ low mass at 100 particle masses
+  massboundery = p_mass*(float) highlim_npart;
+
+  // set binsize for histograms
+  binsize = 0.05;
+  nStep = (int) (2./binsize);
+
+  /*
+    set up initial values for output data
+  */
+
+  Corr = calloc(nStep,sizeof(MyIDtype));
+  Corr_l = calloc(nStep,sizeof(MyIDtype));
+  Corr_h = calloc(nStep,sizeof(MyIDtype));
+
+  CorrBeta = calloc(nStep,sizeof(MyIDtype));
+  CorrBeta_l = calloc(nStep,sizeof(MyIDtype));
+  CorrBeta_h = calloc(nStep,sizeof(MyIDtype));
+
+  MeanBeta = calloc(nStep,sizeof(MyIDtype));
+  MeanBeta_l = calloc(nStep,sizeof(MyIDtype));
+  MeanBeta_h = calloc(nStep,sizeof(MyIDtype));
+
+  Mean = calloc(nStep,sizeof(MyIDtype));
+  Mean_l = calloc(nStep,sizeof(MyIDtype));
+  Mean_h = calloc(nStep,sizeof(MyIDtype));
+
+  linkdepth = calloc(NSNAPS,sizeof(MyIDtype));
+
+  dispCorr = calloc(nStep,sizeof(MyIDtype));
+  dispCorr_l = calloc(nStep,sizeof(MyIDtype));
+  dispCorr_h = calloc(nStep,sizeof(MyIDtype));
+
+  dispCorr_resi = calloc(nStep,sizeof(MyIDtype));
+  dispCorr_host = calloc(nStep,sizeof(MyIDtype));
+
+  AlphaSub = calloc(NSNAPS,sizeof(MyIDtype));
+  BetaSub = calloc(NSNAPS,sizeof(MyIDtype));
+
+  lowmasslinkdepth = calloc(NSNAPS,sizeof(MyIDtype));
+  highmasslinkdepth = calloc(NSNAPS,sizeof(MyIDtype));
+  hostlinkdepth = calloc(NSNAPS,sizeof(MyIDtype));
+
+  meanmainbranch = calloc(NSNAPS,sizeof(double));
+  TotMainbranch = calloc(NSNAPS,sizeof(MyIDtype));
+
+  //flag = calloc(TotNhalos,sizeof(int));
+  //printf("Use nStep:%d\tbinsize:%f\n",nStep,binsize);
+
+  rc1 = fopen("check.log","a+");
+
+
+  fp2 = fopen(host_dispOutput_pp, "w+");
+  fp1 = fopen(corrbetaOutput_pp, "w+");
+
+
+  /*
+    Loop over halos in the last snapshot
+  */
+  for(i=TotNhalos-SnapNhalos[LASTSNAP]; i < TotNhalos; i++)
+    {
+      /* record properties of the halo in the last snapshot */
+      lastmass = HaloTable[i].Mvir; 
+      if(lastmass > 1.e-35)
+	{
+	  count = 0; // initial the counter for link depth
+	  ihalo = i;
+	  iSnap = HaloTable[ihalo].SnapID; 
+	  meanmainbranch[iSnap] += HaloTable[ihalo].Mvir/lastmass;
+	  TotMainbranch[iSnap]++; // increase number of halo in iSnap 
+
+	  while(output.progs[ihalo].nProgs > 0 )
+	    {
+	      /* snapshot ID for ihalo  */
+	      iSnap = HaloTable[ihalo].SnapID;
+
+	      /* set the main progenitor of ihalo to be jhalo */
+	      jhalo = output.progs[ihalo].progID[0];
+	  
+	      jSnap = HaloTable[jhalo].SnapID;
+	  
+	      if(HaloTable[jhalo].Mvir > 1.e-35)
+		{
+		  /* 6D space for ihalo */
+		  R_i[0] = HaloTable[ihalo].Xc;
+		  R_i[1] = HaloTable[ihalo].Yc;
+		  R_i[2] = HaloTable[ihalo].Zc;
+
+		  V_i[0] = HaloTable[ihalo].VXc;
+		  V_i[1] = HaloTable[ihalo].VYc;
+		  V_i[2] = HaloTable[ihalo].VZc;
+
+	  
+	  
+		  count+= iSnap-jSnap; // increase link depth
+		  /* increase mass in jsnap  */
+		  meanmainbranch[jSnap] += HaloTable[jhalo].Mvir/lastmass;
+ 
+		  TotMainbranch[jSnap]++;
+
+		  /* 6D space for jhalo  */
+		  R_j[0] = HaloTable[jhalo].Xc;
+		  R_j[1] = HaloTable[jhalo].Yc;
+		  R_j[2] = HaloTable[jhalo].Zc;
+
+		  V_j[0] = HaloTable[jhalo].VXc;
+		  V_j[1] = HaloTable[jhalo].VYc;
+		  V_j[2] = HaloTable[jhalo].VZc;
+
+		  /* record Rmin and Rmax for jhalo  */
+		  
+	
+
+		  /*
+		    calculate delta_r = (r_n - (r_{n-1} +vt)) / Rvir *in units km,s*
+		  */
+
+		  Radius = 0.;
+		  for(k=0;k<3;k++)
+		    {
+		      // change a\dot{x} => \dot{x}/h as well (r is in kpc/h)
+		      //avg_V[k] = 0.5/h*(V_i[k]/expansion_factor[iSnap]+V_j[k]/expansion_factor[jSnap]);
+		      avg_V[k] = V_j[k]/expansion_factor[jSnap];
+		      //avg_V[k] = 0.5/h*(V_i[k]+V_j[k]);
+		      //avg_V[k] = snap_stats[jsnap].Vrms/expansion_factor[jSnap]/h;
+		      expected_R[k] = fmod((R_j[k] + avg_V[k]*(snapTimeYear[iSnap] - snapTimeYear[jSnap])*year2second/kpc2km) + Boxsize,Boxsize);
+		      sum_R = (avg_V[k])*(snapTimeYear[iSnap] - snapTimeYear[jSnap])*year2second/kpc2km;
+		      
+		      Radius += (long double) (sum_R * sum_R);
+		      disp[k] = MIN(fabs(R_j[k] - R_i[k]),Boxsize - fabs(R_j[k] - R_i[k]));
+		    
+		      //disp[k] = MIN(fabs(R_j[k] - R_i[k]),Boxsize - fabs(R_j[k] - R_i[k])) ;
+		      //disp[k] = MIN( fabs(R_i[k]*kpc2km - expected_R[k]),Boxsize*kpc2km - fabs(R_i[k]*kpc2km - expected_R[k]) ); 
+		      //disp[k] /= (Rvir*kpc2km);
+		    }
+		  //Vmax = MAX(snap_stats[iSnap].Vmax/expansion_factor[iSnap],snap_stats[jSnap].Vmax/expansion_factor[iSnap])/h;
+		  Rmax =  HaloTable[ihalo].Rmax + HaloTable[jhalo].Rmax;
+		  Rvir = HaloTable[ihalo].Rvir + HaloTable[jhalo].Rvir;
+		  Radius = (sqrt(Radius)+Rvir);
+		  distance =  sqrt(disp[0]*disp[0]+disp[1]*disp[1]+disp[2]*disp[2]);
+		  distance /= (double) Radius;
+		  //distance /= (Vmax*(snapTimeYear[iSnap] - snapTimeYear[jSnap])*year2second);
+		 
+
+		  /*
+		    calculate arctan(delta_r)/pi
+		  */
+		  firstslope = atan(distance)/(asin(1.));
+		  /*
+		    put in histogram
+		  */
+		  block = (int) ((firstslope+1.)/binsize);
+		  //printf("Block %d\n",block);
+		  if(block == nStep) 
+		    block = nStep-1;
+
+		  if(iSnap == 61 ) //this is Yao's case, only the last two snapshots
+		    dispCorr[block]++;
+
+		  if(HaloTable[ihalo].Mvir < massboundery)
+		    dispCorr_l[block]++;
+		  else
+		    dispCorr_h[block]++;
+
+		  if(SubTree[ihalo] < NULLPOINT)
+		    dispCorr_resi[block]++;
+		  else if(SubTree[ihalo] == NULLPOINT)
+		    {
+		      dispCorr_host[block]++;
+		      if(firstslope > 1.)
+			{
+			  fprintf(fp2, "%llu\t %g\t %g \t %g\t %g\n", ihalo,(double)Radius,expected_R[0], expected_R[1],expected_R[2]);
+			}
+
+		    }
+
+		  /* calculate beta */
+		  firstslope = atan((HaloTable[ihalo].Mvir - HaloTable[jhalo].Mvir) /(HaloTable[ihalo].Mvir + HaloTable[jhalo].Mvir)/(snapTime[iSnap] - snapTime[jSnap]) * (snapTime[iSnap] + snapTime[jSnap]) )/(asin(1.)); 
+		  /* put it histogram */
+		  block = (int) ((firstslope+1.)/binsize);
+		  //printf("Block %d\n",block);
+		  if(block == nStep) 
+		    block = nStep-1;
+		  /* discard when beta = 0 */
+		  if(firstslope != 0.)
+		    BetaSub[block]++;
+		  MeanBeta[block]++;
+
+		  if(HaloTable[ihalo].Mvir < massboundery)
+		    MeanBeta_l[block]++;
+		  else
+		    MeanBeta_h[block]++;
+
+		  /* calculate alpha */
+		  firstslope = atan((HaloTable[ihalo].Mvir - HaloTable[jhalo].Mvir) /(lastmass)/(snapTime[iSnap] - snapTime[jSnap]) )/asin(1.);
+		  /* put in histogram */
+		  block = (int) ((firstslope+1.)/binsize);
+		  //printf("Block %d\n",block);
+		  if(block == nStep) 
+		    block = nStep-1;
+		  /* discard alpha = 0 */
+		  if(firstslope != 0.)
+		    AlphaSub[block]++;
+
+		  Mean[block]++;
+
+		  if(HaloTable[ihalo].Mvir < massboundery)
+		    Mean_l[block]++;
+		  else
+		    Mean_h[block]++;
+	  
+		  //if(jhalo == 843642)
+		  /* if jhalo has at least one progenitor */
+		  if(output.progs[jhalo].nProgs > 0)
+		    {
+		      /* set khalo = main progenitor of jhalo */
+		      khalo = output.progs[jhalo].progID[0];
+		      kSnap = HaloTable[khalo].SnapID;
+		      //printf("%llu %llu %llu\n",ihalo,jhalo,khalo);
+		      //printf("%f %f %f\n",HaloTable[ihalo].Mvir,HaloTable[jhalo].Mvir,HaloTable[khalo].Mvir);
+
+		      /* calculate beta_{n-1,n+1} */
+		      firstslope = atan((HaloTable[ihalo].Mvir - HaloTable[khalo].Mvir) / (HaloTable[ihalo].Mvir + HaloTable[khalo].Mvir) /(snapTime[iSnap] - snapTime[kSnap]) * (snapTime[iSnap] + snapTime[kSnap]) ); 
+		      /* calculate beta_{n-1,n} */
+		      secondslope = atan((HaloTable[jhalo].Mvir - HaloTable[khalo].Mvir)/ (HaloTable[jhalo].Mvir + HaloTable[khalo].Mvir) /(snapTime[jSnap] - snapTime[kSnap]) * (snapTime[jSnap] + snapTime[kSnap]));
+
+		      /* beta_{n-1,n} - beta_{n-1,n+1} */
+		      corr_self = (secondslope-firstslope)/asin(1.)/2.;
+	      
+
+		      block = (int) ((corr_self + 1.)/binsize);
+		      //printf("Block %d\n",block);
+		      if(block == nStep) 
+			block = nStep-1;
+		      CorrBeta[block]++;
+		      if(HaloTable[jhalo].Mvir < massboundery)
+			CorrBeta_l[block]++;
+		      else
+			{
+			  CorrBeta_h[block]++;
+			  if(block == nStep-1 || block == 0)
+			    {
+			      fprintf(fp1, "%llu\n",ihalo);
+			      fprintf(fp1, "%llu\n",jhalo);
+			    }
+			}
+		      //printf("%f\t%d\n",corr_self,block);
+
+		      savedblock = block;
+		      saveddouble = corr_self;
+
+		      /* calculate alpha_{n-1,n+1} */
+		      firstslope = atan((HaloTable[ihalo].Mvir - HaloTable[khalo].Mvir) / (lastmass) /(snapTime[iSnap] - snapTime[kSnap]) ); 
+		      /* calculate alpha_{n-1,n} */
+		      secondslope = atan((HaloTable[jhalo].Mvir - HaloTable[khalo].Mvir)/ (lastmass) /(snapTime[jSnap] - snapTime[kSnap]) );
+		      /* alpha_{n-1,n} - alpha_{n-1,n+1} */
+		      corr_self = (secondslope-firstslope)/asin(1.)/2.;
+	      
+		      block = (int) ((corr_self + 1.)/binsize);
+		      //printf("Block %d\n",block);
+		      if(block == nStep) 
+			block = nStep-1;
+		      //printf("%f\t%d\n",corr_self,block);
+		      Corr[block]++;
+
+		      if(HaloTable[jhalo].Mvir < massboundery)
+			Corr_l[block]++;
+		      else
+			Corr_h[block]++;
+
+	      
+		    }
+		  /* set ihalo = jhalo  */
+		  ihalo = jhalo;
+		}
+	      else
+		{
+		  output.progs[ihalo].nProgs = 0;
+		}
+	    }
+	  /* put count (link depth) in histogram */
+	  //printf("count %d\n",count);
+	  linkdepth[count]++;
+	  /* put count in high/low mass histograms */
+	  if(lastmass > massboundery)
+	    {
+	      highmasslinkdepth[count]++;
+	    }
+	  else
+	    {
+	      lowmasslinkdepth[count]++;
+	    }
+	  if(SubTree[i] == NULLPOINT)
+	    {
+	      hostlinkdepth[count]++;
+	    }
+	}
+    }
+
+  printf("finish counting\n");
+  fclose(fp1);
+  fclose(fp2);
+
+  fclose(rc1);
+  /* save outputs */
+  sprintf(meanOutput,"%s_%dMeanSlope.dat",inputFile,highlim_npart);
+  sprintf(l_meanOutput,"%s_%dMeanSlopeLowmass.dat",inputFile,highlim_npart);
+  sprintf(h_meanOutput,"%s_%dMeanSlopeHighmass.dat",inputFile,highlim_npart);
+
+  sprintf(meanbetaOutput,"%s_%dMeanBeta.dat",inputFile,highlim_npart);
+  sprintf(l_meanbetaOutput,"%s_%dMeanBetaLowmass.dat",inputFile,highlim_npart);
+  sprintf(h_meanbetaOutput,"%s_%dMeanBetaHighmass.dat",inputFile,highlim_npart);
+
+  sprintf(corrOutput,"%s_%dSlopeCorr.dat",inputFile,highlim_npart);
+  sprintf(l_corrOutput,"%s_%dSlopeCorrLowmass.dat",inputFile,highlim_npart);
+  sprintf(h_corrOutput,"%s_%dSlopeCorrHighmass.dat",inputFile,highlim_npart);
+
+  sprintf(corrbetaOutput,"%s_%dBetaCorr.dat",inputFile,highlim_npart);
+  sprintf(l_corrbetaOutput,"%s_%dBetaCorrLowmass.dat",inputFile,highlim_npart);
+  sprintf(h_corrbetaOutput,"%s_%dBetaCorrHighmass.dat",inputFile,highlim_npart);
+
+  sprintf(depthOutput,"%s_%dLinkDepth.dat",inputFile,highlim_npart);
+  sprintf(mainbranchmassOutput,"%s_%dMainbranchMass.dat",inputFile,highlim_npart);
+
+  sprintf(dispOutput,"%s_%dDispMain.dat",inputFile,highlim_npart);
+  sprintf(l_dispOutput,"%s_%dDispMainLowmass.dat",inputFile,highlim_npart);
+  sprintf(h_dispOutput,"%s_%dDispMainHighmass.dat",inputFile,highlim_npart);
+
+  sprintf(resi_dispOutput,"%s_%dDispMainResi.dat",inputFile,highlim_npart);
+  sprintf(host_dispOutput,"%s_%dDispMainHost.dat",inputFile,highlim_npart);
+
+  sprintf(alphasubOutput,"%s_%dAlphaSub.dat",inputFile,highlim_npart);
+  sprintf(betasubOutput,"%s_%dBetaSub.dat",inputFile,highlim_npart);
+
+  sprintf(lowmassLinkdepth,"%s_%dLinkDepthLowmass.dat",inputFile,highlim_npart);
+  sprintf(highmassLinkdepth,"%s_%dLinkDepthHighmass.dat",inputFile,highlim_npart);  
+  sprintf(host_Linkdepth,"%s_%dLinkDepthHost.dat",inputFile,highlim_npart); 
+  printf("finish make new file names\n");
+  fp1 = fopen(meanOutput,"w+");
+  fp2 = fopen(meanbetaOutput,"w+");
+  fp3 = fopen(corrOutput, "w+");
+  fp4 = fopen(corrbetaOutput, "w+");
+  fp5 = fopen(dispOutput,"w+");
+  fp6 = fopen(betasubOutput,"w+");
+  fp7 = fopen(alphasubOutput, "w+");
+  for(i=0;i<nStep;i++)
+    {
+      fprintf(fp1,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,Mean[i]);
+      fprintf(fp2,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,MeanBeta[i]);
+      fprintf(fp3,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,Corr[i]);
+      fprintf(fp4,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,CorrBeta[i]);
+      fprintf(fp5,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,dispCorr[i]);
+      fprintf(fp6,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,BetaSub[i]);
+      fprintf(fp7,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,AlphaSub[i]);
+    }
+  fclose(fp1);
+  fclose(fp2);
+  fclose(fp3);
+  fclose(fp4);
+  fclose(fp5);
+  fclose(fp6);
+  fclose(fp7);
+  
+
+  free(Mean);
+  free(MeanBeta);
+  free(Corr);
+  free(CorrBeta);
+  free(dispCorr);
+  free(BetaSub);
+  free(AlphaSub);
+  printf("finish lot 1\n");
+  fp1 = fopen(l_meanOutput,"w+");
+  fp2 = fopen(h_meanOutput,"w+");
+  for(i=0;i<nStep;i++)
+    {
+      fprintf(fp1,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,Mean_l[i]);
+      fprintf(fp2,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,Mean_h[i]);
+    }
+  fclose(fp1);
+  fclose(fp2);
+
+  free(Mean_l);
+  free(Mean_h);
+  printf("finish lot 2\n");
+  fp1 = fopen(l_meanbetaOutput,"w+");
+  fp2 = fopen(h_meanbetaOutput,"w+");
+  for(i=0;i<nStep;i++)
+    {
+      fprintf(fp1,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,MeanBeta_l[i]);
+      fprintf(fp2,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,MeanBeta_h[i]);
+    }
+  fclose(fp1);
+  fclose(fp2);
+
+  free(MeanBeta_l);
+  free(MeanBeta_h);
+  printf("finish lot 3\n");
+  fp1 = fopen(l_corrOutput,"w+");
+  fp2 = fopen(h_corrOutput,"w+");
+  for(i=0;i<nStep;i++)
+    {
+      fprintf(fp1,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,Corr_l[i]);
+      fprintf(fp2,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,Corr_h[i]);
+    }
+  fclose(fp1);
+  fclose(fp2);
+
+  free(Corr_l);
+  free(Corr_h);
+  printf("finish lot 4\n");
+  fp1 = fopen(l_corrbetaOutput,"w+");
+  fp2 = fopen(h_corrbetaOutput,"w+");
+  for(i=0;i<nStep;i++)
+    {
+      fprintf(fp1,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,CorrBeta_l[i]);
+      fprintf(fp2,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,CorrBeta_h[i]);
+    }
+  fclose(fp1);
+  fclose(fp2);
+
+  free(CorrBeta_l);
+  free(CorrBeta_h);
+  printf("finish lot 5\n");
+  fp1 = fopen(l_dispOutput,"w+");
+  fp2 = fopen(h_dispOutput,"w+");
+  for(i=0;i<nStep;i++)
+    {
+      fprintf(fp1,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,dispCorr_l[i]);
+      fprintf(fp2,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,dispCorr_h[i]);
+    }
+  fclose(fp1);
+  fclose(fp2);
+
+  free(dispCorr_l);
+  free(dispCorr_h);
+  printf("finish lot 6\n");
+  fp1 = fopen(resi_dispOutput,"w+");
+  fp2 = fopen(host_dispOutput,"w+");
+  for(i=0;i<nStep;i++)
+    {
+      fprintf(fp1,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,dispCorr_resi[i]);
+      fprintf(fp2,"%f\t%llu\n",-1.+((float)(i)+.5)*binsize,dispCorr_host[i]);
+    }
+  fclose(fp1);
+  fclose(fp2);
+
+  free(dispCorr_resi);
+  free(dispCorr_host);
+  printf("finish lot 7\n");
+  fp1 = fopen(depthOutput,"w+");
+  fp2 = fopen(mainbranchmassOutput,"w+");
+  fp3 = fopen(highmassLinkdepth,"w+");
+  fp4 = fopen(lowmassLinkdepth,"w+");
+  fp5 = fopen(host_Linkdepth,"w+");
+  for(i=0;i<NSNAPS;i++)
+    {
+      fprintf(fp1,"%llu\t%f\n",i,(float) linkdepth[i]/ (float)SnapNhalos[LASTSNAP]);
+      fprintf(fp4,"%llu\t%f\n",i,(float) lowmasslinkdepth[i]/ (float)SnapNhalos[LASTSNAP]);
+      fprintf(fp3,"%llu\t%f\n",i,(float) highmasslinkdepth[i]/ (float)SnapNhalos[LASTSNAP]);
+      fprintf(fp5,"%llu\t%f\n",i,(float) hostlinkdepth[i]/ (float)SnapNhalos[LASTSNAP]);
+      fprintf(fp2,"%g\t%g\n",snapTime[i],meanmainbranch[i]/ (float)TotMainbranch[i]);
+    }
+  fclose(fp1);
+  fclose(fp2);
+  fclose(fp3);
+  fclose(fp4);
+  fclose(fp5);
+  free(hostlinkdepth);
+  free(linkdepth);
+  free(lowmasslinkdepth);
+  free(highmasslinkdepth);
+  free(meanmainbranch);
+  free(TotMainbranch);
+  printf("finish lot 8\n");
+  printf("finish subroutine\n");
+}
+

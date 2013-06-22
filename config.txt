@@ -1,0 +1,6 @@
+/scratch/cs390/SUSSING2013/datasetI
+62.5_dm_
+/scratch/cs390/SUSSING2013/datasetI/data_snaplist.txt
+/scratch/cs390/SUSSING2013/datasetI_trees
+/scratch/cs390/SUSSING2013/62.5_ori
+/scratch/cs390/SUSSING2013/datasetI_histograms
