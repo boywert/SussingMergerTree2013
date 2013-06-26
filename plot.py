@@ -32,6 +32,7 @@ class plotconfig(object):
     halo0_color = 'r'
     halo1_color = 'g'
     halo3_color = 'k'
+    lw = 2
     
 plot_config = plotconfig()
 
@@ -1081,6 +1082,162 @@ def plotonepanel(snap,pos,data,save,zoom):
         fig.savefig(data.groupname+'_'+str(pos[0])+str(pos[1])+str(pos[2])+'.png',bbox_inches='tight')
     else:
         fig.show()
+
+def plotserial_id_fixpos(haloid,n,data,save,zoomsize,pos):
+    snapid = data.halo[haloid][1]
+    for i in range(n):
+        print haloid,snapid
+        if(snapid == data.halo[haloid][1]):
+            plotonepanel_id_fixpos(haloid,snapid,data,save,zoomsize,pos)
+            if(len(data.trees[haloid]) < 2):
+                haloid = 0;
+            else:
+                haloid = int(data.trees[haloid][1])
+            snapid -= 1
+        else:
+            plotonepanel_id_fixpos(haloid,snapid,data,save,zoomsize,pos)
+            snapid -= 1
+
+            
+
+def plotonepanel_id_fixpos(haloid,snapid,data,save,zoomsize,pos):
+
+    item = []
+    x0 = pos[0]
+    y0 = pos[1]
+    z0 = pos[2]
+    #pos = [x0,y0,z0]
+    r0 = numpy.array([x0,y0,z0])
+    r1 = numpy.array([x0+100.,y0,z0])
+    r2 = numpy.array([x0,y0+100.,z0])
+
+    x_axis = numpy.array([])
+    y_axis = numpy.array([])
+    z_axix = numpy.array([])
+   
+    x_axis = r1 - r0
+    for j in range(3):
+        if(x_axis[j] > boxsize/2.):
+            x_axis[j] -= boxsize
+        if(x_axis[j] < -1.*boxsize/2.):
+            x_axis[j] += boxsize
+    x_axis = x_axis/(numpy.sqrt(numpy.dot(x_axis,x_axis)))
+    y_axis_temp = r2 - r0
+    for j in range(3):
+        if(y_axis_temp[j] > boxsize/2.):
+            y_axis_temp[j] -= boxsize
+        if(y_axis_temp[j] < -1.*boxsize/2.):
+            y_axis_temp[j] += boxsize
+    y_axis_temp = y_axis_temp/(numpy.sqrt(numpy.dot(y_axis_temp,y_axis_temp)))
+    z_axis = numpy.cross(x_axis,y_axis_temp)
+    y_axis = numpy.cross(z_axis,x_axis)
+    
+
+    plotsize = zoomsize
+
+
+    xmin = plotsize*-1.
+    xmax = plotsize
+    ymin = plotsize*-1.
+    ymax = plotsize
+    extend_radius = numpy.sqrt((ymax-ymin)**2 + (xmax-xmin)**2)
+  
+  #xmin = -1000.
+    print 'region',xmin,xmax,ymin,ymax
+
+
+    fig = pylab.figure()
+    axes = fig.add_subplot(111)
+
+    snap1 = snapid #data.halo[haloid][1]
+    particle1 = getdensity2D(snap1,r0,x_axis,y_axis,z_axis,xmin,xmax,ymin,ymax)
+    axes.scatter(particle1[:,0],particle1[:,1],edgecolors='none',s = 1, color=plot_config.particle_color)
+
+    #extend_radius = numpy.sqrt((xmax-xmin)**2 + (ymax-ymin)**2)
+    cond = (data.halo['f1'] == snap1)
+    condu = cond
+    condl = cond
+
+  # make a box to contain local halos
+    for i in range(3):
+        if(i==0):
+            col = 'f4'
+        elif(i==1):
+            col = 'f5'
+        else:
+            col = 'f6'
+        print i,col
+        lower = r0[i] - extend_radius
+        condu = cond
+        condl = cond
+        if(lower <= 0.):
+            condl = condl & ((data.halo[col] >= (lower + boxsize)) | (data.halo[col] <= r0[i]))
+        else:
+            condl = condl & (data.halo[col] >= lower) 
+            condl = condl & (data.halo[col] <= r0[i])
+        upper = r0[i] + extend_radius
+        if(upper >= boxsize):
+            condu = condu & ((data.halo[col] <= (upper - boxsize)) | (data.halo[col] >= r0[i]))
+        else:
+            condu = condu & (data.halo[col] <= upper) 
+            condu = condu & (data.halo[col] >= r0[i])
+        cond = cond & (condl | condu)
+        
+    
+    halolist = numpy.where(cond)
+
+    print halolist
+    cond = None
+    condu = None
+    condl = None
+    #loop to plot local halo if not in the merger list
+    for i in range(len(halolist[0])):
+        index = halolist[0][i]
+        if(1 == 1):
+            xs = data.halo[index][4]
+            ys = data.halo[index][5]
+            zs = data.halo[index][6]
+            radius_s = data.halo[index][3]
+            rs = numpy.array([xs,ys,zs])
+            rs = rs - r0
+            for j in range(3):
+                if(rs[j] > boxsize/2.):
+                    rs[j] -= boxsize
+                if(rs[j] < -1.*boxsize/2.):
+                    rs[j] += boxsize
+            l = numpy.dot(rs,z_axis)
+            r_projected = rs - z_axis*l
+            xx = numpy.dot(r_projected,x_axis)
+            yy = numpy.dot(r_projected,y_axis)
+            if(xx > xmin and xx < xmax and yy > ymin and yy < ymax):
+                print 'ADD',index,data.halo[index][0],xx,yy,radius_s
+                if(index == haloid):
+                    circle = pylab.Circle((xx,yy),fill=False, radius=radius_s, alpha=.5, color=plot_config.halo0_color, lw = 2)
+                else:
+                    circle = pylab.Circle((xx,yy),fill=False, radius=radius_s, alpha=.5, color=plot_config.halo3_color, lw = 2)
+                axes.add_patch(circle)
+            else:
+                print 'OUT OF RANGE',index,data.halo[index][0],xx,yy,radius_s
+
+  
+ 
+    axes.set_xlim([xmin,xmax])
+    axes.set_ylim([ymin,ymax])
+    axes.set_aspect(1.)
+    
+    
+    axes.set_xticklabels([])
+    axes.set_yticklabels([])
+
+    #axes.text(xmin*(1-0.1), ymin, data.groupname)
+    
+    if save is True:
+        fig.savefig(data.groupname+'_'+str(data.halo[haloid][0])+'_'+str(snap1)+'.pdf',bbox_inches='tight')
+        os.system("convert -density 100 "+data.groupname+'_'+str(data.halo[haloid][0])+'_'+str(snap1)+'.pdf '+data.groupname+'_'+str(data.halo[haloid][0])+'_'+str(snap1)+'.png')
+        os.system("convert "+data.groupname+'_'+str(data.halo[haloid][0])+'_'+str(snap1)+'.png EPS3:'+data.groupname+'_'+str(data.halo[haloid][0])+'_'+str(snap1)+'.eps')
+    else:
+        fig.show()
+
 
 def plotonepanel_id(haloid,data,save,zoom,shiftx,shifty):
 
