@@ -10,8 +10,8 @@ command = './read'
 
 #default flag
 reset_data_flag = 0
-linestyles = ['', '', '', '-.','','','-.','','-.','--', ':', '', '-.']
-colors = ('b','g','r','r','c','m','g','y','y','y','y','k','b')
+linestyles = ['','','','','','','','','','']
+colors = ('b','g','r','c','m','#00FF00','k','#FFA500','#7F7F7F','#800000')
 for option in sys.argv:
     if(option == '--reset-data'):
         reset_data_flag = 1
@@ -175,14 +175,16 @@ pylab.savefig(pdf_folder+'linked_depth_host.pdf',bbox_inches='tight')
 #######################################################################################################################
 # Plot length of chains low/high mass
 # Plot length of chain (low mass)
-
 pre_ext = "_100"
 linkdepth_ext = pre_ext+"LinkDepthResi.dat"
 print 'Start plotting',linkdepth_ext
 fig = pylab.figure()
 ax1 = fig.add_subplot(311)
 for (i,item) in enumerate(line):
+    data = None
     data = pylab.loadtxt(dat_folder + item + linkdepth_ext)
+    print dat_folder + item + linkdepth_ext
+    print data
     ax1.plot(data[:,0],(data[:,1])+1,linestyles[i%len(linestyles)],color=colors[i%len(colors)],label = item.replace("_"," ") )
     pylab.hold(True)
 

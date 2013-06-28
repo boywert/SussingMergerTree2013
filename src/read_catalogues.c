@@ -135,6 +135,7 @@ void makeIDmap()
 		 &(HaloTable[currentHalo].cNFW) 
 		 );
 	  IDmap[currentHalo] = HaloTable[currentHalo].ID;
+	  HaloTable[currentHalo].AHFID = HaloTable[currentHalo].ID; 
 	  HaloTable[currentHalo].SnapID = iFile;
 	  HaloTable[currentHalo].nAvatars = 1;
 	  HaloTable[currentHalo].AvatarList = calloc(HaloTable[currentHalo].nAvatars,sizeof(MyIDtype));
@@ -149,10 +150,7 @@ void makeIDmap()
       fclose(fp);
       
     }
-#ifdef READPARTICLE
-  if(output.outputFormat > 0.999 && output.outputFormat < 1.001)
-    read_particles_binary();
-#endif
+
   //for(iFile=FIRSTSNAP;iFile<=LASTSNAP;iFile++)
   //  {
   //    read_particles(iFile);
@@ -189,9 +187,15 @@ void makeIDmap()
     {
       (void) hbtmaphalos(addFile);
     }
-
+#ifdef READPARTICLE
+  if(output.outputFormat > 0.999 && output.outputFormat < 1.001)
+    read_particles_binary();
+#endif
+  //(void) resetIDmap();
+  printf("Output binary cache files\n");
   (void) get_snap_stats();
   (void) printoutprofile();
+
 #ifdef SUBFINDOUT
   (void) makesubfindout();
 #endif
@@ -200,7 +204,7 @@ void makeIDmap()
 
 void hbtmaphalos(char file[MAXSTRING])
 {
-  MyIDtype ihalo,counthalo,ahf_haloid,countuseable;
+  MyIDtype ihalo,jhalo,j,counthalo,ahf_haloid,countuseable;
   const unsigned long long MAXHBT = 2000000;
   int *original_used;
   char line[MAXSTRING];
@@ -281,6 +285,10 @@ void hbtmaphalos(char file[MAXSTRING])
 	      HBThaloTable[ihalo].ID = HBT[ihalo].SubHaloID;
 	      HBThaloTable[ihalo].SnapID = HBThaloTable[ihalo].ID/MAXHALOPERSNAP;
 	      HBThaloTable[ihalo].hostHalo = HBT[ihalo].HostID;
+	      if(HBT[ihalo].AHFID > 0)
+		HBThaloTable[ihalo].AHFID = HBT[ihalo].AHFID;
+	      else
+		HBThaloTable[ihalo].AHFID = NULLPOINT;
 	      HBThaloTable[ihalo].Mvir = HBT[ihalo].Mvir*HBT2AHFmass;
 	      HBThaloTable[ihalo].Xc = HBT[ihalo].X;
 	      HBThaloTable[ihalo].Yc = HBT[ihalo].Y;
@@ -299,6 +307,12 @@ void hbtmaphalos(char file[MAXSTRING])
 	  HBThaloTable[ihalo].ID = HBT[ihalo].SubHaloID;
 	  HBThaloTable[ihalo].SnapID = HBThaloTable[ihalo].ID/MAXHALOPERSNAP;
 	  HBThaloTable[ihalo].hostHalo = HBT[ihalo].HostID;
+
+	  if(HBT[ihalo].AHFID > 0)
+	    HBThaloTable[ihalo].AHFID = HBT[ihalo].AHFID;
+	  else
+	    HBThaloTable[ihalo].AHFID = NULLPOINT;
+
 	  HBThaloTable[ihalo].Mvir = HBT[ihalo].Mvir*HBT2AHFmass;
 	  HBThaloTable[ihalo].Xc = HBT[ihalo].X;
 	  HBThaloTable[ihalo].Yc = HBT[ihalo].Y;
@@ -317,6 +331,14 @@ void hbtmaphalos(char file[MAXSTRING])
   TotNhalos = counthalo;
   HaloTable = HBThaloTable;
   resetIDmap();
+  for(ihalo=0;ihalo<TotNhalos;ihalo++)
+    {
+      for(j=0;j<HaloTable[ihalo].nSubhalos;j++)
+	{
+	  jhalo = HaloTable[ihalo].SubhaloList[j];
+	  HaloTable[ihalo].Mvir += HaloTable[jhalo].oriMvir;
+	}
+    }
 }
 
 void get_snap_stats()
@@ -381,8 +403,9 @@ void deleteHalos_v1(char file[MAXSTRING])
 }
 void resetIDmap()
 {
-  MyIDtype ihalo,counthalo,j,k,count,dummyid;
-  int isnap;
+  MyIDtype ihalo,jhalo,khalo,hostid,is_exist,counthalo,j,k,l,count,dummyid;
+  int isnap,passcheck;
+  printf("Start Reset IDmap\n");
   qsort(HaloTable,TotNhalos, sizeof(struct HALOPROPS), compareID);
   count = 0;
   for(isnap = FIRSTSNAP; isnap < NSNAPS; isnap++)
@@ -402,6 +425,7 @@ void resetIDmap()
     }
   TotNhalos = count;
   TotNavatars = TotNhalos;
+  printf("TotNhalos = %llu\n",TotNhalos);
   HaloTable = realloc(HaloTable,TotNhalos*sizeof(struct HALOPROPS));
   free(IDmap);
   free(SubTree);
@@ -412,12 +436,71 @@ void resetIDmap()
   for(ihalo=0;ihalo<TotNhalos;ihalo++)
     {
       IDmap[ihalo] = HaloTable[ihalo].ID;
-      SubTree[ihalo] = IDsearch(HaloTable[ihalo].hostHalo);
+      HaloTable[ihalo].oriMvir = HaloTable[ihalo].Mvir;
+      //SubTree[ihalo] = IDsearch(HaloTable[ihalo].hostHalo);
+      HaloTable[ihalo].SubhaloList = malloc(0);
+      HaloTable[ihalo].nSubhalos = 0;
       HaloTable[ihalo].nAvatars = 1;
       HaloTable[ihalo].AvatarList = calloc(HaloTable[ihalo].nAvatars,sizeof(MyIDtype));
       HaloTable[ihalo].AvatarList[0] = ihalo;
       Avatar[ihalo] = ihalo;
     }
+  printf("Finish setup initials\n");
+  // a very expensive way to make an inclusive catalogue
+  for(ihalo=0;ihalo<TotNhalos;ihalo++)
+    {
+      SubTree[ihalo] = IDsearch(HaloTable[ihalo].hostHalo);
+      hostid = SubTree[ihalo];
+      //printf("%llu => %llu\n",ihalo,SubTree[ihalo]);
+      if(SubTree[ihalo] < NULLPOINT)
+	{
+	  HaloTable[hostid].nSubhalos++;
+	  HaloTable[hostid].SubhaloList = realloc(HaloTable[hostid].SubhaloList,HaloTable[hostid].nSubhalos*sizeof(MyIDtype));
+	  HaloTable[hostid].SubhaloList[HaloTable[hostid].nSubhalos-1] = ihalo;
+	}
+    }
+  printf("Finish setup initials for inclusive mass\n");
+  for(ihalo=0;ihalo<TotNhalos;ihalo++)
+    {
+      //printf("checking halo %llu\n",ihalo);
+      passcheck = 0;
+      //printf("ihalo = %llu -: %llu subhalos\n", ihalo,HaloTable[ihalo].nSubhalos);
+      while(passcheck != 1)
+	{
+	  passcheck = 1;
+	  //printf("round up :\n");
+	  for(j=0; j<HaloTable[ihalo].nSubhalos; j++)
+	    {
+	      //printf("j = %llu :",j);
+	      jhalo = HaloTable[ihalo].SubhaloList[j];
+	      //printf("%llu: ",jhalo);
+	      for(k=0;k<HaloTable[jhalo].nSubhalos;k++)
+	  	{
+	  	  khalo = HaloTable[jhalo].SubhaloList[k];
+	  	  //printf("%llu ",khalo);
+	  	  is_exist = 0;
+	  	  for(l=0;l<HaloTable[ihalo].nSubhalos;l++)
+	  	    {
+	  	      if(khalo == HaloTable[ihalo].SubhaloList[l])
+	  		{
+	  		  is_exist = 1;
+	  		}
+	  	    }
+	  	  if(is_exist == 0)
+	  	    {
+	  	      passcheck = 0;
+	  	      HaloTable[ihalo].nSubhalos++;
+	  	      HaloTable[ihalo].SubhaloList = realloc(HaloTable[ihalo].SubhaloList,HaloTable[ihalo].nSubhalos*sizeof(HaloTable[ihalo].nSubhalos));
+	  	      HaloTable[ihalo].SubhaloList[HaloTable[ihalo].nSubhalos-1] = khalo;
+	  	    }
+
+	  	}
+
+	    }
+	  //printf("\n");
+	}
+    }
+  printf("Finish Reset IDmap\n");
 }
 
 void addHalo_v1(char file[MAXSTRING])
@@ -474,6 +557,7 @@ void addHalo_v1(char file[MAXSTRING])
       HaloTable[ihalo].nAvatars = 1;
       HaloTable[ihalo].AvatarList = calloc(HaloTable[ihalo].nAvatars,sizeof(MyIDtype));
       HaloTable[ihalo].AvatarList[0] = ihalo;
+      HaloTable[ihalo].AHFID = NULLPOINT;
       Avatar[ihalo] = ihalo;
       HaloTable[ihalo].ProgAvatarFlag = 0;
       HaloTable[ihalo].TroubleFlag = 0;
@@ -484,7 +568,9 @@ void addHalo_v1(char file[MAXSTRING])
       ihalo++;
     }
   fclose(fp);
+
   resetIDmap();
+  printf("Finish adding halos\n");
 }
 
 void load_particles(MyIDtype load_id)

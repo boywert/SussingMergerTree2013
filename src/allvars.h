@@ -72,14 +72,18 @@ struct outputRAW
 struct HALOPROPS
 {
   MyIDtype  ID;
+  MyIDtype AHFID;
   unsigned int SnapID;
   MyIDtype   hostHalo;
   MyIDtype  numSubStruct;
+  MyIDtype nSubhalos;
+  MyIDtype *SubhaloList;
   MyIDtype  nAvatars;
   MyIDtype *AvatarList;
   int ProgAvatarFlag;
   int TroubleFlag;
   float Mvir;
+  float oriMvir;
   MyIDtype npart;
   struct particle_data *Particles;
   float Xc, Yc, Zc;

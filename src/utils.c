@@ -13,7 +13,7 @@ MyIDtype findtoplevel(MyIDtype hid)
 }
 void makesubfindout()
 {
-  FILE *fp1, *fp2, *fp3;
+  FILE *fp1, *fp2, *fp3, *fp4;
   struct subfind_data data;
   MyIDtype *id_to_sub;
   MyIDtype ngroups,nids,nsubs,firstsub, lastsub;
@@ -28,8 +28,10 @@ void makesubfindout()
   MyIDtype *sub_to_group;
   printf("Start making subfind outputs\n");
   countsub = 0;
-  sprintf(buf, "%s/SUBFIND/Mapback.txt", FolderName, (int)iF, (int)iF);      
+  sprintf(buf, "%s/SUBFIND/Mapback_order.txt", FolderName);      
   fp3 = fopen(buf,"w+");
+  sprintf(buf, "%s/SUBFIND/Mapback_hash.txt", FolderName);      
+  fp4 = fopen(buf,"w+");
   for(iF=FIRSTSNAP;iF<=LASTSNAP;iF++)
     {
             
@@ -40,8 +42,8 @@ void makesubfindout()
       sprintf(buf, "%s/SUBFIND/groups_%03d/subhalo_ids_%03d.0", FolderName, (int)iF, (int)iF);      
       fp2 = fopen(buf,"wb");
 
-      id_to_sub = malloc(box_particle*sizeof(MyIDtype));
-      for(i=0;i<box_particle;i++)
+      id_to_sub = malloc((box_particle+1)*sizeof(MyIDtype));
+      for(i=0;i<=box_particle;i++)
 	id_to_sub[i] = NULLPOINT;
       if(SnapNhalos[iF] == 0)
 	{
@@ -100,7 +102,7 @@ void makesubfindout()
 	    }
 	  nids = 0;
 	  printf("loop to count nids\n");
-	  for(i=0;i<box_particle;i++)
+	  for(i=0;i<=box_particle;i++)
 	    {
 	      if(id_to_sub[i] < NULLPOINT)
 		nids++;
@@ -222,7 +224,7 @@ void makesubfindout()
 	  printf("Get SubLen\n");
 	  
 	  subhalolen = calloc(data.TotNsubhalos,sizeof(MyIDtype));
-	  for(i=0;i<box_particle;i++)
+	  for(i=0;i<=box_particle;i++)
 	    {
 	      subid = id_to_sub[i];
 	      if(subid < NULLPOINT)
@@ -243,6 +245,7 @@ void makesubfindout()
 	      	  data.SubLen[startsub] = (int) subhalolen[subid];
 	      	  data.GroupLen[j] += (int) subhalolen[subid];
 		  data.SubParentHalo[startsub] = SubTree[ahfid];
+
 		  if(data.SubParentHalo[startsub] == NULLPOINT)
 		    {
 		      data.SubParentHalo[startsub] = 0;
@@ -258,8 +261,13 @@ void makesubfindout()
 			    }
 			}
 		    }
+#ifdef STORESUBIDINMOSTBOUNDID
+		  data.SubhaloMostBoundID[j] = (unsigned int) ahfid;
+		  fprintf(fp4,"%llu\t%llu\n",ahfid, HaloTable[ahfid].ID);
+#endif
+		  fprintf(fp3,"%llu\t%llu\n",MAXHALOPERSNAP*iF + startsub +1, HaloTable[ahfid].ID);
 
-		  fprintf(fp3,"%llu\t%llu\n",MAXHALOPERSNAP*iF + startsub, MAXHALOPERSNAP*iF + subid);
+		  //fprintf(fp3,"%llu\t%llu\n",MAXHALOPERSNAP*iF + startsub +1, HaloTable[ahfid].ID);
 		  data.SubhaloGrNr[startsub] = (int) j;
 	
 		  data.SubhaloMass[startsub] = (float) (data.SubLen[startsub]*p_mass/GagetUnit2Msun);
@@ -315,13 +323,16 @@ void makesubfindout()
 	  for(j=1;j<data.TotNsubhalos;j++)
 	    {
 	      data.SubOffset[j] =  (int) (data.SubOffset[j-1]+data.SubLen[j-1]);
-	      printf("%llu => %lu / %lu\n",j,data.SubOffset[j],data.TotNids);
+	      printf("%d : %lu / %lu => %lu / %lu\n",iF,j,data.TotNsubhalos,data.SubOffset[j],data.TotNids);
 	    }
+#ifndef STORESUBIDINMOSTBOUNDID
 	  for(j=0;j<data.TotNsubhalos;j++)
 	    {
 	      data.SubhaloMostBoundID[j] = data.IdList[data.SubOffset[j]];
 	    }
+#endif
 	  /* Get Main halo properties */
+	  printf("Get halo's main properties\n");
 	  for(j=0;j<data.TotNgroups;j++)
 	    {
 	      subid = grouplist[j][0] + firstsub;
@@ -345,7 +356,7 @@ void makesubfindout()
 	      data.GroupContaminationMass[j] = (float) default_int;
 	    }
 
-
+		 printf("Start writing\n");	
 	  /* Start writing */
 	  fwrite(&(data.GroupLen[0]), sizeof(int), data.TotNgroups, fp1);
 	  fwrite(&(data.GroupOffset[0]), sizeof(unsigned int), data.TotNgroups, fp1);
@@ -443,11 +454,11 @@ void makesubfindout()
       
       fclose(fp1);
       fclose(fp2);
-      
-   
+      printf("Closing files\n");
       countsub += SnapNhalos[iF];
     }
   fclose(fp3);
+  fclose(fp4);
   printf("Finish subfindoutput()\n");
   exit(0);
 } 
