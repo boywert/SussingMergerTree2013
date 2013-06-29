@@ -140,8 +140,8 @@ def plot_history_compare(hid,ctid,hbtid):
         if(haloid != False):
             mass = []
             time = []
-            mass.append(data.halo[haloid][2])
-            time.append(data.time[data.halo[haloid][1]][4])
+            mass.append(data.halo[haloid][2]/1.e12)
+            time.append(data.time[data.halo[haloid][1]][4]/1e14)
             
             while len(data.trees[haloid]) > 1:
                 haloid = int(data.trees[haloid][1])
