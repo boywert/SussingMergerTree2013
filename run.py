@@ -92,7 +92,7 @@ ax1.set_xticklabels(tick_function_half(new_tick_locations))
 leg = ax1.legend(loc='best', handlelength = 10,ncol=1, fancybox=True, prop={'size':10})
 leg.get_frame().set_linewidth(0)
 pylab.savefig(pdf_folder+'disp_main_host.pdf',bbox_inches='tight')
-
+os.system('pdftops -eps '+pdf_folder+'disp_main_host.pdf')
 #######################################################################################################################
 # Plot length of chain
 pre_ext = "_100"
@@ -442,4 +442,4 @@ leg.get_frame().set_linewidth(0)
 pylab.savefig(pdf_folder+'slope_hist.pdf', bbox_inches='tight')
 
 ############################################################################################################
-os.system("rm -f "+pdf_folder+'*.pdf')
+#os.system("rm -f "+pdf_folder+'*.pdf')
