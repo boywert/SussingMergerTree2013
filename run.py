@@ -295,6 +295,7 @@ pylab.subplots_adjust(hspace = 0.0001)
 leg = ax1.legend(loc='upper right', handlelength = 6,ncol=1, fancybox=False, prop={'size':6})
 leg.get_frame().set_linewidth(0)
 pylab.savefig(pdf_folder+'linked_depth_mass.pdf',bbox_inches='tight')
+os.system('pdftops -eps '+pdf_folder+'linked_depth_mass.pdf')
 ######################################################################################
 # Plot Mass fluctuation (betacor) Highmass
 pre_ext = "_1000"
@@ -315,7 +316,7 @@ pylab.ylabel(r"$N+1$")
 
 pylab.legend(loc='upper right', ncol=2, prop={'size':8})
 pylab.savefig(pdf_folder+'betacorrhigh.pdf',bbox_inches='tight')
-
+os.system('pdftops -eps '+pdf_folder+'betacorrhigh.pdf')
 ##############################################################################################
 
 #plot tree spanning
@@ -339,7 +340,7 @@ pylab.xlabel(r"$N_{\rm{Mergers}}$")
 leg = pylab.legend(loc='upper right', handlelength = 8,ncol=1, prop={'size':10})
 leg.get_frame().set_linewidth(0)
 pylab.savefig(pdf_folder+'Nmergers.pdf',bbox_inches='tight')
-
+os.system('pdftops -eps '+pdf_folder+'betacorrhigh.pdf')
 
 
 ##############################################################################################
@@ -363,8 +364,8 @@ pylab.ylabel(r"$N+1$")
 pylab.xlabel(r"$\Delta N_{\rm{merge}}$")
 leg = pylab.legend(loc='upper right', handlelength = 8,ncol=1, prop={'size':10})
 leg.get_frame().set_linewidth(0)
-pylab.savefig(pdf_folder+'Lostmass_host.pdf',bbox_inches='tight')
-
+pylab.savefig(pdf_folder+'Lost_N.pdf',bbox_inches='tight')
+os.system('pdftops -eps '+pdf_folder+'Lost_N.pdf')
 ##############################################################################################
 #plot splash mass  host
 pre_ext = "_100"
@@ -414,6 +415,7 @@ pylab.ylabel(r"$N+1$")
 leg = pylab.legend(loc='lower center',handlelength = 8, ncol=2, prop={'size':10})
 leg.get_frame().set_linewidth(0)
 pylab.savefig(pdf_folder+'betahigh_hist.pdf',bbox_inches='tight')
+os.system('pdftops -eps '+pdf_folder+'betahigh_hist.pdf')
 
 ############################################################################################################
 
@@ -440,3 +442,4 @@ leg.get_frame().set_linewidth(0)
 pylab.savefig(pdf_folder+'slope_hist.pdf', bbox_inches='tight')
 
 ############################################################################################################
+os.system("rm -f "+pdf_folder+'*.pdf')

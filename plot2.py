@@ -5,6 +5,7 @@ import math
 import os
 
 #import sets
+from operator import itemgetter
 
 sys.path.append('./lib/')
 import gadgetPyIO 
@@ -83,9 +84,113 @@ def plot_different_history():
     hid = 61000000000123
     ctid = 61000000000123
     hbtid = 61000000000887
-    plot_history_compare(hid,ctid,hbtid)
+    runlist = load_group_list()
+    pylab.rc('text', usetex=True)
+    fig = pylab.figure()
+    ax0 = fig.add_subplot(211)
+    for i in range(len(runlist)):
+        print runlist[i]
+        data = load(runlist[i])
+        
+        if(runlist[i] == 'HBT.v3'):
+            haloid = UIDtoID(hbtid,data)
+        elif(runlist[i] == 'CONSITENT_TREES'):
+            haloid = UIDtoID(ctid,data)
+        else:
+            haloid = UIDtoID(hid,data)
+        if(haloid != False):
+            mass = []
+            time = []
+            cor = []
+            masshalo = data.halo[haloid][2]
+            snaphalo = data.halo[haloid][1]         
+            mass.append(data.halo[haloid][2]/1.e12)
+            time.append(data.time[data.halo[haloid][1]][4]/1e14)
+
+            cor.append([data.time[snaphalo][4]/1.e10,masshalo/1.e12])
+
+            while len(data.trees[haloid]) > 1:
+                haloid = int(data.trees[haloid][1])
+                masshalo = data.halo[haloid][2]
+                snaphalo = data.halo[haloid][1]
+                mass.append(masshalo/1.e12)
+                time.append(data.time[snaphalo][4]/1.e10)
+                cor.append([data.time[snaphalo][4]/1.e10,masshalo/1.e12])
+            if(snaphalo > 0):
+                mass.append(0.)
+                time.append(data.time[snaphalo-1][4]/1.e10)
+                cor.append([data.time[snaphalo-1][4]/1.e10,0.])
+
+            print cor
+            cor = sorted(cor, key=itemgetter(0))
+            print cor
+            time = [cor[ix][0] for ix in range(len(cor))]
+            mass = [cor[ix][1] for ix in range(len(cor))]
+            
+            ax0.plot(time,mass,color=plot_config.colours[i],label = runlist[i].replace("_"," "))
+            mass = None
+            time = None
+            cor = None
+    
+    ax0.legend(loc='upper left', handlelength = 6,ncol=1, prop={'size':9})
+    ax0.set_ylabel(r"$\mathrm{M_{vir}\, (10^{12}\, h^{-1}M_{\odot}})$")
+
+    hid = 61000000000766
+    ctid = 61000000000766
+    hbtid = 61000000000888
+
+
+    ax1 = fig.add_subplot(212)
+    for i in range(len(runlist)):
+        print runlist[i]
+        data = load(runlist[i])
+        
+        if(runlist[i] == 'HBT.v3'):
+            haloid = UIDtoID(hbtid,data)
+        elif(runlist[i] == 'CONSITENT_TREES'):
+            haloid = UIDtoID(ctid,data)
+        else:
+            haloid = UIDtoID(hid,data)
+        if(haloid != False):
+            mass = []
+            time = []
+            cor = []
+            masshalo = data.halo[haloid][2]
+            snaphalo = data.halo[haloid][1]         
+            mass.append(data.halo[haloid][2]/1.e12)
+            time.append(data.time[data.halo[haloid][1]][4]/1e14)
+
+            cor.append([data.time[snaphalo][4]/1.e10,masshalo/1.e12])
+
+            while len(data.trees[haloid]) > 1:
+                haloid = int(data.trees[haloid][1])
+                masshalo = data.halo[haloid][2]
+                snaphalo = data.halo[haloid][1]
+                mass.append(masshalo/1.e12)
+                time.append(data.time[snaphalo][4]/1.e10)
+                cor.append([data.time[snaphalo][4]/1.e10,masshalo/1.e12])
+            if(snaphalo > 0):
+                mass.append(0.)
+                time.append(data.time[snaphalo-1][4]/1.e10)
+                cor.append([data.time[snaphalo-1][4]/1.e10,0.])
+
+            print cor
+            cor = sorted(cor, key=itemgetter(0))
+            print cor
+            time = [cor[ix][0] for ix in range(len(cor))]
+            mass = [cor[ix][1] for ix in range(len(cor))]
+            
+            ax1.plot(time,mass,color=plot_config.colours[i],label = runlist[i].replace("_"," "))
+            mass = None
+            time = None
+            cor = None
     
 
+    ax1.set_xlabel(r"$\mathrm{time\, (10^{10}\, years})$")
+    ax1.set_ylabel(r"$\mathrm{M_{vir}\, (10^{12}\, h^{-1}M_{\odot}})$")
+    pylab.savefig(str(hid)+'_history.pdf',bbox_inches='tight')
+    os.system("pdftops -eps "+str(hid)+'_history.pdf')
+    os.system("rm -f *.png *.pdf")
 def makemultipanels_paper():
     hid = {}
     ctid = {}
@@ -125,6 +230,7 @@ def makemultipanels_paper():
 
 def plot_history_compare(hid,ctid,hbtid):
     runlist = load_group_list()
+    pylab.rc('text', usetex=True)
     fig = pylab.figure()
     ax0 = fig.add_subplot(111)
     for i in range(len(runlist)):
@@ -140,26 +246,42 @@ def plot_history_compare(hid,ctid,hbtid):
         if(haloid != False):
             mass = []
             time = []
+            cor = []
+            masshalo = data.halo[haloid][2]
+            snaphalo = data.halo[haloid][1]         
             mass.append(data.halo[haloid][2]/1.e12)
             time.append(data.time[data.halo[haloid][1]][4]/1e14)
-            
+
+            cor.append([data.time[snaphalo][4]/1.e10,masshalo/1.e12])
+
             while len(data.trees[haloid]) > 1:
                 haloid = int(data.trees[haloid][1])
-                mass.append(data.halo[haloid][2]/1.e12)
-                time.append(data.time[data.halo[haloid][1]][4]/1.e14)
-                
-            print mass
-            print time
+                masshalo = data.halo[haloid][2]
+                snaphalo = data.halo[haloid][1]
+                mass.append(masshalo/1.e12)
+                time.append(data.time[snaphalo][4]/1.e10)
+                cor.append([data.time[snaphalo][4]/1.e10,masshalo/1.e12])
+            if(snaphalo > 0):
+                mass.append(0.)
+                time.append(data.time[snaphalo-1][4]/1.e10)
+                cor.append([data.time[snaphalo-1][4]/1.e10,0.])
 
+            print cor
+            cor = sorted(cor, key=itemgetter(0))
+            print cor
+            time = [cor[ix][0] for ix in range(len(cor))]
+            mass = [cor[ix][1] for ix in range(len(cor))]
+            
             ax0.plot(time,mass,color=plot_config.colours[i],label = runlist[i].replace("_"," "))
             mass = None
             time = None
+            cor = None
     
     ax0.legend(loc='upper left', handlelength = 6,ncol=1, prop={'size':9})
-    ax0.set_xlabel(r"\mathrm{time/10^{14} years}")
-    ax0.set_ylabel(r"\mathrm{M_{vir}/10^{12} M_{\odot}}")
-    pylab.savefig(str(hid)+'_history.pdf',bbox_inches='tight')
-    os.system("pdftops -eps "+str(hid)+'_history.pdf')
+    ax0.set_xlabel(r"$\mathrm{time\, (10^{10}\, years})$")
+    ax0.set_ylabel(r"$\mathrm{M_{vir}\, (10^{12}\, h^{-1}M_{\odot}})$")
+    pylab.savefig('sample_history.pdf',bbox_inches='tight')
+    os.system("pdftops -eps sample_history.pdf")
     os.system("rm -f *.png *.pdf")
 
 def plot_all_zero_link():
