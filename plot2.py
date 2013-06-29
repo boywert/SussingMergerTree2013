@@ -70,6 +70,15 @@ def generate_descendant(tree):
             desc[hid] = i
     return desc
 
+def make_plotdumbell():
+    data = load('MergerTree')
+    data.groupname = 'Flip-Flop'
+    hid = {}
+    hid[0] = 0
+    plotonepanel_id_fixpos(hid, 54, data, True, 650, [46301.99609375, 26823.99609375, 8579.7548828125])
+    plotonepanel_id_fixpos(hid, 55, data, True, 650, [46301.99609375, 26823.99609375, 8579.7548828125])
+    plotonepanel_id_fixpos(hid, 56, data, True, 650, [46301.99609375, 26823.99609375, 8579.7548828125])
+
 def plot_different_history():
     hid = 61000000000123
     ctid = 61000000000123
@@ -136,8 +145,8 @@ def plot_history_compare(hid,ctid,hbtid):
             
             while len(data.trees[haloid]) > 1:
                 haloid = int(data.trees[haloid][1])
-                mass.append(data.halo[haloid][2])
-                time.append(data.time[data.halo[haloid][1]][4])
+                mass.append(data.halo[haloid][2]/1.e12)
+                time.append(data.time[data.halo[haloid][1]][4]/1.e14)
                 
             print mass
             print time
@@ -147,6 +156,8 @@ def plot_history_compare(hid,ctid,hbtid):
             time = None
     
     ax0.legend(loc='upper left', handlelength = 6,ncol=1, prop={'size':9})
+    ax0.set_xlabel(r"\mathrm{time/10^{14} years}")
+    ax0.set_ylabel(r"\mathrm{M_{vir}/10^{12} M_{\odot}}")
     pylab.savefig(str(hid)+'_history.pdf',bbox_inches='tight')
     os.system("pdftops -eps "+str(hid)+'_history.pdf')
     os.system("rm -f *.png *.pdf")
