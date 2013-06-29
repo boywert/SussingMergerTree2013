@@ -340,7 +340,7 @@ pylab.xlabel(r"$N_{\rm{Mergers}}$")
 leg = pylab.legend(loc='upper right', handlelength = 8,ncol=1, prop={'size':10})
 leg.get_frame().set_linewidth(0)
 pylab.savefig(pdf_folder+'Nmergers.pdf',bbox_inches='tight')
-os.system('pdftops -eps '+pdf_folder+'betacorrhigh.pdf')
+os.system('pdftops -eps '+pdf_folder+'Nmergers.pdf')
 
 
 ##############################################################################################
@@ -410,7 +410,7 @@ new_tick_locations = numpy.array([math.atan(0.)*2/numpy.pi, math.atan(0.5)*2/num
 
 ax1.set_xticks(new_tick_locations)
 ax1.set_xticklabels(tick_function_half(new_tick_locations))
-pylab.xlabel(r"$\Delta_M$")
+pylab.xlabel(r"$d\log M/d\log t$")
 pylab.ylabel(r"$N+1$")
 leg = pylab.legend(loc='lower center',handlelength = 8, ncol=2, prop={'size':10})
 leg.get_frame().set_linewidth(0)
