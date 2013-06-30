@@ -213,7 +213,9 @@ extern char addFile[MAXSTRING];
 extern char SnapTimeFile[MAXSTRING];
 
 extern char FilePrefix[MAXSTRING];
+extern char HBTFilePrefix[MAXSTRING];
 extern char FolderName[MAXSTRING];
+extern char HBTFolderName[MAXSTRING];
 extern char TreeFolder[MAXSTRING];
 extern char ppFolder[MAXSTRING];
 
@@ -242,6 +244,7 @@ extern void deleteHalos_v1(char file[MAXSTRING]);
 extern void addHalo_v1(char file[MAXSTRING]);
 extern void resetIDmap();
 extern void getFilename(char* filename,unsigned int snapnum);
+extern void getHBTFilename(char* filename,unsigned int snapnum);
 extern void load_particles(MyIDtype load_id);
 extern void read_particles(unsigned int slotid);
 extern void hbtmaphalos(char file[MAXSTRING]);
@@ -264,4 +267,5 @@ extern void makesubfindout();
 extern void printoutprofile();
 extern void printouttrees();
 extern void printoutparticles_binary();
+
 #endif

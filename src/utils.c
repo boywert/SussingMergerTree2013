@@ -504,12 +504,25 @@ void printoutparticles_binary()
   FILE *fp_npart,*fp_particle, *fp_uid;
   char filename[MAXSTRING];
   MyIDtype i,j;
-  sprintf(filename,"%s/all_particles.bin",FolderName);
-  fp_particle = fopen(filename, "wb");
-  sprintf(filename,"%s/all_npart.bin",FolderName);
-  fp_npart = fopen(filename, "wb");
-  sprintf(filename,"%s/all_uid.bin",FolderName);
-  fp_uid = fopen(filename, "wb");
+  if(output.outputFormat > 1.129 && output.outputFormat < 1.131)
+    {
+      sprintf(filename,"%s/%s_particles.bin",FolderName,inputFile);
+      fp_particle = fopen(filename, "wb");
+      sprintf(filename,"%s/%s_npart.bin",FolderName,inputFile);
+      fp_npart = fopen(filename, "wb");
+      sprintf(filename,"%s/%s_uid.bin",FolderName,inputFile);
+      fp_uid = fopen(filename, "wb");
+    }
+  else
+    {
+      sprintf(filename,"%s/all_particles.bin",FolderName);
+      fp_particle = fopen(filename, "wb");
+      sprintf(filename,"%s/all_npart.bin",FolderName);
+      fp_npart = fopen(filename, "wb");
+      sprintf(filename,"%s/all_uid.bin",FolderName);
+      fp_uid = fopen(filename, "wb");
+    }
+
 
   fwrite (&TotNhalos , 1 , sizeof(MyIDtype) , fp_uid);
   fwrite (&TotNhalos , 1 , sizeof(MyIDtype) , fp_npart);
@@ -527,6 +540,8 @@ void printoutparticles_binary()
   fclose(fp_npart);
   fclose(fp_particle);
 }
+
+
 void printouttrees()
 {
   FILE* fp;

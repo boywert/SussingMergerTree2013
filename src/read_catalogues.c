@@ -186,6 +186,14 @@ void makeIDmap()
   if(output.outputFormat > 1.129 && output.outputFormat < 1.131)
     {
       (void) hbtmaphalos(addFile);
+#ifdef READPARTICLE
+      read_particles_binary();
+#endif
+      /* for(iFile=FIRSTSNAP;iFile<=LASTSNAP;iFile++) */
+      /* 	{ */
+      /* 	  read_particles(iFile); */
+      /* 	} */
+      /* (void) printoutparticles_binary(); */
     }
 #ifdef READPARTICLE
   if(output.outputFormat > 0.999 && output.outputFormat < 1.001)
@@ -207,11 +215,12 @@ void hbtmaphalos(char file[MAXSTRING])
   MyIDtype ihalo,jhalo,j,counthalo,ahf_haloid,countuseable;
   const unsigned long long MAXHBT = 2000000;
   int *original_used;
-  char line[MAXSTRING];
+  char line[MAXSTRING],buff[MAXSTRING];
   FILE* fp;
-
+  
+  sprintf(buff,"%s/HBT_added_halos.all",file);
   HBT = calloc(MAXHBT,sizeof(struct HBT_halos));
-  fp = fopen(file, "r");
+  fp = fopen(buff, "r");
   fgets(line,MAXSTRING,fp);
   counthalo = 0;
   while((fgets(line,MAXSTRING,fp)) != NULL)
@@ -290,6 +299,7 @@ void hbtmaphalos(char file[MAXSTRING])
 	      else
 		HBThaloTable[ihalo].AHFID = NULLPOINT;
 	      HBThaloTable[ihalo].Mvir = HBT[ihalo].Mvir*HBT2AHFmass;
+	      HBThaloTable[ihalo].npart = HBT[ihalo].Nbound;
 	      HBThaloTable[ihalo].Xc = HBT[ihalo].X;
 	      HBThaloTable[ihalo].Yc = HBT[ihalo].Y;
 	      HBThaloTable[ihalo].Zc = HBT[ihalo].Z;
@@ -314,6 +324,7 @@ void hbtmaphalos(char file[MAXSTRING])
 	    HBThaloTable[ihalo].AHFID = NULLPOINT;
 
 	  HBThaloTable[ihalo].Mvir = HBT[ihalo].Mvir*HBT2AHFmass;
+	  HBThaloTable[ihalo].npart = HBT[ihalo].Nbound;
 	  HBThaloTable[ihalo].Xc = HBT[ihalo].X;
 	  HBThaloTable[ihalo].Yc = HBT[ihalo].Y;
 	  HBThaloTable[ihalo].Zc = HBT[ihalo].Z;
@@ -339,6 +350,8 @@ void hbtmaphalos(char file[MAXSTRING])
 	  HaloTable[ihalo].Mvir += HaloTable[jhalo].oriMvir;
 	}
     }
+#ifdef READPARTICLE
+#endif
 }
 
 void get_snap_stats()
@@ -554,6 +567,7 @@ void addHalo_v1(char file[MAXSTRING])
     {
       //printf("%llu %llu\n",ihalo,HaloTable[ihalo].ID);
       IDmap[ihalo] = HaloTable[ihalo].ID;
+      HaloTable[ihalo].npart = 20;
       HaloTable[ihalo].nAvatars = 1;
       HaloTable[ihalo].AvatarList = calloc(HaloTable[ihalo].nAvatars,sizeof(MyIDtype));
       HaloTable[ihalo].AvatarList[0] = ihalo;
@@ -660,6 +674,7 @@ void load_particles(MyIDtype load_id)
   
 }
 
+
 void read_particles(unsigned int slotid)
 {
   FILE *f;
@@ -670,12 +685,19 @@ void read_particles(unsigned int slotid)
   unsigned int snapid;
   struct particle_data dummyhalo;
 
-  
-
   snapid =  slotid;
   strncpy(filename,"",sizeof(filename));
-  (void) getFilename(filename,snapid);
-  strcat(filename,".AHF_particles");
+
+  if(output.outputFormat > 1.129 && output.outputFormat < 1.131)
+    {
+      (void) getHBTFilename(filename,snapid);
+      strcat(filename,".HBT_particles");
+    }
+  else
+    {
+      (void) getFilename(filename,snapid);
+      strcat(filename,".AHF_particles");
+    }
   f = fopen(filename,"r");
   printf("%s\n",filename);
   if(f == NULL)
@@ -729,7 +751,14 @@ void read_particles_binary()
   FILE *fp_npart,*fp_particle, *fp_uid;
   char filename[MAXSTRING];
   MyIDtype i,j,dummy;
-  sprintf(filename,"%s/all_particles.bin",FolderName);
+  if(output.outputFormat > 1.129 && output.outputFormat < 1.131)
+    {
+      sprintf(filename,"%s/%s_particles.bin",FolderName,inputFile);
+    }
+  else
+    {
+      sprintf(filename,"%s/all_particles.bin",FolderName);
+    }
   fp_particle = fopen(filename, "rb");
 
 
@@ -789,3 +818,42 @@ void getFilename(char* filename,unsigned int snapnum)
   } 
   closedir (pDir);
 }
+
+void getHBTFilename(char* filename,unsigned int snapnum)
+{
+  char snapstr[MAXSTRING];
+  int len;
+  struct dirent *pDirent;
+  DIR *pDir;
+  unsigned int iFile, i;
+  MyIDtype currentHalo, nHalo;
+  char keyword[MAXSTRING];
+  char dummystr[MAXSTRING];
+  char zstr[MAXSTRING];
+  char *returnstr,*finalstr; 
+  //printf("getFilename %d\n",snapnum);
+  sprintf(keyword,"%s%03d.",HBTFilePrefix,snapnum);
+  pDir = opendir(HBTFolderName);
+  if (pDir == NULL) 
+    {
+      printf ("Cannot open directory '%s'\n", HBTFolderName);
+      exit(0);
+    }
+  while ((pDirent = readdir(pDir)) != NULL) {
+    if((returnstr=strstr(pDirent->d_name,keyword)))
+      {
+	len = strlen(returnstr);
+	sprintf(dummystr,"%s",returnstr+strlen(keyword));
+	len = len - strlen(keyword);
+	returnstr = strstr(dummystr,".HBT_");
+	len = len - strlen(returnstr);
+	strncpy(zstr,"",sizeof(zstr));
+	strncpy(zstr,dummystr,len);
+	//printf("z=%s\n",zstr);
+	sprintf(filename,"%s/%s%s",HBTFolderName,keyword,zstr);
+	break;
+      }
+  } 
+  closedir (pDir);
+}
+

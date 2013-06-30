@@ -4,7 +4,9 @@ void SubtreeFilter();
 void resetHaloTable();
 
 char FilePrefix[MAXSTRING];
+char HBTFilePrefix[MAXSTRING];
 char FolderName[MAXSTRING];
+char HBTFolderName[MAXSTRING];
 char TreeFolder[MAXSTRING];
 char ppFolder[MAXSTRING];
 char inputFile[MAXSTRING];
@@ -61,6 +63,8 @@ int main(int argc, char **argv)
       strcpy(addFile,argv[2]);
     }
   strcpy(inputFile,argv[1]);
+  sprintf(HBTFolderName,"%s",addFile);
+  sprintf(HBTFilePrefix,"%s",FilePrefix);
   if(readRawOutputs(argv[1]) == 0)
     {
       fprintf(stderr,"The output: %s is valid\n",argv[1]);

@@ -88,7 +88,7 @@ void merger_analysis(float minmass, float maxmass, int highlim_npart)
     }
   lostmass = calloc(nStep, sizeof(MyIDtype));
 #ifdef READPARTICLE
-  if(output.outputFormat > 0.999 && output.outputFormat < 1.001)
+  if((output.outputFormat > 0.999 && output.outputFormat < 1.001) || (output.outputFormat > 1.129 && output.outputFormat < 1.131))
     {
 
       lostmass_host = calloc(nStep, sizeof(MyIDtype));
@@ -105,10 +105,16 @@ void merger_analysis(float minmass, float maxmass, int highlim_npart)
   for(i=TotNhalos-SnapNhalos[LASTSNAP]; i < TotNhalos; i++)
     {
       ihalo = i;
-      if(HaloTable[ihalo].Mvir > 1.e-30)
+#ifdef VERBOSE2
+      printf("ihalo = %llu\n",ihalo);
+#endif
+      if(HaloTable[ihalo].Mvir > 1.e-30 && HaloTable[ihalo].npart > 0)
 	{
 	  count_mergers(ihalo,nStep,binsize);
 	}
+#ifdef VERBOSE2
+      printf("finish ihalo = %llu\n",ihalo);
+#endif
     }
   printf("stop recursive\n");
   fp1 = fopen(lostmassOutput, "w+");
@@ -118,7 +124,7 @@ void merger_analysis(float minmass, float maxmass, int highlim_npart)
     }
   fclose(fp1);
 #ifdef READPARTICLE
-  if(output.outputFormat > 0.999 && output.outputFormat < 1.001)
+  if((output.outputFormat > 0.999 && output.outputFormat < 1.001) || (output.outputFormat > 1.129 && output.outputFormat < 1.131))
     {
       fp2 = fopen(lostmassOutput_host, "w+");
       for(i=0;i<nStep;i++)
@@ -181,7 +187,8 @@ void count_mergers(MyIDtype haloid, int nStep, double binsize)
   unsigned int isnap, jsnap;
   
   //printf("counting mergers for %llu\n",haloid);
-  if(output.progs[haloid].nProgs > 0)
+
+  if(output.progs[haloid].nProgs > 0 )
     {
       count = 0;
       mass_out = HaloTable[haloid].Mvir;
@@ -190,39 +197,63 @@ void count_mergers(MyIDtype haloid, int nStep, double binsize)
       jsnap = HaloTable[jhalo].SnapID;
       mass_in = 0.;
 #ifdef READPARTICLE
-      if(output.outputFormat > 0.999 && output.outputFormat < 1.001)
+      if((output.outputFormat > 0.999 && output.outputFormat < 1.001) || (output.outputFormat > 1.129 && output.outputFormat < 1.131))
 	{
-	  inputlist = malloc(0*sizeof(MyIDtype));
+#ifdef VERBOSE2
+	  printf("malloc inputlist\n");
+#endif
+	  inputlist = malloc(0);
+#ifdef VERBOSE2
+	  printf("malloc inputlist completed\n");
+#endif
 	  count_particle = 0;
 	}
 #endif
       for(ihalo_loop = 0; ihalo_loop < output.progs[haloid].nProgs; ihalo_loop++)
 	{
 	  jhalo_loop = output.progs[haloid].progID[ihalo_loop];
-	  if(HaloTable[jhalo_loop].Mvir > 1.e-30)
+#ifdef VERBOSE2
+	  printf("jhalo_loopX %llu : %llu particles\n",jhalo_loop,HaloTable[jhalo_loop].npart);
+#endif
+	  if(HaloTable[jhalo_loop].Mvir > 1.e-30 && HaloTable[jhalo_loop].npart > 0)
 	    {
+
 	      count_mergers(jhalo_loop,nStep,binsize);
 	      mass_in += HaloTable[jhalo_loop].Mvir;
 	      count++;
-	      if(output.outputFormat > 0.999 && output.outputFormat < 1.001)
+#ifdef READPARTICLE
+	      if((output.outputFormat > 0.999 && output.outputFormat < 1.001) || (output.outputFormat > 1.129 && output.outputFormat < 1.131))
 		{
+#ifdef VERBOSE2
+		  printf("halo %llu : %llu particles\n",jhalo_loop,HaloTable[jhalo_loop].npart);
+#endif
 		  count_particle += HaloTable[jhalo_loop].npart;
+#ifdef VERBOSE2
+		  printf("realloc inputlist\n");
+#endif
 		  inputlist = realloc(inputlist,count_particle*sizeof(MyIDtype));
+#ifdef VERBOSE2
+		  printf("realloc inputlist completed\n");
+#endif
 		  for(j=count_particle-HaloTable[jhalo_loop].npart;j<count_particle;j++)
 		    {
 		      inputlist[j] = HaloTable[jhalo_loop].Particles[j].ParticleID;
 		    }
 		}
+#endif
 	    }
 	}
-      
+
       nMergers[count]++;
       //printf("realloc p_nmerger %d\n",count);
       pp_nmerger[count] = realloc(pp_nmerger[count],nMergers[count]*sizeof(MyIDtype));
       pp_nmerger[count][nMergers[count]-1] = haloid;
       // if they use original catalogue
 #ifdef READPARTICLE
-      if(output.outputFormat > 0.999 && output.outputFormat < 1.001)
+#ifdef VERBOSE2
+      printf("start looping\n");
+#endif
+      if((output.outputFormat > 0.999 && output.outputFormat < 1.001) || (output.outputFormat > 1.129 && output.outputFormat < 1.131))
 	{
 	  qsort(inputlist,count_particle, sizeof(MyIDtype), compareMyIDType);
 	  ref_uid = inputlist[0];
@@ -249,8 +280,14 @@ void count_mergers(MyIDtype haloid, int nStep, double binsize)
 		break;
 	    }
 	  count_particle = temp_count_particle;
+#ifdef VERBOSE2
+	  printf("realloc in/outputlist\n");
+#endif
 	  inputlist = realloc(inputlist,temp_count_particle*sizeof(MyIDtype));
 	  outputlist = malloc(HaloTable[haloid].npart*sizeof(MyIDtype));
+#ifdef VERBOSE2
+	  printf("finish realloc in/outputlist\n");
+#endif
 	  for(j=0;j<HaloTable[haloid].npart;j++)
 	    {
 	      outputlist[j] = HaloTable[haloid].Particles[j].ParticleID;
@@ -259,6 +296,9 @@ void count_mergers(MyIDtype haloid, int nStep, double binsize)
 	  // very long winded to compare particle list
 	  gainpart = 0;
 	  lostpart = 0;
+#ifdef VERBOSE2
+	  printf("start omp loop\n");
+#endif
 #pragma omp parallel for default(shared) private(jid) reduction(+:lostpart) 
 	  for(j = 0; j< count_particle; j++)
 	    {
@@ -278,6 +318,9 @@ void count_mergers(MyIDtype haloid, int nStep, double binsize)
 		}
 	      */
 	    }
+#ifdef VERBOSE2
+	  printf("stop omp loop\n");
+#endif
 	  lostpart = count_particle - lostpart;
 	  /*
 	    for(k = 0; k <HaloTable[haloid].npart; k++)
@@ -298,26 +341,40 @@ void count_mergers(MyIDtype haloid, int nStep, double binsize)
 	  */
 	  free(inputlist);
 	  free(outputlist);
+#ifdef VERBOSE2
+	  printf("finish free\n");
+#endif
 	  //printf("lostpart = %llu/%llu \n",lostpart,count_particle);
 	  //exit(0);
 	  //mass_lost =  (double)lostpart /(double)(count_particle + HaloTable[haloid].npart)/(snapTime[isnap] - snapTime[jsnap])*(snapTime[isnap] + snapTime[jsnap]);
+#ifdef VERBOSE2
+	  printf("lostpart = %llu, count_particle = %llu\n", lostpart,count_particle);
+#endif
 	  mass_lost =  (double)lostpart /(double)(count_particle )*2.;
 
 
-
-	    //block = (int) ((atan(mass_lost)/asin(1.) +1.)/binsize);
-	  block = (int) ( mass_lost  /  binsize);
-	  if(block == nStep)
-	    block = nStep-1;
-      
-	  if(SubTree[haloid] == NULLPOINT && SubTree[jhalo] == NULLPOINT)
+	  if(count_particle > 0)
 	    {
-	      lostmass_host[block]++;
-	      //printf("realloc pp_lostmass %d\n",block);
-	      pp_lostmass[block] = realloc(pp_lostmass[block],lostmass_host[block]*sizeof(MyIDtype));
-	      pp_lostmass[block][lostmass_host[block]-1] = haloid;
-	    }  
+	      //block = (int) ((atan(mass_lost)/asin(1.) +1.)/binsize);
+	      block = (int) ( mass_lost  /  binsize);
+	      if(block == nStep)
+		block = nStep-1;
+#ifdef VERBOSE2	  
+	      printf("record block = %d\n",block);
+#endif
+	      if(SubTree[haloid] == NULLPOINT && SubTree[jhalo] == NULLPOINT)
+		{
+		  lostmass_host[block]++;
+		  //printf("realloc pp_lostmass %d\n",block);
+		  pp_lostmass[block] = realloc(pp_lostmass[block],lostmass_host[block]*sizeof(MyIDtype));
+		  pp_lostmass[block][lostmass_host[block]-1] = haloid;
+		}  
+	    }
 	}
+#ifdef VERBOSE2
+      printf("complete one loop\n");
+#endif
+
 #endif // READPARTICLE
       mass_lost = (mass_out - mass_in)/(mass_out+mass_in)/(snapTime[isnap] - snapTime[jsnap])*(snapTime[isnap] + snapTime[jsnap]);
       block = (int) ((atan(mass_lost)/asin(1.) +1.)/binsize);
@@ -329,11 +386,14 @@ void count_mergers(MyIDtype haloid, int nStep, double binsize)
   else
     {
       count = 0;
-      nMergers[count]++;
-      //printf("realloc p_nmerger %d\n",count);
-      pp_nmerger[count] = realloc(pp_nmerger[count],nMergers[count]*sizeof(MyIDtype));
-      //printf("set haloid=%llu %d %llu\n",haloid,count,nMergers[count]-1);
-      pp_nmerger[count][nMergers[count]-1] = haloid;
+      if(HaloTable[haloid].SnapID > 30)
+	{
+	  nMergers[count]++;
+	  //printf("realloc p_nmerger %d\n",count);
+	  pp_nmerger[count] = realloc(pp_nmerger[count],nMergers[count]*sizeof(MyIDtype));
+	  //printf("set haloid=%llu %d %llu\n",haloid,count,nMergers[count]-1);
+	  pp_nmerger[count][nMergers[count]-1] = haloid;
+	}
       //printf("finish loop\n");
     }
 }
