@@ -178,7 +178,7 @@ void merger_analysis(float minmass, float maxmass, int highlim_npart)
   free(lostmass);
 }
 
-void count_mergers(MyIDtype haloid, int nStep, double binsize)
+void count_mergers(MyIDtype haloid, int nStep, double binsize,float minmass, float maxmass)
 {
   MyIDtype j,k,ihalo_loop,count,jhalo_loop,ihalo,jhalo,khalo,count_particle, temp_count_particle;
   MyIDtype *inputlist,*outputlist,ref_uid,gainpart,lostpart,jid,kid;

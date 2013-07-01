@@ -313,8 +313,8 @@ pylab.hold(False)
 pylab.yscale('log')
 pylab.xlabel(r"$\pi^{-1}\xi_M$")
 pylab.ylabel(r"$N+1$")
-
-pylab.legend(loc='upper right', ncol=2, prop={'size':8})
+leg = pylab.legend(loc='upper right', handlelength = 7,ncol=1, prop={'size':9})
+leg.get_frame().set_linewidth(0)
 pylab.savefig(pdf_folder+'betacorrhigh.pdf',bbox_inches='tight')
 os.system('pdftops -eps '+pdf_folder+'betacorrhigh.pdf')
 ##############################################################################################
