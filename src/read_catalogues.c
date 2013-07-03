@@ -208,7 +208,137 @@ void makeIDmap()
   (void) makesubfindout();
 #endif
 }
+void read_singlesnap(unsigned int snapnum)
+{
+  int len;
+  unsigned int iFile, i;
+  MyIDtype currentHalo, nHalos,iHalo,hosthalo;
+  char filename[MAXSTRING];
+  char buffer[MAXSTRING];
+  char dummystr[MAXSTRING];
+  FILE* fp;
+  TotNhalos = 0;
+  currentHalo = 0;
+  for(iFile=snapnum;iFile<=snapnum;iFile++)
+    {
+      //printf("iFile = %d\n",iFile);
+      strncpy(filename,"",sizeof(filename));
+      (void) getFilename(filename,iFile);
+      //printf("%s\n",strcat(filename,".AHF_particles"));
+      fp = fopen(strcat(filename,".AHF_particles"), "r");
+      fscanf(fp,"%llu",&(SnapNhalos[iFile]));
+      fclose(fp);
+      TotNhalos += SnapNhalos[iFile];
+      //printf("%d snap = %llu halos\n",iFile,SnapNhalos[iFile]);
+    }
+  if(TotNhalos <= MAXUSEABLE)
+    {
+      IDmap = calloc(TotNhalos,sizeof(MyIDtype));
+      HaloTable = calloc(TotNhalos,sizeof(struct HALOPROPS));
+      TotNavatars = TotNhalos;
+      TotNhalosUsed = TotNhalos;
+      Avatar= calloc(TotNhalos,sizeof(MyIDtype));
+    }
+  else
+    {
+      fprintf(stderr,"Error: Total halo exceed the maximum:%llu\nExiting...\n",MAXUSEABLE);
+      exit(0);
+    }
+  for(iFile=snapnum;iFile<=snapnum;iFile++)
+    {
+      strncpy(filename,"",sizeof(filename));
+      (void) getFilename(filename,iFile);
+      fp = fopen(strcat(filename,".AHF_halos"), "r");
+      fgets(buffer,MAXSTRING,fp);
+      for(iHalo=0;iHalo<SnapNhalos[iFile];iHalo++)
+	{
+	  printf("iHalo = %llu\n",iHalo);
+	  fscanf(fp,"%llu %llu %llu %g %llu %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g",
+		 &(HaloTable[currentHalo].ID),
+		 &(HaloTable[currentHalo].hostHalo),
+		 &(HaloTable[currentHalo].numSubStruct),
+		 &(HaloTable[currentHalo].Mvir),
+		 &(HaloTable[currentHalo].npart),
+		 &(HaloTable[currentHalo].Xc),
+		 &(HaloTable[currentHalo].Yc),
+		 &(HaloTable[currentHalo].Zc),
+		 &(HaloTable[currentHalo].VXc),
+		 &(HaloTable[currentHalo].VYc),
+		 &(HaloTable[currentHalo].VZc),
+		 &(HaloTable[currentHalo].Rvir), 
+		 &(HaloTable[currentHalo].Rmax),
+		 &(HaloTable[currentHalo].r2),
+		 &(HaloTable[currentHalo].mbp_offset),
+		 &(HaloTable[currentHalo].com_offset),
+		 &(HaloTable[currentHalo].Vmax),
+		 &(HaloTable[currentHalo].v_esc),
+		 &(HaloTable[currentHalo].sigV),
+		 &(HaloTable[currentHalo].lambda),
+		 &(HaloTable[currentHalo].lambdaE),
+		 &(HaloTable[currentHalo].Lx),
+		 &(HaloTable[currentHalo].Ly),
+		 &(HaloTable[currentHalo].Lx),
+		 &(HaloTable[currentHalo].b),
+		 &(HaloTable[currentHalo].c),
+		 &(HaloTable[currentHalo].Eax),
+		 &(HaloTable[currentHalo].Eay),
+		 &(HaloTable[currentHalo].Eaz),
+		 &(HaloTable[currentHalo].Ebx), 
+		 &(HaloTable[currentHalo].Eby),
+		 &(HaloTable[currentHalo].Ebz),
+		 &(HaloTable[currentHalo].Ecx), 
+		 &(HaloTable[currentHalo].Ecy), 
+		 &(HaloTable[currentHalo].Ecy),
+		 &(HaloTable[currentHalo].ovdens),
+		 &(HaloTable[currentHalo].nbins),
+		 &(HaloTable[currentHalo].fMhires),
+		 &(HaloTable[currentHalo].Ekin),
+		 &(HaloTable[currentHalo].Epot),
+		 &(HaloTable[currentHalo].SurfP),
+		 &(HaloTable[currentHalo].Phi0),
+		 &(HaloTable[currentHalo].cNFW) 
+		 );
+	  IDmap[currentHalo] = HaloTable[currentHalo].ID;
+	  HaloTable[currentHalo].AHFID = HaloTable[currentHalo].ID; 
+	  HaloTable[currentHalo].SnapID = iFile;
+	  HaloTable[currentHalo].nAvatars = 1;
+	  HaloTable[currentHalo].AvatarList = calloc(HaloTable[currentHalo].nAvatars,sizeof(MyIDtype));
+	  HaloTable[currentHalo].AvatarList[0] = currentHalo;
+	  Avatar[currentHalo] = currentHalo;
+	  HaloTable[currentHalo].ProgAvatarFlag = 0;
+	  HaloTable[currentHalo].TroubleFlag = 0;
 
+	  //printf("%llu : %llu\n", currentHalo,IDmap[currentHalo]);
+	  currentHalo++;
+	}
+      fclose(fp);
+      
+    }
+
+  if(TotNhalos != (currentHalo))
+    {
+      fprintf(stderr,"Error: Problem in halo catalogues: %llu,%llu\nExiting...\n",TotNhalos,currentHalo);
+      exit(0);
+    }
+  SubTree = calloc(TotNhalos,sizeof(MyIDtype));
+  for(iHalo=0;iHalo<TotNhalos;iHalo++)
+    {
+      SubTree[iHalo] = IDsearch(HaloTable[iHalo].hostHalo);
+      //printf("halo %llu:%llu hosted in %llu: %llu\n", iHalo,IDmap[iHalo], SubTree[iHalo],HaloTable[iHalo].hostHalo);
+    }
+  
+  for(iHalo=0;iHalo<TotNhalos;iHalo++)
+    {
+      hosthalo = SubTree[iHalo];
+      if(hosthalo < NULLPOINT)
+	{
+	  if(HaloTable[hosthalo].Mvir < 1.e-30)
+	    HaloTable[iHalo].Mvir = 0.;
+	}
+    }
+
+
+}
 
 void hbtmaphalos(char file[MAXSTRING])
 {
@@ -536,324 +666,4 @@ void addHalo_v1(char file[MAXSTRING])
     {
       TotNhalos += count;
       TotNavatars = TotNhalos;
-      TotNhalosUsed = TotNhalos;
-      printf("TotNhalos: %llu\nAdded halos: %llu\nTotNhalosUsed: %llu\n\n",TotNhalos,count,TotNhalosUsed);
-
-      HaloTable = realloc(HaloTable, TotNhalos*sizeof(struct HALOPROPS));
-      printf("finish realloc hALOTABLE\n");
-      Avatar= realloc(Avatar,TotNhalos*sizeof(MyIDtype));
-      printf("finish realloc aVATAR\n");
-      SubTree = realloc(SubTree,TotNhalos*sizeof(MyIDtype));
-      printf("finish realloc SUBTREE\n");
-      IDmap = realloc(IDmap,TotNhalos*sizeof(MyIDtype));
-      printf("finish realloc IDmap\n");
-    }
-
-  fp = fopen(file,"r");
-  while((fscanf(fp,"%d %llu %g %g %g %g %g %g %g %g %g %g",
-		&(HaloTable[ihalo].SnapID),
-		&(HaloTable[ihalo].ID),
-		&(HaloTable[ihalo].Mvir),
-		&(HaloTable[ihalo].Rvir),
-		&(HaloTable[ihalo].r2), 
-		&(HaloTable[ihalo].Vmax),	
-		&(HaloTable[ihalo].Xc),
-		&(HaloTable[ihalo].Yc),
-		&(HaloTable[ihalo].Zc),
-		&(HaloTable[ihalo].VXc),
-		&(HaloTable[ihalo].VYc),
-		&(HaloTable[ihalo].VZc)	   
-		)) != EOF)
-    {
-      //printf("%llu %llu\n",ihalo,HaloTable[ihalo].ID);
-      IDmap[ihalo] = HaloTable[ihalo].ID;
-      HaloTable[ihalo].npart = 20;
-      HaloTable[ihalo].nAvatars = 1;
-      HaloTable[ihalo].AvatarList = calloc(HaloTable[ihalo].nAvatars,sizeof(MyIDtype));
-      HaloTable[ihalo].AvatarList[0] = ihalo;
-      HaloTable[ihalo].AHFID = NULLPOINT;
-      Avatar[ihalo] = ihalo;
-      HaloTable[ihalo].ProgAvatarFlag = 0;
-      HaloTable[ihalo].TroubleFlag = 0;
-      SubTree[ihalo] = NULLPOINT;
-      HaloTable[ihalo].Xc *= Mpc2kpc;
-      HaloTable[ihalo].Yc *= Mpc2kpc;
-      HaloTable[ihalo].Zc *= Mpc2kpc;
-      ihalo++;
-    }
-  fclose(fp);
-
-  resetIDmap();
-  printf("Finish adding halos\n");
-}
-
-void load_particles(MyIDtype load_id)
-{
-  FILE *f;
-  char filename[MAXSTRING];
-  char dummystr[MAXSTRING];
-  float dummyfloat;
-  MyIDtype i, j, dummyID,haloid,u_haloid,nhalos,nparts;
-  unsigned int snapid;
-  struct particle_data dummyhalo;
-
-  
-
-  snapid = (unsigned int) (load_id/MAXHALOPERSNAP);
-  strncpy(filename,"",sizeof(filename));
-  (void) getFilename(filename,snapid);
-  strcat(filename,".AHF_particles");
-  f = fopen(filename,"r");
-  printf("%s\n",filename);
-  if(f == NULL)
-    {
-      printf("could not open %s\nABORTING\n",filename);
-      exit(1);
-    }
-  //fgets(dummystr,MAXSTRING,f);
-  fscanf(f, "%llu", &nhalos);
-  if(nhalos != SnapNhalos[snapid])
-    {
-      printf("Mismatch total halos in snapshot %d\n",snapid);
-      exit(0);
-    }
-  for(i=0; i<SnapNhalos[snapid]; i++)
-    {
-      fscanf(f, "%llu %llu",&nparts,&u_haloid);
-      if(u_haloid == load_id)
-	{
-	  haloid = IDsearch(u_haloid);
-	  //printf("halo %llu => %llu : npart:%llu\n",u_haloid,haloid,nparts);
-	  if(nparts != HaloTable[haloid].npart)
-	    {
-	      printf("Mismatch total particles in halo %llu => %llu\n",u_haloid,haloid);
-	      printf("HaloTable :%llu  read:%llu\n",HaloTable[haloid].npart,nparts);
-	      exit(0);
-	    }
-	  HaloTable[haloid].Particles     = (struct particle_data *) calloc(nparts, sizeof(struct particle_data));
-
-	  for(j=0; j<nparts; j++)
-	    {
-	      //printf("read particle %llu\n",j);
-	      fscanf(f, "%llu %g %g %g %g %g %g %g",
-
-		     &(HaloTable[haloid].Particles[j].ParticleID),
-		     &(HaloTable[haloid].Particles[j].ParticleEnergy),       // [Msun/h (km/sec)^2]
-
-		     &(HaloTable[haloid].Particles[j].X),                    // [kpc/h]
-		     &(HaloTable[haloid].Particles[j].Y),                    // [kpc/h]
-		     &(HaloTable[haloid].Particles[j].Z),                    // [kpc/h]
-		     &(HaloTable[haloid].Particles[j].Vx),                   // [km/sec]
-		     &(HaloTable[haloid].Particles[j].Vy),                   // [km/sec]
-		     &(HaloTable[haloid].Particles[j].Vz)                    // [km/sec]		
-		     );	  
-	    }
-	  qsort(HaloTable[haloid].Particles,nparts, sizeof(struct particle_data), compareParticleEnergy);
-	}
-      else
-	{
-	  for(j=0; j<nparts; j++)
-	    {
-	      //printf("read particle %llu\n",j);
-	      fscanf(f, "%llu %g %g %g %g %g %g %g",
-
-		     &(dummyhalo.ParticleID),
-		     &(dummyhalo.ParticleEnergy),       // [Msun/h (km/sec)^2]
-
-		     &(dummyhalo.X),                    // [kpc/h]
-		     &(dummyhalo.Y),                    // [kpc/h]
-		     &(dummyhalo.Z),                    // [kpc/h]
-		     &(dummyhalo.Vx),                   // [km/sec]
-		     &(dummyhalo.Vy),                   // [km/sec]
-		     &(dummyhalo.Vz)                    // [km/sec]		
-		     );	  
-	    }
-	}
-    }
-  fclose(f);
-  
-}
-
-
-void read_particles(unsigned int slotid)
-{
-  FILE *f;
-  char filename[MAXSTRING];
-  char dummystr[MAXSTRING];
-  float dummyfloat;
-  MyIDtype i, j, dummyID,haloid,u_haloid,nhalos,nparts;
-  unsigned int snapid;
-  struct particle_data dummyhalo;
-
-  snapid =  slotid;
-  strncpy(filename,"",sizeof(filename));
-
-  if(output.outputFormat > 1.129 && output.outputFormat < 1.131)
-    {
-      (void) getHBTFilename(filename,snapid);
-      strcat(filename,".HBT_particles");
-    }
-  else
-    {
-      (void) getFilename(filename,snapid);
-      strcat(filename,".AHF_particles");
-    }
-  f = fopen(filename,"r");
-  printf("%s\n",filename);
-  if(f == NULL)
-    {
-      printf("could not open %s\nABORTING\n",filename);
-      exit(1);
-    }
-  //fgets(dummystr,MAXSTRING,f);
-  fscanf(f, "%llu", &nhalos);
-  if(nhalos != SnapNhalos[snapid])
-    {
-      printf("Mismatch total halos in snapshot %d\n",snapid);
-      exit(0);
-    }
-  for(i=0; i<SnapNhalos[snapid]; i++)
-    {
-      fscanf(f, "%llu %llu",&nparts,&u_haloid);
-      haloid = IDsearch(u_haloid);
-      //printf("halo %llu => %llu : npart:%llu\n",u_haloid,haloid,nparts);
-      if(nparts != HaloTable[haloid].npart)
-	{
-	  printf("Mismatch total particles in halo %llu => %llu\n",u_haloid,haloid);
-	  printf("HaloTable :%llu  read:%llu\n",HaloTable[haloid].npart,nparts);
-	  exit(0);
-	}
-      HaloTable[haloid].Particles     = (struct particle_data *) calloc(nparts, sizeof(struct particle_data));
-
-      for(j=0; j<nparts; j++)
-	{
-	  //printf("read particle %llu\n",j);
-	  fscanf(f, "%llu %g %g %g %g %g %g %g",
-
-		 &(HaloTable[haloid].Particles[j].ParticleID),
-		 &(HaloTable[haloid].Particles[j].ParticleEnergy),       // [Msun/h (km/sec)^2]
-
-		 &(HaloTable[haloid].Particles[j].X),                    // [kpc/h]
-		 &(HaloTable[haloid].Particles[j].Y),                    // [kpc/h]
-		 &(HaloTable[haloid].Particles[j].Z),                    // [kpc/h]
-		 &(HaloTable[haloid].Particles[j].Vx),                   // [km/sec]
-		 &(HaloTable[haloid].Particles[j].Vy),                   // [km/sec]
-		 &(HaloTable[haloid].Particles[j].Vz)                    // [km/sec]		
-	   );	  
-	}
-      qsort(HaloTable[haloid].Particles,nparts, sizeof(struct particle_data), compareParticleEnergy);
-    }
-  fclose(f);
-  
-}
-void read_particles_binary()
-{
-  FILE *fp_npart,*fp_particle, *fp_uid;
-  char filename[MAXSTRING];
-  MyIDtype i,j,dummy;
-  if(output.outputFormat > 1.129 && output.outputFormat < 1.131)
-    {
-      sprintf(filename,"%s/%s_particles.bin",FolderName,inputFile);
-    }
-  else
-    {
-      sprintf(filename,"%s/all_particles.bin",FolderName);
-    }
-  fp_particle = fopen(filename, "rb");
-
-
-  fread (&dummy , 1 , sizeof(MyIDtype) , fp_particle);
-  if(dummy != TotNhalos)
-    {
-      printf("%llu != %llu\n",dummy,TotNhalos);
-      exit(0);
-    }
-  for(i=0;i<TotNhalos;i++)
-    {
-      //fread (&(HaloTable[i].ID) , 1 , sizeof(MyIDtype) , fp_uid );
-      //fread (&(HaloTable[i].npart) , 1 , sizeof(MyIDtype) , fp_npart );
-      HaloTable[i].Particles = calloc(HaloTable[i].npart,sizeof(struct particle_data));
-      for(j=0;j<HaloTable[i].npart;j++)
-	{
-	  fread (&(HaloTable[i].Particles[j].ParticleID) , 1 , sizeof(MyIDtype), fp_particle);
-	}
-    }
-  fclose(fp_particle);
-}
-
-void getFilename(char* filename,unsigned int snapnum)
-{
-  char snapstr[MAXSTRING];
-  int len;
-  struct dirent *pDirent;
-  DIR *pDir;
-  unsigned int iFile, i;
-  MyIDtype currentHalo, nHalo;
-  char keyword[MAXSTRING];
-  char dummystr[MAXSTRING];
-  char zstr[MAXSTRING];
-  char *returnstr,*finalstr; 
-  //printf("getFilename %d\n",snapnum);
-  sprintf(keyword,"%s%03d.",FilePrefix,snapnum);
-  pDir = opendir(FolderName);
-  if (pDir == NULL) 
-    {
-      printf ("Cannot open directory '%s'\n", FolderName);
-      exit(0);
-    }
-  while ((pDirent = readdir(pDir)) != NULL) {
-    if((returnstr=strstr(pDirent->d_name,keyword)))
-      {
-	len = strlen(returnstr);
-	sprintf(dummystr,"%s",returnstr+strlen(keyword));
-	len = len - strlen(keyword);
-	returnstr = strstr(dummystr,".AHF_");
-	len = len - strlen(returnstr);
-	strncpy(zstr,"",sizeof(zstr));
-	strncpy(zstr,dummystr,len);
-	//printf("z=%s\n",zstr);
-	sprintf(filename,"%s/%s%s",FolderName,keyword,zstr);
-	break;
-      }
-  } 
-  closedir (pDir);
-}
-
-void getHBTFilename(char* filename,unsigned int snapnum)
-{
-  char snapstr[MAXSTRING];
-  int len;
-  struct dirent *pDirent;
-  DIR *pDir;
-  unsigned int iFile, i;
-  MyIDtype currentHalo, nHalo;
-  char keyword[MAXSTRING];
-  char dummystr[MAXSTRING];
-  char zstr[MAXSTRING];
-  char *returnstr,*finalstr; 
-  //printf("getFilename %d\n",snapnum);
-  sprintf(keyword,"%s%03d.",HBTFilePrefix,snapnum);
-  pDir = opendir(HBTFolderName);
-  if (pDir == NULL) 
-    {
-      printf ("Cannot open directory '%s'\n", HBTFolderName);
-      exit(0);
-    }
-  while ((pDirent = readdir(pDir)) != NULL) {
-    if((returnstr=strstr(pDirent->d_name,keyword)))
-      {
-	len = strlen(returnstr);
-	sprintf(dummystr,"%s",returnstr+strlen(keyword));
-	len = len - strlen(keyword);
-	returnstr = strstr(dummystr,".HBT_");
-	len = len - strlen(returnstr);
-	strncpy(zstr,"",sizeof(zstr));
-	strncpy(zstr,dummystr,len);
-	//printf("z=%s\n",zstr);
-	sprintf(filename,"%s/%s%s",HBTFolderName,keyword,zstr);
-	break;
-      }
-  } 
-  closedir (pDir);
-}
-
+      TotNhalosUsed = Tot
