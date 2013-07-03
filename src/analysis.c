@@ -110,7 +110,7 @@ void merger_analysis(float minmass, float maxmass, int highlim_npart)
 #endif
       if(HaloTable[ihalo].Mvir > 1.e-30 && HaloTable[ihalo].npart > 0)
 	{
-	  count_mergers(ihalo,nStep,binsize);
+	  count_mergers(ihalo,nStep,binsize,minmass,maxmass);
 	}
 #ifdef VERBOSE2
       printf("finish ihalo = %llu\n",ihalo);
@@ -196,7 +196,7 @@ void count_mergers(MyIDtype haloid, int nStep, double binsize,float minmass, flo
       jhalo = output.progs[haloid].progID[0];
       jsnap = HaloTable[jhalo].SnapID;
       mass_in = 0.;
-#ifdef READPARTICLE
+#ifdef READPARTICLE  
       if((output.outputFormat > 0.999 && output.outputFormat < 1.001) || (output.outputFormat > 1.129 && output.outputFormat < 1.131))
 	{
 #ifdef VERBOSE2
@@ -218,7 +218,7 @@ void count_mergers(MyIDtype haloid, int nStep, double binsize,float minmass, flo
 	  if(HaloTable[jhalo_loop].Mvir > 1.e-30 && HaloTable[jhalo_loop].npart > 0)
 	    {
 
-	      count_mergers(jhalo_loop,nStep,binsize);
+	      count_mergers(jhalo_loop,nStep,binsize,minmass,maxmass);
 	      mass_in += HaloTable[jhalo_loop].Mvir;
 	      count++;
 #ifdef READPARTICLE

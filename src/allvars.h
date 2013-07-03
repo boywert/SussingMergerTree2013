@@ -236,8 +236,7 @@ extern void calculateMassFunction();
 extern void merger_analysis(float minmass, float maxmass, int highlim_npart);
 extern void snapshot_stats(int snapid, float minmass, float maxmass, int highlim_npart);
 extern void main_branch_analysis(float minmass, float maxmass, int highlim_npart);
-extern void count_mergers(MyIDtype haloid, int nStep, double binsize);
-
+extern void count_mergers(MyIDtype haloid, int nStep, double binsize,float minmass, float maxmass);
 extern void getSnapTime();
 extern void makeIDmap();
 extern void deleteHalos_v1(char file[MAXSTRING]);
@@ -248,13 +247,13 @@ extern void getHBTFilename(char* filename,unsigned int snapnum);
 extern void load_particles(MyIDtype load_id);
 extern void read_particles(unsigned int slotid);
 extern void hbtmaphalos(char file[MAXSTRING]);
-
+extern void read_singlesnap(unsigned int snapnum);
 
 extern int readRawOutputs(char file[MAXSTRING]);
 extern MyIDtype assignAvatarMain();
 extern MyIDtype assignAvatar();
 
-
+ 
 extern int compareParticleEnergy(const void *v1, const void *v2);
 extern int compareHaloID(const void *v1, const void *v2);
 extern int compareID(const void *v1, const void *v2);
