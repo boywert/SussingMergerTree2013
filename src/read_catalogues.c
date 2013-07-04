@@ -353,7 +353,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
   char buf[200];
   int i, j, k, dummy, ntot_withmasses,NumPart,Ngas;
   int t, n, off, pc, pc_new, pc_sph;
-  unsigned int *Id;
+  unsigned long long *Id;
   struct gadget_io_header header1;
 #define SKIP fread(&dummy, sizeof(dummy), 1, fd);
 
@@ -442,7 +442,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	{
 	  for(n = 0; n < header1.npart[k]; n++)
 	    {
-	      fread(&Id[pc_new], sizeof(int), 1, fd);
+	      fread(&Id[pc_new], sizeof(unsigned long long), 1, fd);
 	      pc_new++;
 	    }
 	}
