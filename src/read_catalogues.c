@@ -211,7 +211,7 @@ void makeIDmap()
 void read_singlesnap(unsigned int snapnum)
 {
   int len;
-  unsigned int iFile, i,j,k,pid;
+  unsigned int iFile, i,j,k,pid,totalids;
   MyIDtype currentHalo, nHalos,iHalo,hosthalo;
   char filename[MAXSTRING];
   char buffer[MAXSTRING];
@@ -346,7 +346,11 @@ void read_singlesnap(unsigned int snapnum)
 
   read_particles(snapnum);
   sprintf(filename,"%s/snapdir_%03d/%s%03d",gadgetfolder,(int)snapnum,gadgetPrefix,(int)snapnum);
-  i = (MyIDtype) gadget_load_snapshot(filename,16,P,PIDmap,Id);
+  totalids =  (unsigned int) gadget_load_snapshot(filename,16,P,PIDmap,Id);
+  for (i=1;i<=totalids;i++)
+    {
+      printf("%d => %d\n",(int)i,int(PIDmap[i]));
+    }
   //printf("Total particle : %llu\n",i);
   maxaquariusid = 18535972;
   fr = fopen("nearestremove.txt","w+"); 
@@ -670,7 +674,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
     {
       //if(P[i].Type != 1) printf("%d %d %f\n",(int)i,(int)Id[i],P[i].Mass);
       //printf("%d => %d\n",i,(int)Id[i]);
-      if(i != Id[i]) printf("%d => %d\n",i,(int)Id[i]);
+      //if(i != Id[i]) printf("%d => %d\n",i,(int)Id[i]);
       PIDmap[Id[i]] = i;
     }
   printf("%d %f %f %f\n",Id[NumPart],P[NumPart].Pos[0],P[NumPart].Vel[0],P[NumPart].Mass);
