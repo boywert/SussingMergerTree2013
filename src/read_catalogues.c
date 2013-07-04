@@ -354,7 +354,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
   long longdummy;
   int i, j, k, dummy, ntot_withmasses,NumPart,Ngas;
   int t, n, off, pc, pc_new, pc_sph;
-  int *Id;
+  unsigned int *Id;
   struct gadget_io_header header1;
 #define SKIP fread(&dummy, sizeof(dummy), 1, fd);
 
