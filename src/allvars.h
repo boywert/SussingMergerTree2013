@@ -45,10 +45,19 @@ static double Boxsize= 62500.;
 
 #define MAXSTRING 1024
 
+#ifdef AQUARIUS
+
+#define FIRSTSNAP 0
+#define LASTSNAP 1023
+#define NSNAPS 1024
+
+#else
+
 #define FIRSTSNAP 0
 #define LASTSNAP 61
 #define NSNAPS 62
 
+#endif
 struct progtable 
 {
   MyIDtype haloID;
