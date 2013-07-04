@@ -410,7 +410,10 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	  P = malloc(NumPart * sizeof(struct Gadget_particle));
 	  Id = malloc(NumPart * sizeof(unsigned long long));
 	  PIDmap = malloc(NumPart * sizeof(unsigned long long));
-
+	  for(k=0;k<6;k++)
+	    {
+	      printf("mass[%d] : %lf\n",k,header1.mass[k]);
+	    }
 	  printf("time : %lf\n",header1.time);
 	  printf("redshift : %lf\n",header1.redshift);
 	  printf("flag_sfr : %d\n", header1.flag_sfr);
