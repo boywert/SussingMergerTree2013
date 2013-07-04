@@ -370,7 +370,7 @@ void read_singlesnap(unsigned int snapnum)
   resetIDmap();
   printf("ration: %f\n",record/(float) TotNhalos);
   fr = fopen("record.txt","a+");
-  fprintf("%d\t%f\n",snapnum, (float)TotNhalos/record);
+  fprintf(fr,"%d\t%f\n",snapnum, (float)TotNhalos/record);
 }
 
 
