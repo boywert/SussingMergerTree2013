@@ -349,7 +349,7 @@ void read_singlesnap(unsigned int snapnum)
   totalids =  (unsigned int) gadget_load_snapshot(filename,16,P,PIDmap,Id);
   for (i=1;i<=totalids;i++)
     {
-      printf("%d => %d\n",(int)i,int(PIDmap[i]));
+      printf("%d => %d\n",(int)i,(int)(PIDmap[i]));
     }
   //printf("Total particle : %llu\n",i);
   maxaquariusid = 18535972;
