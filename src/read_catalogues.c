@@ -356,7 +356,7 @@ void read_singlesnap(unsigned int snapnum)
 	{
 	  if(HaloTable[iHalo].Particles[j].ParticleID > maxaquariusid)
 	    {
-	      printf("Halo: %llu => %llu\n",iHalo,HaloTable[iHalo].Particles[j].ParticleID);
+	      //printf("Halo: %llu => %llu\n",iHalo,HaloTable[iHalo].Particles[j].ParticleID);
 	      lowresflag += 1;
 	    }
 	}
