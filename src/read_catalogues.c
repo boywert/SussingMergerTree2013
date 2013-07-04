@@ -357,14 +357,14 @@ void read_singlesnap(unsigned int snapnum)
 	  if(HaloTable[iHalo].Particles[j].ParticleID > maxaquariusid)
 	    {
 	      printf("Halo: %llu => %llu\n",iHalo,HaloTable[iHalo].Particles[j].ParticleID);
-	      lowresflag = 1;
+	      lowresflag += 1;
 	    }
 	}
-      if(HaloTable[SubTree[iHalo]].ID == NULLPOINT)
-	lowresflag = 1;
-      if(lowresflag == 1)
+
+      
+      if(lowresflag > 0 || HaloTable[SubTree[iHalo]].ID == NULLPOINT)
 	{
-	  fprintf(fr,"%llu %f\n",iHalo,sqrt( pow(HaloTable[iHalo].Xc - HaloTable[0].Xc,2) + pow(HaloTable[iHalo].Yc - HaloTable[0].Yc,2) + pow(HaloTable[iHalo].Zc-HaloTable[iHalo].Zc,2)  ));
+	  fprintf(fr,"%llu %f %d\n",iHalo,sqrt( pow(HaloTable[iHalo].Xc - HaloTable[0].Xc,2) + pow(HaloTable[iHalo].Yc - HaloTable[0].Yc,2) + pow(HaloTable[iHalo].Zc-HaloTable[iHalo].Zc,2)), lowresflag);
 	  HaloTable[iHalo].ID = NULLPOINT;
 	}
     }
