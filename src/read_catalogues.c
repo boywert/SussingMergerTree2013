@@ -361,7 +361,7 @@ void read_singlesnap(unsigned int snapnum)
       if(lowresflag == 1)
 	{
 	  printf("ID %llu = low res\n",iHalo);
-	  HaloTable[iHalo].ID == NULLPOINT;
+	  HaloTable[iHalo].ID = NULLPOINT;
 	}
     }
   printf("Tothalos: %llu\n", TotNhalos);
