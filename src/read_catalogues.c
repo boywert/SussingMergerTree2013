@@ -348,24 +348,27 @@ void read_singlesnap(unsigned int snapnum)
   i = (MyIDtype) gadget_load_snapshot(filename,16,P,PIDmap );
   //printf("Total particle : %llu\n",i);
   maxaquariusid = 18535972;
-
+  fr = fopen("nearestremove.txt","w+"); 
   for(iHalo=0;iHalo < TotNhalos;iHalo++)
     {
       lowresflag = 0;
       for(j=0;j<HaloTable[iHalo].npart;j++)
 	{
 	  if(HaloTable[iHalo].Particles[j].ParticleID > maxaquariusid)
-	    lowresflag = 1;
+	    {
+	      lowresflag = 1;
+	    }
 	}
       if(HaloTable[SubTree[iHalo]].ID == NULLPOINT)
 	lowresflag = 1;
       if(lowresflag == 1)
 	{
-	  //printf("ID %llu = low res\n",iHalo);
+	  fprintf(fr,"%llu %f\t",iHalo,sqrt( pow(HaloTable[iHalo].Xc - HaloTable[0].Xc.2) + pow(HaloTable[iHalo].Yc - HaloTable[0].Yc,2) + pow(HaloTable[iHalo].Zc-HaloTable[iHalo].Zc,2)  ));
 	  HaloTable[iHalo].ID = NULLPOINT;
 	}
     }
-  printf("Tothalos: %llu\n", TotNhalos);
+  fclose(fr);
+  /* printf("Tothalos: %llu\n", TotNhalos); */
   /* record = (float) TotNhalos; */
   /* fr = fopen("before.txt","w+"); */
   /* for(iHalo=0;iHalo < TotNhalos;iHalo++) */
