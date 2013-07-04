@@ -367,10 +367,25 @@ void read_singlesnap(unsigned int snapnum)
     }
   printf("Tothalos: %llu\n", TotNhalos);
   record = (float) TotNhalos;
+  fr = fopen("before.txt","w+");
+  for(iHalo=0;iHalo < TotNhalos;iHalo++)
+    {
+      fprintf(fr,"%f %f %f\n",HaloTable[iHalo].Xc,HaloTable[iHalo].Yc,HaloTable[iHalo].Zc);
+    }
+  fclose(fr)
   resetIDmap();
   printf("ration: %f\n",record/(float) TotNhalos);
+  
   fr = fopen("record.txt","a+");
   fprintf(fr,"%d\t%f\t%d\n",snapnum, (float)TotNhalos/record,(int)record);
+  fclose(fr);
+
+  fr = fopen("after.txt","w+");
+  for(iHalo=0;iHalo < TotNhalos;iHalo++)
+    {
+      fprintf(fr,"%f %f %f\n",HaloTable[iHalo].Xc,HaloTable[iHalo].Yc,HaloTable[iHalo].Zc);
+    }
+  fclose(fr)
 }
 
 
