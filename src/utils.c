@@ -26,11 +26,11 @@ void printoutfullAHF()
   fprintf(fp,"%s\n", header_out);
   for(ihalo=0;ihalo<TotNhalos;ihalo++)
     {	
-      fprintf(fp,"%llu\t%llu\t%lu\t%.8g\t%lu\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\n",
+      fprintf(fp,"%llu\t%llu\t%lu\t%10.8g\t%lu\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\n",
 	  HaloTable[ihalo].AHFID,
 	  HaloTable[ihalo].hostHalo,
 	  HaloTable[ihalo].numSubStruct,
-	  HaloTable[ihalo].Mvir,
+	  HaloTable[ihalo].oriMvir,
 	  HaloTable[ihalo].npart,
 	  HaloTable[ihalo].Xc,
 	  HaloTable[ihalo].Yc,
