@@ -536,7 +536,6 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
       /* SKIP; */
       fread(&dummy, sizeof(dummy), 1, fd);
       printf("dummy = %d/%d\n",dummy, local_nids);
-      printf("dummy = %d\n",dummy);
       for(k = 0, pc_new = pc; k < 6; k++)
 	{
 	  for(n = 0; n < header1.npart[k]; n++)
