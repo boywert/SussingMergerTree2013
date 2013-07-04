@@ -219,6 +219,7 @@ void read_singlesnap(unsigned int snapnum)
   FILE* fp;
   struct Gadget_particle *P;
   int *PIDmap;
+  MyIDtype maxaquariusid;
   TotNhalos = 0;
   currentHalo = 0;
   for(iFile=snapnum;iFile<=snapnum;iFile++)
@@ -342,8 +343,15 @@ void read_singlesnap(unsigned int snapnum)
 
   read_particles(snapnum);
   sprintf(filename,"%s/snapdir_%03d/%s%03d",gadgetfolder,(int)snapnum,gadgetPrefix,(int)snapnum);
-  i = (MyIDtype) gadget_load_snapshot(filename,16,P,PIDmap );
-  printf("Total particle : %llu\n",i);
+  //i = (MyIDtype) gadget_load_snapshot(filename,16,P,PIDmap );
+  //printf("Total particle : %llu\n",i);
+  maxaquariusid = 
+  for(iHalo=0;iHalo < TotNhalos;iHalo)
+    {
+      for(i=0;i<)
+    }
+  
+
 }
 
 
@@ -444,6 +452,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	{
 	  printf("fillers[%d] : %d\n",k, header1.filler[k]);
 	}
+      /* SKIP; */
       fread(&dummy, sizeof(dummy), 1, fd);
       printf("dummy = %d\n",dummy);
       for(k = 0, pc_new = pc; k < 6; k++)
@@ -451,10 +460,10 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	  for(n = 0; n < header1.npart[k]; n++)
 	    {
 	      fread(&P[pc_new].Pos[0], sizeof(float), 3, fd);
-	      printf("%d => %f\n",pc_new,P[pc_new].Pos[0]);
-	      printf("%d => %f\n",pc_new,P[pc_new].Pos[1]);
-	      printf("%d => %f\n",pc_new,P[pc_new].Pos[2]);
-	      //exit(0);
+	      /* printf("%d => %f\n",pc_new,P[pc_new].Pos[0]); */
+	      /* printf("%d => %f\n",pc_new,P[pc_new].Pos[1]); */
+	      /* printf("%d => %f\n",pc_new,P[pc_new].Pos[2]); */
+	      exit(0);
 	      pc_new++;
 	    }
 	}
