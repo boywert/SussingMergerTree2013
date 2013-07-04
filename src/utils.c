@@ -11,6 +11,67 @@ MyIDtype findtoplevel(MyIDtype hid)
   else
     return hid;
 }
+
+void printoutfullAHF()
+{
+  MyIDtype ihalo;
+  char header_out[MAXSTRING];
+  sprintf(header_out, 
+	  "#ID(1)     hostHalo(2)     numSubStruct(3) Mvir(4) npart(5)        Xc(6)   Yc(7)   Zc(8)   VXc(9)  VYc(10) VZc(11) Rvir(12)        Rmax(13)        r2(14)  mbp_offset(15)  com_offset(16)  Vmax(17)        v_esc(18)       sigV(19)        lambda(20)      lambdaE(21)     Lx(22)  Ly(23)  Lz(24)  b(25)   c(26)   Eax(27) Eay(28) Eaz(29) Ebx(30) Eby(31) Ebz(32) Ecx(33) Ecy(34) Ecz(35) ovdens(36)      nbins(37)       fMhires(38)     Ekin(39)        Epot(40)        SurfP(41)       Phi0(42)        cNFW(43)");
+  //printf("%s\n",header_out);
+  printf("%s\n", header_out);
+  for(ihalo=0;ihalo<TotNhalos;ihalo++)
+    {
+  printf("%llu\t%llu\t%lu\t%.8g\t%lu\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\n",
+	  HaloTable[ihalo].AHFID,
+	  HaloTable[ihalo].hostHalo,
+	  HaloTable[ihalo].numSubStruct,
+	  HaloTable[ihalo].Mvir,
+	  HaloTable[ihalo].npart,
+	  HaloTable[ihalo].Xc,
+	  HaloTable[ihalo].Yc,
+	  HaloTable[ihalo].Zc,
+	  HaloTable[ihalo].VXc,
+	  HaloTable[ihalo].VYc,
+	  HaloTable[ihalo].VZc,
+	  HaloTable[ihalo].Rvir,
+	  HaloTable[ihalo].Rmax,
+	  HaloTable[ihalo].r2,
+	  HaloTable[ihalo].mbp_offset,
+	  HaloTable[ihalo].com_offset,
+	  HaloTable[ihalo].Vmax,
+	  HaloTable[ihalo].v_esc,
+	  HaloTable[ihalo].sigV,
+	  HaloTable[ihalo].lambda,
+	  HaloTable[ihalo].lambdaE,
+	  HaloTable[ihalo].Lx,
+	  HaloTable[ihalo].Ly,
+	  HaloTable[ihalo].Lz,
+	  HaloTable[ihalo].b,
+	  HaloTable[ihalo].c,
+	  HaloTable[ihalo].Eax,
+	  HaloTable[ihalo].Eay,
+	  HaloTable[ihalo].Eaz,
+	  HaloTable[ihalo].Ebx,
+	  HaloTable[ihalo].Eby,
+	  HaloTable[ihalo].Ebz,
+	  HaloTable[ihalo].Ecx,
+	  HaloTable[ihalo].Ecy,
+	  HaloTable[ihalo].Ecz,
+	  HaloTable[ihalo].ovdens,
+	  HaloTable[ihalo].nbins,
+	  HaloTable[ihalo].fMhires,
+	  HaloTable[ihalo].Ekin,
+	  HaloTable[ihalo].Epot,
+	  HaloTable[ihalo].SurfP,
+	  HaloTable[ihalo].Phi0,
+	  HaloTable[ihalo].cNFW 
+	  );
+    }
+}
+
+
+
 void makesubfindout()
 {
   FILE *fp1, *fp2, *fp3, *fp4;

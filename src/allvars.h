@@ -309,6 +309,7 @@ extern MyIDtype Generalsearch( MyIDtype searchKey,MyIDtype n_array ,const void *
 extern MyIDtype findtoplevel(MyIDtype hid);
 extern void makesubfindout();
 extern void printoutprofile();
+extern void printoutfullAHF();
 extern void printouttrees();
 extern void printoutparticles_binary();
 
