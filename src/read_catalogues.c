@@ -349,12 +349,12 @@ void read_singlesnap(unsigned int snapnum)
   read_particles(snapnum);
   sprintf(filename,"%s/snapdir_%03d/%s%03d",gadgetfolder,(int)snapnum,gadgetPrefix,(int)snapnum);
   totalids =  (unsigned int) gadget_load_snapshot(filename,16);
-  for (i=1;i<=totalids;i++)
-    {
-      printf("%d => %d\n",(int)i,(int)(PIDmap[i]));
-    }
+  /* for (i=1;i<=totalids;i++) */
+  /*   { */
+  /*     printf("%d => %d\n",(int)i,(int)(PIDmap[i])); */
+  /*   } */
   //printf("Total particle : %llu\n",i);
-  maxaquariusid = 18535972;
+  //maxaquariusid = 18535972;
   fr = fopen("nearestremove.txt","w+"); 
   
   for(iHalo=0;iHalo < TotNhalos;iHalo++)
@@ -363,9 +363,9 @@ void read_singlesnap(unsigned int snapnum)
       for(j=0;j<HaloTable[iHalo].npart;j++)
 	{
 	  pid = HaloTable[iHalo].Particles[j].ParticleID;
-	  printf("pid = %d\n",pid);
+	  //printf("pid = %d\n",pid);
 	  pid= (unsigned int)PIDmap[(int)pid];
-	  printf("converted pid = %d\n",pid);
+	  //printf("converted pid = %d\n",pid);
 	  if(P[pid].Type != 1)
 	    {
 	      printf("Halo: %llu => %llu\n",iHalo,HaloTable[iHalo].Particles[j].ParticleID);
