@@ -12,6 +12,8 @@ char ppFolder[MAXSTRING];
 char inputFile[MAXSTRING];
 char gadgetfolder[MAXSTRING];
 char gadgetPrefix[MAXSTRING];
+char filteredFolder[MAXSTRING];
+
 char *trimwhitespace(char *str);
 
 int main(int argc, char **argv)
@@ -42,6 +44,6 @@ int main(int argc, char **argv)
   getSnapTime();
   sscanf(argv[1],"%d",&snapid);
   read_singlesnap(snapid);
-
+  printoutfullAHF();
   return 0;
 }
