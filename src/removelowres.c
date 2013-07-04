@@ -25,12 +25,20 @@ int main(int argc, char **argv)
   //FolderName = calloc(MAXSTRING,sizeof(char));
   //  strcpy(FolderName,"/export/virgo/Boyd/Millgas/62.5_ALEX");
   //  strcpy(FilePrefix,"62.5_dm_");
-
+#ifdef AQUARIUS
   sprintf(FolderName,"/gpfs/data/Millgas/cs390/SUSSING2013/datasetIII_unfiltered");
   sprintf(FilePrefix,"datasetIII_");
   sprintf(SnapTimeFile,"/gpfs/data/Millgas/cs390/SUSSING2013/datasetIII_unfiltered/a4_data_snaplist.txt");
   sprintf(gadgetfolder,"/gpfs/data/aquarius/halo_data/Aq-A/4");
   sprintf(gadgetPrefix,"snap_C02_400_");
+
+#else
+  sprintf(FolderName,"/scratch/cs390/SUSSING2013/datasetI");
+  sprintf(FilePrefix,"62.5_dm_");
+  sprintf(SnapTimeFile,"/scratch/cs390/SUSSING2013/datasetI/data_snaplist.txt");
+  sprintf(gadgetfolder,"/scratch/cs390/SUSSING2013/62.5_ori");
+  sprintf(gadgetPrefix,"62.5_dm_");
+#endif
   getSnapTime();
 
   read_singlesnap(61);
