@@ -365,6 +365,14 @@ void read_singlesnap(unsigned int snapnum)
 	  pid = HaloTable[iHalo].Particles[j].ParticleID;
 	  //printf("pid = %d\n",pid);
 	  pid= (unsigned int)PIDmap[(int)pid];
+	  HaloTable[iHalo].Particles[j].X = (float) P[pid].Pos[0];
+	  HaloTable[iHalo].Particles[j].Y = (float) P[pid].Pos[1];
+	  HaloTable[iHalo].Particles[j].Z = (float) P[pid].Pos[2];
+	  HaloTable[iHalo].Particles[j].Vx = (float) P[pid].Vel[0];
+	  HaloTable[iHalo].Particles[j].Vy = (float) P[pid].Vel[1];
+	  HaloTable[iHalo].Particles[j].Vz = (float) P[pid].Vel[2];
+
+  
 	  //printf("converted pid = %d\n",pid);
 	  if(P[pid].Type != 1)
 	    {
@@ -528,7 +536,7 @@ int gadget_load_snapshot(char *fname, int files)
 	      fread(&tmp[0], sizeof(float), 3, fd);
 #endif
 	      for(j=0;j<3;j++)
-		P[pc_new].Pos[j] = (float) tmp[j];
+		P[pc_new].Pos[j] = (float) tmp[j]*Mpc2kpc;
 	      /* printf("%d => %f\n",pc_new,P[pc_new].Pos[0]); */
 	      /* printf("%d => %f\n",pc_new,P[pc_new].Pos[1]); */
 	      /* printf("%d => %f\n",pc_new,P[pc_new].Pos[2]); */
@@ -560,7 +568,7 @@ int gadget_load_snapshot(char *fname, int files)
 #endif
 
 	      for(j=0;j<3;j++)
-		P[pc_new].Vel[j] = (float) tmp[j];
+		P[pc_new].Vel[j] = (float) tmp[j]*(header1.redshift+1.);
 	      pc_new++;
 	    }
 	}
