@@ -347,6 +347,7 @@ void read_singlesnap(unsigned int snapnum)
   //i = (MyIDtype) gadget_load_snapshot(filename,16,P,PIDmap );
   //printf("Total particle : %llu\n",i);
   maxaquariusid = 18535972;
+
   for(iHalo=0;iHalo < TotNhalos;iHalo++)
     {
       lowresflag = 0;
@@ -363,8 +364,9 @@ void read_singlesnap(unsigned int snapnum)
 	  HaloTable[iHalo].ID == NULLPOINT;
 	}
     }
-  
-
+  printf("Tothalos: %llu\n", TotNhalos);
+  resetIDmap();
+  printf("Tothalos: %llu\n", TotNhalos);
 }
 
 
