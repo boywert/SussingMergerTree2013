@@ -16,7 +16,7 @@ char *trimwhitespace(char *str);
 
 int main(int argc, char **argv)
 {
-  int isTree;
+  int isTree,snapid;
   MyIDtype i;
   char buffer[MAXSTRING];
   FILE* fp;
@@ -40,8 +40,8 @@ int main(int argc, char **argv)
   sprintf(gadgetPrefix,"62.5_dm_");
 #endif
   getSnapTime();
-
-  read_singlesnap(1023);
+  sscanf(argv[1],"%d",&snapid);
+  read_singlesnap(snapid);
 
   return 0;
 }
