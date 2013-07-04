@@ -348,7 +348,7 @@ void read_singlesnap(unsigned int snapnum)
   maxaquariusid = 
   for(iHalo=0;iHalo < TotNhalos;iHalo)
     {
-      for(i=0;i<)
+     
     }
   
 
