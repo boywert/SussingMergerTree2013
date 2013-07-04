@@ -374,9 +374,10 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
       fflush(stdout);
 
       fread(&dummy, sizeof(dummy), 1, fd);
+      printf("dummy = %d\n",dummy);
       fread(&header1, sizeof(header1), 1, fd);
       fread(&dummy, sizeof(dummy), 1, fd);
-
+      printf("dummy = %d\n",dummy);
       if(files == 1)
 	{
 	  for(k = 0, NumPart = 0, ntot_withmasses = 0; k < 6; k++)
