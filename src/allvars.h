@@ -132,6 +132,34 @@ struct particle_data
   float Vx,Vy,Vz;
 };
 
+struct gadget_io_header
+{
+  int npart[6];
+  double mass[6];
+  double time;
+  double redshift;
+  int flag_sfr;
+  int flag_feedback;
+  int npartTotal[6];
+  int flag_cooling;
+  int num_files;
+  double BoxSize;
+  double Omega0;
+  double OmegaLambda;
+  double HubbleParam;
+  char fill[256 - 6 * 4 - 6 * 8 - 2 * 8 - 2 * 4 - 6 * 4 - 2 * 4 - 4 * 8];	/* fills to 256 Bytes */
+};
+
+struct Gadget_particle
+{
+  float Pos[3];
+  float Vel[3];
+  float Mass;
+  int Type;
+
+  float Rho, U, Temp, Ne;
+};
+
 struct subfind_data 
 {
   long long TotNids;
@@ -218,6 +246,7 @@ extern char FolderName[MAXSTRING];
 extern char HBTFolderName[MAXSTRING];
 extern char TreeFolder[MAXSTRING];
 extern char ppFolder[MAXSTRING];
+extern char gadgetfolder[MAXSTRING];
 
 extern MyIDtype SnapNhalos[NSNAPS];
 extern float snapTime[NSNAPS];
@@ -248,7 +277,7 @@ extern void load_particles(MyIDtype load_id);
 extern void read_particles(unsigned int slotid);
 extern void hbtmaphalos(char file[MAXSTRING]);
 extern void read_singlesnap(unsigned int snapnum);
-
+extern int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int *PIDmap);
 extern int readRawOutputs(char file[MAXSTRING]);
 extern MyIDtype assignAvatarMain();
 extern MyIDtype assignAvatar();

@@ -217,6 +217,8 @@ void read_singlesnap(unsigned int snapnum)
   char buffer[MAXSTRING];
   char dummystr[MAXSTRING];
   FILE* fp;
+  struct Gadget_particle *P;
+  int *PIDmap;
   TotNhalos = 0;
   currentHalo = 0;
   for(iFile=snapnum;iFile<=snapnum;iFile++)
@@ -252,7 +254,7 @@ void read_singlesnap(unsigned int snapnum)
       fgets(buffer,MAXSTRING,fp);
       for(iHalo=0;iHalo<SnapNhalos[iFile];iHalo++)
 	{
-	  printf("iHalo = %llu\n",iHalo);
+	  //printf("iHalo = %llu\n",iHalo);
 	  fscanf(fp,"%llu %llu %llu %g %llu %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g",
 		 &(HaloTable[currentHalo].ID),
 		 &(HaloTable[currentHalo].hostHalo),
@@ -339,7 +341,177 @@ void read_singlesnap(unsigned int snapnum)
 
 
   read_particles(snapnum);
+  sprintf(filename,"%s/snapdir_%03d/%s%03d",gadgetfolder,(int)snapnum,FilePrefix,(int)snapnum);
+  i = (MyIDtype) gadget_load_snapshot(filename,16,P,PIDmap );
+  printf("Total particle : %llu\n",i);
+}
 
+
+int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int *PIDmap)
+{
+  FILE *fd;
+  char buf[200];
+  int i, j, k, dummy, ntot_withmasses,NumPart,Ngas;
+  int t, n, off, pc, pc_new, pc_sph;
+  int *Id;
+  struct gadget_io_header header1;
+#define SKIP fread(&dummy, sizeof(dummy), 1, fd);
+
+  for(i = 0, pc = 1; i < files; i++, pc = pc_new)
+    {
+      if(files > 1)
+	sprintf(buf, "%s.%d", fname, i);
+      else
+	sprintf(buf, "%s", fname);
+
+      if(!(fd = fopen(buf, "r")))
+	{
+	  printf("can't open file `%s`\n", buf);
+	  exit(0);
+	}
+
+      printf("reading `%s' ...\n", buf);
+      fflush(stdout);
+
+      fread(&dummy, sizeof(dummy), 1, fd);
+      fread(&header1, sizeof(header1), 1, fd);
+      fread(&dummy, sizeof(dummy), 1, fd);
+
+      if(files == 1)
+	{
+	  for(k = 0, NumPart = 0, ntot_withmasses = 0; k < 6; k++)
+	    {
+	      NumPart += header1.npart[k];
+	    }
+	  Ngas = header1.npart[0];
+	}
+      else
+	{
+	  
+	  for(k = 0, NumPart = 0, ntot_withmasses = 0; k < 6; k++)
+	    {
+	      NumPart += header1.npartTotal[k];
+	      printf("Total num %d : %d\n",k,header1.npartTotal[k]);
+	    }
+	  Ngas = header1.npartTotal[0];
+	}
+
+      for(k = 0, ntot_withmasses = 0; k < 6; k++)
+	{
+	  if(header1.mass[k] == 0)
+	    ntot_withmasses += header1.npart[k];
+	}
+
+      if(i == 0)
+	{
+	  printf("Total numpart : %d\n",NumPart);
+	  
+	  //allocate_memory();
+	  P = malloc(NumPart * sizeof(struct Gadget_particle));
+	  Id = malloc(NumPart * sizeof(int));
+	  PIDmap = malloc(NumPart * sizeof(int));
+	  P--;
+	  Id--;
+	  PIDmap--;
+	}
+      SKIP;
+      for(k = 0, pc_new = pc; k < 6; k++)
+	{
+	  for(n = 0; n < header1.npart[k]; n++)
+	    {
+	      fread(&P[pc_new].Pos[0], sizeof(float), 3, fd);
+	      pc_new++;
+	    }
+	}
+      SKIP;
+
+      SKIP;
+      for(k = 0, pc_new = pc; k < 6; k++)
+	{
+	  for(n = 0; n < header1.npart[k]; n++)
+	    {
+	      fread(&P[pc_new].Vel[0], sizeof(float), 3, fd);
+	      pc_new++;
+	    }
+	}
+      SKIP;
+
+
+      SKIP;
+      for(k = 0, pc_new = pc; k < 6; k++)
+	{
+	  for(n = 0; n < header1.npart[k]; n++)
+	    {
+	      fread(&Id[pc_new], sizeof(int), 1, fd);
+	      pc_new++;
+	    }
+	}
+      SKIP;
+
+
+      if(ntot_withmasses > 0)
+	SKIP;
+      for(k = 0, pc_new = pc; k < 6; k++)
+	{
+	  for(n = 0; n < header1.npart[k]; n++)
+	    {
+	      P[pc_new].Type = k;
+
+	      if(header1.mass[k] == 0)
+		fread(&P[pc_new].Mass, sizeof(float), 1, fd);
+	      else
+		P[pc_new].Mass = header1.mass[k];
+	      pc_new++;
+	    }
+	}
+      if(ntot_withmasses > 0)
+	SKIP;
+
+
+      if(header1.npart[0] > 0)
+	{
+	  SKIP;
+	  for(n = 0, pc_sph = pc; n < header1.npart[0]; n++)
+	    {
+	      fread(&P[pc_sph].U, sizeof(float), 1, fd);
+	      pc_sph++;
+	    }
+	  SKIP;
+
+	  SKIP;
+	  for(n = 0, pc_sph = pc; n < header1.npart[0]; n++)
+	    {
+	      fread(&P[pc_sph].Rho, sizeof(float), 1, fd);
+	      pc_sph++;
+	    }
+	  SKIP;
+
+	  if(header1.flag_cooling)
+	    {
+	      SKIP;
+	      for(n = 0, pc_sph = pc; n < header1.npart[0]; n++)
+		{
+		  fread(&P[pc_sph].Ne, sizeof(float), 1, fd);
+		  pc_sph++;
+		}
+	      SKIP;
+	    }
+	  else
+	    for(n = 0, pc_sph = pc; n < header1.npart[0]; n++)
+	      {
+		P[pc_sph].Ne = 1.0;
+		pc_sph++;
+	      }
+	}
+
+      fclose(fd);
+    }
+  //printf("%d %f %f %f\n",Id[NumPart],P[NumPart].Pos[0],P[NumPart].Vel[0],P[NumPart].Mass);
+  for(i=1;i<=NumPart;i++)
+    {
+      PIDmap[Id[i]] = i;
+    }
+  return NumPart;
 }
 
 void hbtmaphalos(char file[MAXSTRING])
