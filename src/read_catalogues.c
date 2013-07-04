@@ -478,7 +478,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
       /* SKIP; */
       fread(&dummy, sizeof(dummy), 1, fd);
       printf("dummy = %d/%d\n",dummy, local_nids);
-      tmp = malloc(sizeof(double)*3)
+      tmp = malloc(sizeof(double)*3);
       for(k = 0, pc_new = pc; k < 6; k++)
 	{
 	  for(n = 0; n < header1.npart[k]; n++)
@@ -489,7 +489,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	      fread(&tmp[0], sizeof(float), 3, fd);
 #endif
 	      for(j=0;j<3;j++)
-		P[pc_new].Pos[j] = (float) tmp[j]
+		P[pc_new].Pos[j] = (float) tmp[j];
 	      printf("%d => %f\n",pc_new,P[pc_new].Pos[0]);
 	      printf("%d => %f\n",pc_new,P[pc_new].Pos[1]);
 	      printf("%d => %f\n",pc_new,P[pc_new].Pos[2]);
