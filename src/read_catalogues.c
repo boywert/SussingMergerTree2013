@@ -216,11 +216,12 @@ void read_singlesnap(unsigned int snapnum)
   char filename[MAXSTRING];
   char buffer[MAXSTRING];
   char dummystr[MAXSTRING];
-  FILE* fp;
+  FILE *fp,*fr;
   struct Gadget_particle *P;
   int *PIDmap;
   int lowresflag;
   MyIDtype maxaquariusid;
+  float record;
   TotNhalos = 0;
   currentHalo = 0;
   for(iFile=snapnum;iFile<=snapnum;iFile++)
@@ -365,8 +366,11 @@ void read_singlesnap(unsigned int snapnum)
 	}
     }
   printf("Tothalos: %llu\n", TotNhalos);
+  record = (float) TotNhalos;
   resetIDmap();
-  printf("Tothalos: %llu\n", TotNhalos);
+  printf("ration: %f\n",record/(float) TotNhalos);
+  fr = fopen("record.txt","a+");
+  fprintf("%d\t%f\n",snapnum, record/TotNhalos);
 }
 
 
