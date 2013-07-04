@@ -16,13 +16,17 @@ void printoutfullAHF()
 {
   MyIDtype ihalo;
   char header_out[MAXSTRING];
+  char filename[MAXSTRING];
+  FILE *fp;
+  sprintf(filename,"test.ahf");
+  fp = fopen(filename,"w+");
   sprintf(header_out, 
-	  "#ID(1)     hostHalo(2)     numSubStruct(3) Mvir(4) npart(5)        Xc(6)   Yc(7)   Zc(8)   VXc(9)  VYc(10) VZc(11) Rvir(12)        Rmax(13)        r2(14)  mbp_offset(15)  com_offset(16)  Vmax(17)        v_esc(18)       sigV(19)        lambda(20)      lambdaE(21)     Lx(22)  Ly(23)  Lz(24)  b(25)   c(26)   Eax(27) Eay(28) Eaz(29) Ebx(30) Eby(31) Ebz(32) Ecx(33) Ecy(34) Ecz(35) ovdens(36)      nbins(37)       fMhires(38)     Ekin(39)        Epot(40)        SurfP(41)       Phi0(42)        cNFW(43)");
+	  "#ID(1)\thostHalo(2)\t numSubStruct(3)\t Mvir(4)\t npart(5) \t       Xc(6)  \t Yc(7)  \t Zc(8)  \t VXc(9) \t VYc(10)\t VZc(11) \tRvir(12)     \t   Rmax(13)    \t    r2(14) \t mbp_offset(15) \t com_offset(16) \t Vmax(17)   \t     v_esc(18)   \t    sigV(19)      \t  lambda(20)   \t   lambdaE(21)    \t Lx(22) \t Ly(23)\t  Lz(24) \t b(25)  \t c(26)  \t Eax(27) Eay(28) \tEaz(29)\t Ebx(30) \tEby(31) \tEbz(32)\t Ecx(33)\t Ecy(34)\t Ecz(35) \tovdens(36)  \t    nbins(37)    \t   fMhires(38)  \t   Ekin(39)    \t    Epot(40)     \t   SurfP(41)  \t     Phi0(42)   \t     cNFW(43)");
   //printf("%s\n",header_out);
-  printf("%s\n", header_out);
+  fprintf(fp,"%s\n", header_out);
   for(ihalo=0;ihalo<TotNhalos;ihalo++)
-    {
-  printf("%llu\t%llu\t%lu\t%.8g\t%lu\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\n",
+    {	
+      fprintf(fp,"%llu\t%llu\t%lu\t%.8g\t%lu\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\n",
 	  HaloTable[ihalo].AHFID,
 	  HaloTable[ihalo].hostHalo,
 	  HaloTable[ihalo].numSubStruct,
@@ -68,6 +72,7 @@ void printoutfullAHF()
 	  HaloTable[ihalo].cNFW 
 	  );
     }
+  fclose(fp);
 }
 
 
