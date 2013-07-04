@@ -345,7 +345,7 @@ void read_singlesnap(unsigned int snapnum)
 
   read_particles(snapnum);
   sprintf(filename,"%s/snapdir_%03d/%s%03d",gadgetfolder,(int)snapnum,gadgetPrefix,(int)snapnum);
-  i = (MyIDtype) gadget_load_snapshot(filename,16,P,PIDmap );
+  //i = (MyIDtype) gadget_load_snapshot(filename,16,P,PIDmap );
   //printf("Total particle : %llu\n",i);
   maxaquariusid = 18535972;
 
