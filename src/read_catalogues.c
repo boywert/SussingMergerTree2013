@@ -490,9 +490,9 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 #endif
 	      for(j=0;j<3;j++)
 		P[pc_new].Pos[j] = (float) tmp[j];
-	      printf("%d => %f\n",pc_new,P[pc_new].Pos[0]);
-	      printf("%d => %f\n",pc_new,P[pc_new].Pos[1]);
-	      printf("%d => %f\n",pc_new,P[pc_new].Pos[2]);
+	      /* printf("%d => %f\n",pc_new,P[pc_new].Pos[0]); */
+	      /* printf("%d => %f\n",pc_new,P[pc_new].Pos[1]); */
+	      /* printf("%d => %f\n",pc_new,P[pc_new].Pos[2]); */
 
 	      pc_new++;
 	    }
