@@ -355,9 +355,13 @@ void read_singlesnap(unsigned int snapnum)
 	  if(HaloTable[iHalo].Particles[j].ParticleID > maxaquariusid)
 	    lowresflag = 1;
 	}
+      if(HaloTable[SubTree[ihalo]].ID == NULLPOINT)
+	lowresflag = 1;
       if(lowresflag == 1)
-	printf("ID %llu = low res\n",iHalo);
-
+	{
+	  printf("ID %llu = low res\n",iHalo);
+	  HaloTable[ihalo].ID == NULLPOINT;
+	}
     }
   
 
