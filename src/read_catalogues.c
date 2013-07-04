@@ -378,6 +378,11 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
   int i, j, k, dummy, ntot_withmasses,NumPart,Ngas;
   int t, n, off, pc, pc_new, pc_sph,local_nids;
   unsigned int *Id;
+#ifdef AQUARIUS
+  double *tmp;
+#else
+  float *tmp;
+#endif
   struct gadget_io_header header1;
 #define SKIP fread(&dummy, sizeof(dummy), 1, fd);
 
@@ -473,16 +478,22 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
       /* SKIP; */
       fread(&dummy, sizeof(dummy), 1, fd);
       printf("dummy = %d/%d\n",dummy, local_nids);
-      
+      tmp = malloc(sizeof(double)*3)
       for(k = 0, pc_new = pc; k < 6; k++)
 	{
 	  for(n = 0; n < header1.npart[k]; n++)
 	    {
-	      fread(&P[pc_new].Pos[0], sizeof(float), 3, fd);
-	      /* printf("%d => %f\n",pc_new,P[pc_new].Pos[0]); */
-	      /* printf("%d => %f\n",pc_new,P[pc_new].Pos[1]); */
-	      /* printf("%d => %f\n",pc_new,P[pc_new].Pos[2]); */
-	      exit(0);
+#ifdef AQUARIUS
+	      fread(&tmp[0], sizeof(double), 3, fd);
+#else
+	      fread(&tmp[0], sizeof(float), 3, fd);
+#endif
+	      for(j=0;j<3;j++)
+		P[pc_new].Pos[j] = (float) tmp[j]
+	      printf("%d => %f\n",pc_new,P[pc_new].Pos[0]);
+	      printf("%d => %f\n",pc_new,P[pc_new].Pos[1]);
+	      printf("%d => %f\n",pc_new,P[pc_new].Pos[2]);
+
 	      pc_new++;
 	    }
 	}

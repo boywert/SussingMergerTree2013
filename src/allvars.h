@@ -165,12 +165,15 @@ struct gadget_io_header
 
 struct Gadget_particle
 {
+
   float Pos[3];
   float Vel[3];
   float Mass;
+
   int Type;
 
   float Rho, U, Temp, Ne;
+
 };
 
 struct subfind_data 
