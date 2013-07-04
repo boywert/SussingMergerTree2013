@@ -410,25 +410,35 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	  P = malloc(NumPart * sizeof(struct Gadget_particle));
 	  Id = malloc(NumPart * sizeof(int));
 	  PIDmap = malloc(NumPart * sizeof(int));
-	  for(k=0;k<6;k++)
-	    {
-	      printf("mass[%d] : %lf\n",k,header1.mass[k]);
-	    }
-	  printf("time : %lf\n",header1.time);
-	  printf("redshift : %lf\n",header1.redshift);
-	  printf("flag_sfr : %d\n", header1.flag_sfr);
-	  printf("flag_feedback : %d\n", header1.flag_feedback);
-	  printf("flag_cooling : %d\n", header1.flag_cooling);
-	  printf("numfiles : %d\n", header1.num_files);
-	  printf("BoxSize : %lf\n",header1.BoxSize);
-	  printf("Omega0 : %lf\n",header1.Omega0);
-	  printf("OmegaLambda : %lf\n",header1.OmegaLambda);
-	  printf("HubbleParam : %lf\n",header1.HubbleParam);
 
 	  P--;
 	  Id--;
 	  PIDmap--;
 	}
+      for(k=0;k<6;k++)
+	{
+	  printf("N[%d] : %lf\n",k,header1.npart[k]);
+	}
+      for(k=0;k<6;k++)
+	{
+	  printf("Total N[%d] : %lf\n",k,header1.npartTotal[k]);
+	}
+      for(k=0;k<6;k++)
+	{
+	  printf("mass[%d] : %lf\n",k,header1.mass[k]);
+	}
+      printf("time : %lf\n",header1.time);
+      printf("redshift : %lf\n",header1.redshift);
+      printf("flag_sfr : %d\n", header1.flag_sfr);
+      printf("flag_feedback : %d\n", header1.flag_feedback);
+      printf("flag_cooling : %d\n", header1.flag_cooling);
+      printf("numfiles : %d\n", header1.num_files);
+      printf("BoxSize : %lf\n",header1.BoxSize);
+      printf("Omega0 : %lf\n",header1.Omega0);
+      printf("OmegaLambda : %lf\n",header1.OmegaLambda);
+      printf("HubbleParam : %lf\n",header1.HubbleParam);
+
+
       SKIP;
       for(k = 0, pc_new = pc; k < 6; k++)
 	{
