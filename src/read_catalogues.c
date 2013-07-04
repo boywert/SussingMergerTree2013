@@ -353,7 +353,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
   char buf[200];
   int i, j, k, dummy, ntot_withmasses,NumPart,Ngas;
   int t, n, off, pc, pc_new, pc_sph;
-  int *Id;
+  unsigned long long *Id;
   struct gadget_io_header header1;
 #define SKIP fread(&dummy, sizeof(dummy), 1, fd);
 
@@ -408,8 +408,8 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	  
 	  //allocate_memory();
 	  P = malloc(NumPart * sizeof(struct Gadget_particle));
-	  Id = malloc(NumPart * sizeof(int));
-	  PIDmap = malloc(NumPart * sizeof(int));
+	  Id = malloc(NumPart * sizeof(unsigned long long));
+	  PIDmap = malloc(NumPart * sizeof(unsigned long long));
 	  P--;
 	  Id--;
 	  PIDmap--;
@@ -442,7 +442,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	{
 	  for(n = 0; n < header1.npart[k]; n++)
 	    {
-	      fread(&Id[pc_new], sizeof(int), 1, fd);
+	      fread(&Id[pc_new], sizeof(unsigned long long), 1, fd);
 	      pc_new++;
 	    }
 	}
@@ -509,7 +509,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
   printf("%d %f %f %f\n",Id[NumPart],P[NumPart].Pos[0],P[NumPart].Vel[0],P[NumPart].Mass);
   for(i=1;i<=header1.npartTotal[1];i++)
     {
-      printf("%d %f %f %f\n",Id[i],P[i].Pos[0],P[i].Vel[0],P[i].Mass);
+      printf("%d %f %f %f\n",(int)Id[i],P[i].Pos[0],P[i].Vel[0],P[i].Mass);
       //printf("%d => %d\n",i,(int)Id[i]);
       //PIDmap[Id[i]] = i;
     }
