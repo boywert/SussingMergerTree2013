@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 #endif
   getSnapTime();
 
-  read_singlesnap(61);
+  read_singlesnap(3);
 
   return 0;
 }
