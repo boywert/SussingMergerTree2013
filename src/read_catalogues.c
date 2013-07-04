@@ -410,6 +410,18 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	  P = malloc(NumPart * sizeof(struct Gadget_particle));
 	  Id = malloc(NumPart * sizeof(unsigned long long));
 	  PIDmap = malloc(NumPart * sizeof(unsigned long long));
+
+	  printf("time : %lf\n",header1.time);
+	  printf("redshift : %lf\n",header1.redshift);
+	  printf("flag_sfr : %d\n", header1.flag_sfr);
+	  printf("flag_feedback : %d\n", header1.flag_feedback);
+	  printf("flag_cooling : %d\n", header1.flag_cooling);
+	  printf("numfiles : %d\n", header1.numfiles);
+	  printf("BoxSize : %lf\n",header1.BoxSize);
+	  printf("Omega0 : %lf\n",header1.Omega0);
+	  printf("OmegaLambda : %lf\n",header1.OmegaLambda);
+	  printf("HubbleParam : %lf\n",header1.HubbleParam);
+
 	  P--;
 	  Id--;
 	  PIDmap--;
