@@ -454,7 +454,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	      printf("%d => %f\n",pc_new,P[pc_new].Pos[0]);
 	      printf("%d => %f\n",pc_new,P[pc_new].Pos[1]);
 	      printf("%d => %f\n",pc_new,P[pc_new].Pos[2]);
-	      exit(0);
+	      //exit(0);
 	      pc_new++;
 	    }
 	}
