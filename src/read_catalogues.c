@@ -346,7 +346,7 @@ void read_singlesnap(unsigned int snapnum)
   //i = (MyIDtype) gadget_load_snapshot(filename,16,P,PIDmap );
   //printf("Total particle : %llu\n",i);
   maxaquariusid = 
-  for(iHalo=0;iHalo < TotNhalos;iHalo)
+  for(iHalo=0;iHalo < TotNhalos;iHalo++)
     {
      
     }
