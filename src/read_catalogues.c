@@ -640,7 +640,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
   //printf("%d %f %f %f\n",Id[NumPart],P[NumPart].Pos[0],P[NumPart].Vel[0],P[NumPart].Mass);
   for(i=1;i<=header1.npartTotal[1];i++)
     {
-      if(Id[i] > header1.npartTotal[k]) printf("%d %f %f %f\n",(int)Id[i],P[i].Pos[0],P[i].Vel[0],P[i].Mass);
+      if(i > header1.npartTotal[k]) printf("%d %f %f %f\n",(int)Id[i],P[i].Pos[0],P[i].Vel[0],P[i].Mass);
       //printf("%d => %d\n",i,(int)Id[i]);
       //PIDmap[Id[i]] = i;
     }
