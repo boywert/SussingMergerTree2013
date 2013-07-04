@@ -22,7 +22,9 @@ struct HBT_halos *HBT;
 
 void read_particles(unsigned int slotid);
 void read_particles_binary();
-
+struct Gadget_particle *P;
+int *PIDmap;
+unsigned int *Id;
 void getSnapTime()
 {
   int i,dummyint;
@@ -217,9 +219,9 @@ void read_singlesnap(unsigned int snapnum)
   char buffer[MAXSTRING];
   char dummystr[MAXSTRING];
   FILE *fp,*fr;
-  struct Gadget_particle *P;
-  unsigned int *Id;
-  int *PIDmap;
+  //struct Gadget_particle *P;
+  //unsigned int *Id;
+  //int *PIDmap;
   int lowresflag;
   MyIDtype maxaquariusid;
   float record;
@@ -403,7 +405,7 @@ void read_singlesnap(unsigned int snapnum)
 }
 
 
-int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int *PIDmap, unsigned int *Id)
+int gadget_load_snapshot(char *fname, int files)
 {
   FILE *fd;
   char buf[200];
@@ -677,7 +679,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
       //if(i != Id[i]) printf("%d => %d\n",i,(int)Id[i]);
       PIDmap[Id[i]] = i;
     }
-  printf("%d %f %f %f\n",Id[NumPart],P[NumPart].Pos[0],P[NumPart].Vel[0],P[NumPart].Mass);
+  //printf("%d %f %f %f\n",Id[NumPart],P[NumPart].Pos[0],P[NumPart].Vel[0],P[NumPart].Mass);
   return NumPart;
 }
 
