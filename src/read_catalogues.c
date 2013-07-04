@@ -385,7 +385,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 #endif
   struct gadget_io_header header1;
 #define SKIP fread(&dummy, sizeof(dummy), 1, fd);
-
+  tmp = malloc(0);
   for(i = 0, pc = 1; i < files; i++, pc = pc_new)
     {
       if(files > 1)
@@ -478,7 +478,11 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
       /* SKIP; */
       fread(&dummy, sizeof(dummy), 1, fd);
       printf("dummy = %d/%d\n",dummy, local_nids);
-      tmp = malloc(sizeof(double)*3);
+#ifdef AQUARIUS
+      tmp = realloc(tmp,sizeof(double)*3);
+#else
+      tmp = realloc(tmp,sizeof(float)*3);
+#endif
       for(k = 0, pc_new = pc; k < 6; k++)
 	{
 	  for(n = 0; n < header1.npart[k]; n++)
@@ -502,13 +506,26 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
       printf("dummy = %d\n",dummy);
 
       /* SKIP; */
+
       fread(&dummy, sizeof(dummy), 1, fd);
-      printf("dummy = %d\n",dummy);
-      for(k = 0, pc_new = pc; k < 6; k++)
+      printf("dummy = %d/%d\n",dummy, local_nids);
+#ifdef AQUARIUS
+      tmp = realloc(tmp,sizeof(double)*3);
+#else
+      tmp = realloc(tmp,sizeof(float)*3);
+#endif
+     for(k = 0, pc_new = pc; k < 6; k++)
 	{
 	  for(n = 0; n < header1.npart[k]; n++)
 	    {
-	      fread(&P[pc_new].Vel[0], sizeof(float), 3, fd);
+#ifdef AQUARIUS
+	      fread(&tmp[0], sizeof(double), 3, fd);
+#else
+	      fread(&tmp[0], sizeof(float), 3, fd);
+#endif
+
+	      for(j=0;j<3;j++)
+		P[pc_new].Vel[j] = (float) tmp[j];
 	      pc_new++;
 	    }
 	}
