@@ -256,7 +256,7 @@ extern char HBTFolderName[MAXSTRING];
 extern char TreeFolder[MAXSTRING];
 extern char ppFolder[MAXSTRING];
 extern char gadgetfolder[MAXSTRING];
-
+extern char gadgetPrefix[MAXSTRING];
 extern MyIDtype SnapNhalos[NSNAPS];
 extern float snapTime[NSNAPS];
 extern float snapTimeYear[NSNAPS];

@@ -12,6 +12,7 @@ char ppFolder[MAXSTRING];
 char inputFile[MAXSTRING];
 char *trimwhitespace(char *str);
 char gadgetfolder[MAXSTRING];
+char gadgetPrefix[MAXSTRING];
 int main(int argc, char **argv)
 {
   int isTree;
