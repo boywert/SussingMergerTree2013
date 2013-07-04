@@ -360,7 +360,7 @@ void read_singlesnap(unsigned int snapnum)
 	lowresflag = 1;
       if(lowresflag == 1)
 	{
-	  printf("ID %llu = low res\n",iHalo);
+	  //printf("ID %llu = low res\n",iHalo);
 	  HaloTable[iHalo].ID = NULLPOINT;
 	}
     }
@@ -376,7 +376,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
   char buf[200];
   long longdummy;
   int i, j, k, dummy, ntot_withmasses,NumPart,Ngas;
-  int t, n, off, pc, pc_new, pc_sph;
+  int t, n, off, pc, pc_new, pc_sph,local_nids;
   unsigned int *Id;
   struct gadget_io_header header1;
 #define SKIP fread(&dummy, sizeof(dummy), 1, fd);
@@ -440,9 +440,11 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	  Id--;
 	  PIDmap--;
 	}
+      local_nids = 0;
       for(k=0;k<6;k++)
 	{
 	  printf("N[%d] : %d\n",k,header1.npart[k]);
+	  local_nids += header1.npart[k];
 	}
       for(k=0;k<6;k++)
 	{
@@ -467,9 +469,11 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	{
 	  printf("fillers[%d] : %d\n",k, header1.filler[k]);
 	}
+      
       /* SKIP; */
       fread(&dummy, sizeof(dummy), 1, fd);
-      printf("dummy = %d\n",dummy);
+      printf("dummy = %d/%d\n",dummy,dummy/local_nids);
+      
       for(k = 0, pc_new = pc; k < 6; k++)
 	{
 	  for(n = 0; n < header1.npart[k]; n++)
