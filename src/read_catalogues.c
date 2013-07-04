@@ -381,8 +381,8 @@ void read_singlesnap(unsigned int snapnum)
 	}
     }
   fclose(fr);
-  /* printf("Tothalos: %llu\n", TotNhalos); */
-  /* record = (float) TotNhalos; */
+  printf("Tothalos before: %llu\n", TotNhalos);
+  record = (float) TotNhalos;
   /* fr = fopen("before.txt","w+"); */
   /* for(iHalo=0;iHalo < TotNhalos;iHalo++) */
   /*   { */
@@ -390,6 +390,7 @@ void read_singlesnap(unsigned int snapnum)
   /*   } */
   /* fclose(fr); */
   resetIDmap();
+  printf("Tothalos after: %llu\n", TotNhalos);
   /* printf("ration: %f\n",record/(float) TotNhalos); */
   
   /* fr = fopen("record.txt","a+"); */
