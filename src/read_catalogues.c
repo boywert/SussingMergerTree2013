@@ -364,7 +364,7 @@ void read_singlesnap(unsigned int snapnum)
       
       if(lowresflag > 0 || HaloTable[SubTree[iHalo]].ID == NULLPOINT)
 	{
-	  fprintf(fr,"%llu\t%f\t%d\n",iHalo,sqrt( pow(HaloTable[iHalo].Xc - HaloTable[0].Xc,2) + pow(HaloTable[iHalo].Yc - HaloTable[0].Yc,2) + pow(HaloTable[iHalo].Zc-HaloTable[iHalo].Zc,2)), lowresflag);
+	  fprintf(fr,"%llu\t%f\t%d\t%llu\n",iHalo,sqrt( pow(HaloTable[iHalo].Xc - HaloTable[0].Xc,2) + pow(HaloTable[iHalo].Yc - HaloTable[0].Yc,2) + pow(HaloTable[iHalo].Zc-HaloTable[iHalo].Zc,2)), lowresflag, HaloTable[iHalo].npart );
 	  HaloTable[iHalo].ID = NULLPOINT;
 	}
     }
