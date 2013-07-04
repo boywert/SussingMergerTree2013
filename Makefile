@@ -8,6 +8,7 @@ LIB = $(CURDIR)/lib
 SRCALL = $(SRC)/allvars.h  $(SRC)/analysis.c  $(SRC)/read_catalogues.c  $(SRC)/read_output.c   $(SRC)/sorting.c  $(SRC)/utils.c
 SO_FILES = $(LIB)/gadgetPyIO.so
 OPT = 
+OPT += -DAQUARIUS
 OPT += -DREADPARTICLE 
 #OPT += -DSUBFINDOUT
 OPT += -DSTORESUBIDINMOSTBOUNDID

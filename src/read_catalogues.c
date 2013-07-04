@@ -510,7 +510,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
   for(i=1;i<=NumPart;i++)
     {
       printf("%d => %d\n",i,(int)Id[i]);
-      PIDmap[Id[i]] = i;
+      //PIDmap[Id[i]] = i;
     }
   return NumPart;
 }
