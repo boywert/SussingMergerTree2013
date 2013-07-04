@@ -355,7 +355,7 @@ void read_singlesnap(unsigned int snapnum)
 	  if(HaloTable[iHalo].Particles[j].ParticleID > maxaquariusid)
 	    lowresflag = 1;
 	}
-      if(HaloTable[SubTree[ihalo]].ID == NULLPOINT)
+      if(HaloTable[SubTree[iHalo]].ID == NULLPOINT)
 	lowresflag = 1;
       if(lowresflag == 1)
 	{
