@@ -363,7 +363,7 @@ void read_singlesnap(unsigned int snapnum)
 	lowresflag = 1;
       if(lowresflag == 1)
 	{
-	  fprintf(fr,"%llu %f\t",iHalo,sqrt( pow(HaloTable[iHalo].Xc - HaloTable[0].Xc.2) + pow(HaloTable[iHalo].Yc - HaloTable[0].Yc,2) + pow(HaloTable[iHalo].Zc-HaloTable[iHalo].Zc,2)  ));
+	  fprintf(fr,"%llu %f\t",iHalo,sqrt( pow(HaloTable[iHalo].Xc - HaloTable[0].Xc,2) + pow(HaloTable[iHalo].Yc - HaloTable[0].Yc,2) + pow(HaloTable[iHalo].Zc-HaloTable[iHalo].Zc,2)  ));
 	  HaloTable[iHalo].ID = NULLPOINT;
 	}
     }
