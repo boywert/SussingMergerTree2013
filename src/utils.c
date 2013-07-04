@@ -81,7 +81,7 @@ void printoutfullAHF(char initfile[MAXSTRING])
       fprintf(fp,"%llu\t%llu\n",HaloTable[ihalo].npart,HaloTable[ihalo].AHFID);
       for(j=0;j<HaloTable[ihalo].npart;j++)
 	{
-	  fprintf(fp,"%llu\t%10.8g\t%10.8g\t%10.8g\t%10.8g\t%10.8g\t%10.8g\t%10.8g",
+	  fprintf(fp,"%llu\t%10.8g\t%10.8g\t%10.8g\t%10.8g\t%10.8g\t%10.8g\t%10.8g\n",
 		  HaloTable[ihalo].Particles[j].ParticleID,
 		  1.e38,
 		  HaloTable[ihalo].Particles[j].X,
