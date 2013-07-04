@@ -159,7 +159,7 @@ struct gadget_io_header
   int flag_stellarage;
   int flag_metals;
   int  hashtabsize;
-  int filler[84/sizeof(int)];
+  int filler[100/sizeof(int)];
   //char fill[256 - 6 * 4 - 6 * 8 - 2 * 8 - 2 * 4 - 6 * 4 - 2 * 4 - 4 * 11];	/* fills to 256 Bytes */
 };
 

@@ -438,7 +438,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
       printf("OmegaLambda : %lf\n",header1.OmegaLambda);
       printf("HubbleParam : %lf\n",header1.HubbleParam);
 
-      for(k=0;k<21;k++)
+      for(k=0;k<25;k++)
 	{
 	  printf("fillers[%d] : %d\n",k, header1.filler[k]);
 	}
