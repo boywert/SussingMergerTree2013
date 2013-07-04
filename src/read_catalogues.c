@@ -443,23 +443,27 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	{
 	  printf("fillers[%d] : %d\n",k, header1.filler[k]);
 	}
-      //fread(&dummy, sizeof(dummy), 1, fd);
+      fread(&dummy, sizeof(dummy), 1, fd);
       printf("dummy = %d\n",dummy);
       for(k = 0, pc_new = pc; k < 6; k++)
 	{
 	  for(n = 0; n < header1.npart[k]; n++)
 	    {
 	      fread(&P[pc_new].Pos[0], sizeof(float), 3, fd);
-	      printf("%d => %f\n",pc_new,P[pc_new].Pos[0]);
-	      printf("%d => %f\n",pc_new,P[pc_new].Pos[1]);
-	      printf("%d => %f\n",pc_new,P[pc_new].Pos[2]);
-	      exit(0);
+	      /* printf("%d => %f\n",pc_new,P[pc_new].Pos[0]); */
+	      /* printf("%d => %f\n",pc_new,P[pc_new].Pos[1]); */
+	      /* printf("%d => %f\n",pc_new,P[pc_new].Pos[2]); */
+	      /* exit(0); */
 	      pc_new++;
 	    }
 	}
-      SKIP;
+      /* SKIP; */
+      fread(&dummy, sizeof(dummy), 1, fd);
+      printf("dummy = %d\n",dummy);
 
-      SKIP;
+      /* SKIP; */
+      fread(&dummy, sizeof(dummy), 1, fd);
+      printf("dummy = %d\n",dummy);
       for(k = 0, pc_new = pc; k < 6; k++)
 	{
 	  for(n = 0; n < header1.npart[k]; n++)
@@ -468,10 +472,13 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	      pc_new++;
 	    }
 	}
-      SKIP;
+      /* SKIP; */
+      fread(&dummy, sizeof(dummy), 1, fd);
+      printf("dummy = %d\n",dummy);
 
-
-      SKIP;
+      /* SKIP; */
+      fread(&dummy, sizeof(dummy), 1, fd);
+      printf("dummy = %d\n",dummy);
       for(k = 0, pc_new = pc; k < 6; k++)
 	{
 	  for(n = 0; n < header1.npart[k]; n++)
@@ -480,11 +487,17 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	      pc_new++;
 	    }
 	}
-      SKIP;
+      /* SKIP; */
+      fread(&dummy, sizeof(dummy), 1, fd);
+      printf("dummy = %d\n",dummy);
 
 
       if(ntot_withmasses > 0)
-	SKIP;
+	{
+	  /* SKIP; */
+	  fread(&dummy, sizeof(dummy), 1, fd);
+	  printf("dummy = %d\n",dummy);
+	}
       for(k = 0, pc_new = pc; k < 6; k++)
 	{
 	  for(n = 0; n < header1.npart[k]; n++)
@@ -499,36 +512,49 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	    }
 	}
       if(ntot_withmasses > 0)
-	SKIP;
-
+	{
+	  /* SKIP; */
+	  fread(&dummy, sizeof(dummy), 1, fd);
+	  printf("dummy = %d\n",dummy);
+	}
 
       if(header1.npart[0] > 0)
 	{
-	  SKIP;
+	  /* SKIP; */
+	  fread(&dummy, sizeof(dummy), 1, fd);
+	  printf("dummy = %d\n",dummy);
 	  for(n = 0, pc_sph = pc; n < header1.npart[0]; n++)
 	    {
 	      fread(&P[pc_sph].U, sizeof(float), 1, fd);
 	      pc_sph++;
 	    }
-	  SKIP;
-
-	  SKIP;
+	  /* SKIP; */
+	  fread(&dummy, sizeof(dummy), 1, fd);
+	  printf("dummy = %d\n",dummy);
+	  /* SKIP; */
+	  fread(&dummy, sizeof(dummy), 1, fd);
+	  printf("dummy = %d\n",dummy);
 	  for(n = 0, pc_sph = pc; n < header1.npart[0]; n++)
 	    {
 	      fread(&P[pc_sph].Rho, sizeof(float), 1, fd);
 	      pc_sph++;
 	    }
-	  SKIP;
-
+	  /* SKIP; */
+	  fread(&dummy, sizeof(dummy), 1, fd);
+	  printf("dummy = %d\n",dummy);	  
 	  if(header1.flag_cooling)
 	    {
-	      SKIP;
+	      /* SKIP; */
+	      fread(&dummy, sizeof(dummy), 1, fd);
+	      printf("dummy = %d\n",dummy);
 	      for(n = 0, pc_sph = pc; n < header1.npart[0]; n++)
 		{
 		  fread(&P[pc_sph].Ne, sizeof(float), 1, fd);
 		  pc_sph++;
 		}
-	      SKIP;
+	      fread(&dummy, sizeof(dummy), 1, fd);
+	      printf("dummy = %d\n",dummy);
+	      /* SKIP; */
 	    }
 	  else
 	    for(n = 0, pc_sph = pc; n < header1.npart[0]; n++)
