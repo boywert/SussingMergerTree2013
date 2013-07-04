@@ -353,7 +353,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
   char buf[200];
   int i, j, k, dummy, ntot_withmasses,NumPart,Ngas;
   int t, n, off, pc, pc_new, pc_sph;
-  int *Id;
+  unsigned int *Id;
   struct gadget_io_header header1;
 #define SKIP fread(&dummy, sizeof(dummy), 1, fd);
 
@@ -509,7 +509,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
   printf("%d %f %f %f\n",Id[NumPart],P[NumPart].Pos[0],P[NumPart].Vel[0],P[NumPart].Mass);
   for(i=1;i<=NumPart;i++)
     {
-      printf("%d => %d\n",i,Id[i]);
+      printf("%d => %d\n",i,(int)Id[i]);
       PIDmap[Id[i]] = i;
     }
   return NumPart;
