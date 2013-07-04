@@ -360,7 +360,7 @@ void read_singlesnap(unsigned int snapnum)
       if(lowresflag == 1)
 	{
 	  printf("ID %llu = low res\n",iHalo);
-	  HaloTable[ihalo].ID == NULLPOINT;
+	  HaloTable[iHalo].ID == NULLPOINT;
 	}
     }
   
