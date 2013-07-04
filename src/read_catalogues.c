@@ -345,7 +345,7 @@ void read_singlesnap(unsigned int snapnum)
 
   read_particles(snapnum);
   sprintf(filename,"%s/snapdir_%03d/%s%03d",gadgetfolder,(int)snapnum,gadgetPrefix,(int)snapnum);
-  //i = (MyIDtype) gadget_load_snapshot(filename,16,P,PIDmap );
+  i = (MyIDtype) gadget_load_snapshot(filename,16,P,PIDmap );
   //printf("Total particle : %llu\n",i);
   maxaquariusid = 18535972;
 
@@ -366,26 +366,26 @@ void read_singlesnap(unsigned int snapnum)
 	}
     }
   printf("Tothalos: %llu\n", TotNhalos);
-  record = (float) TotNhalos;
-  fr = fopen("before.txt","w+");
-  for(iHalo=0;iHalo < TotNhalos;iHalo++)
-    {
-      fprintf(fr,"%f %f %f\n",HaloTable[iHalo].Xc,HaloTable[iHalo].Yc,HaloTable[iHalo].Zc);
-    }
-  fclose(fr);
+  /* record = (float) TotNhalos; */
+  /* fr = fopen("before.txt","w+"); */
+  /* for(iHalo=0;iHalo < TotNhalos;iHalo++) */
+  /*   { */
+  /*     fprintf(fr,"%f %f %f\n",HaloTable[iHalo].Xc,HaloTable[iHalo].Yc,HaloTable[iHalo].Zc); */
+  /*   } */
+  /* fclose(fr); */
   resetIDmap();
-  printf("ration: %f\n",record/(float) TotNhalos);
+  /* printf("ration: %f\n",record/(float) TotNhalos); */
   
-  fr = fopen("record.txt","a+");
-  fprintf(fr,"%d\t%f\t%d\n",snapnum, (float)TotNhalos/record,(int)record);
-  fclose(fr);
+  /* fr = fopen("record.txt","a+"); */
+  /* fprintf(fr,"%d\t%f\t%d\n",snapnum, (float)TotNhalos/record,(int)record); */
+  /* fclose(fr); */
 
-  fr = fopen("after.txt","w+");
-  for(iHalo=0;iHalo < TotNhalos;iHalo++)
-    {
-      fprintf(fr,"%f %f %f\n",HaloTable[iHalo].Xc,HaloTable[iHalo].Yc,HaloTable[iHalo].Zc);
-    }
-  fclose(fr);
+  /* fr = fopen("after.txt","w+"); */
+  /* for(iHalo=0;iHalo < TotNhalos;iHalo++) */
+  /*   { */
+  /*     fprintf(fr,"%f %f %f\n",HaloTable[iHalo].Xc,HaloTable[iHalo].Yc,HaloTable[iHalo].Zc); */
+  /*   } */
+  /* fclose(fr); */
 }
 
 
