@@ -14,7 +14,7 @@ MyIDtype findtoplevel(MyIDtype hid)
 
 void printoutfullAHF(char initfile[MAXSTRING])
 {
-  MyIDtype ihalo;
+  MyIDtype ihalo,j;
   char header_out[MAXSTRING];
   char filename[MAXSTRING];
   FILE *fp;
@@ -71,6 +71,27 @@ void printoutfullAHF(char initfile[MAXSTRING])
 	  HaloTable[ihalo].Phi0,
 	  HaloTable[ihalo].cNFW 
 	  );
+    }
+  fclose(fp);
+  sprintf(filename,"%s.AHF_particles",initfile);
+  fp = fopen(filename,"w+");
+  fprintf(fp,"%llu\n",TotNhalos);
+  for(ihalo=0;ihalo<TotNhalos;ihalo++)
+    {
+      fprintf(fp,"%llu\t%llu\n",HaloTable[ihalo].npart,HaloTable[ihalo].AHFID);
+      for(j=0;j<HaloTable[i].npart;j++)
+	{
+	  fprintf(fp,"%llu\t%10.8g\t%10.8g\t%10.8g\t%10.8g\t%10.8g\t%10.8g\t%10.8g",
+		  HaloTable[ihalo].Particles[j].ParticleID,
+		  1.e38,
+		  HaloTable[ihalo].Particles[j].X,
+		  HaloTable[ihalo].Particles[j].Y,
+		  HaloTable[ihalo].Particles[j].Z,		  
+		  HaloTable[ihalo].Particles[j].Vx,
+		  HaloTable[ihalo].Particles[j].Vy,
+		  HaloTable[ihalo].Particles[j].Vz
+		  );
+	}
     }
   fclose(fp);
 }
