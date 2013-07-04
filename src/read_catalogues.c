@@ -535,6 +535,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 
       /* SKIP; */
       fread(&dummy, sizeof(dummy), 1, fd);
+      printf("dummy = %d/%d\n",dummy, local_nids);
       printf("dummy = %d\n",dummy);
       for(k = 0, pc_new = pc; k < 6; k++)
 	{
@@ -548,7 +549,13 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
       fread(&dummy, sizeof(dummy), 1, fd);
       printf("dummy = %d\n",dummy);
 
-
+      fread(&dummy, sizeof(dummy), 1, fd);
+      printf("dummy = %d/%d\n",dummy, local_nids);
+#ifdef AQUARIUS
+      tmp = realloc(tmp,sizeof(double));
+#else
+      tmp = realloc(tmp,sizeof(float));
+#endif
       if(ntot_withmasses > 0)
 	{
 	  /* SKIP; */
@@ -562,7 +569,12 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	      P[pc_new].Type = k;
 
 	      if(header1.mass[k] == 0)
-		fread(&P[pc_new].Mass, sizeof(float), 1, fd);
+#ifdef AQUARIUS
+	      fread(&tmp[0], sizeof(double), 1, fd);
+#else
+	      fread(&tmp[0], sizeof(float), 1, fd);
+#endif
+	      P[pc_new].Mass = (float) tmp[0];
 	      else
 		P[pc_new].Mass = header1.mass[k];
 	      pc_new++;
