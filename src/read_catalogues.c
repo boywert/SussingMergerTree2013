@@ -351,6 +351,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 {
   FILE *fd;
   char buf[200];
+  long longdummy;
   int i, j, k, dummy, ntot_withmasses,NumPart,Ngas;
   int t, n, off, pc, pc_new, pc_sph;
   int *Id;
@@ -443,8 +444,8 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	{
 	  printf("fillers[%d] : %d\n",k, header1.filler[k]);
 	}
-      fread(&dummy, sizeof(dummy), 1, fd);
-      printf("dummy = %d\n",dummy);
+      fread(&longdummy, sizeof(longdummy), 1, fd);
+      printf("longdummy = %ld\n",longdummy);
       for(k = 0, pc_new = pc; k < 6; k++)
 	{
 	  for(n = 0; n < header1.npart[k]; n++)
