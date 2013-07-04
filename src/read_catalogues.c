@@ -416,7 +416,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	  printf("flag_sfr : %d\n", header1.flag_sfr);
 	  printf("flag_feedback : %d\n", header1.flag_feedback);
 	  printf("flag_cooling : %d\n", header1.flag_cooling);
-	  printf("numfiles : %d\n", header1.numfiles);
+	  printf("numfiles : %d\n", header1.num_files);
 	  printf("BoxSize : %lf\n",header1.BoxSize);
 	  printf("Omega0 : %lf\n",header1.Omega0);
 	  printf("OmegaLambda : %lf\n",header1.OmegaLambda);
