@@ -397,7 +397,7 @@ void read_singlesnap(unsigned int snapnum)
 }
 
 
-int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int *PIDmap,unsigned int *Id;)
+int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int *PIDmap,unsigned int *Id)
 {
   FILE *fd;
   char buf[200];
