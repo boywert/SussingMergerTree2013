@@ -293,7 +293,7 @@ extern void load_particles(MyIDtype load_id);
 extern void read_particles(unsigned int slotid);
 extern void hbtmaphalos(char file[MAXSTRING]);
 extern void read_singlesnap(unsigned int snapnum);
-extern int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int *PIDmap);
+extern int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int *PIDmap, unsigned int *Id);
 extern int readRawOutputs(char file[MAXSTRING]);
 extern MyIDtype assignAvatarMain();
 extern MyIDtype assignAvatar();

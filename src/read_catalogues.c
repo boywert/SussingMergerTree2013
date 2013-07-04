@@ -218,6 +218,7 @@ void read_singlesnap(unsigned int snapnum)
   char dummystr[MAXSTRING];
   FILE *fp,*fr;
   struct Gadget_particle *P;
+  unsigned int *Id;
   int *PIDmap;
   int lowresflag;
   MyIDtype maxaquariusid;
@@ -345,7 +346,7 @@ void read_singlesnap(unsigned int snapnum)
 
   read_particles(snapnum);
   sprintf(filename,"%s/snapdir_%03d/%s%03d",gadgetfolder,(int)snapnum,gadgetPrefix,(int)snapnum);
-  i = (MyIDtype) gadget_load_snapshot(filename,16,P,PIDmap );
+  i = (MyIDtype) gadget_load_snapshot(filename,16,P,PIDmap,Id);
   //printf("Total particle : %llu\n",i);
   maxaquariusid = 18535972;
   fr = fopen("nearestremove.txt","w+"); 
@@ -354,9 +355,12 @@ void read_singlesnap(unsigned int snapnum)
       lowresflag = 0;
       for(j=0;j<HaloTable[iHalo].npart;j++)
 	{
-	  if(HaloTable[iHalo].Particles[j].ParticleID > maxaquariusid)
+	  pid = HaloTable[iHalo].Particles[j].ParticleID;
+	  pid= PIDmap[pid];
+	  
+	  if(P[pid].Type != 1)
 	    {
-	      //printf("Halo: %llu => %llu\n",iHalo,HaloTable[iHalo].Particles[j].ParticleID);
+	      printf("Halo: %llu => %llu\n",iHalo,HaloTable[iHalo].Particles[j].ParticleID);
 	      lowresflag += 1;
 	    }
 	}
@@ -393,14 +397,13 @@ void read_singlesnap(unsigned int snapnum)
 }
 
 
-int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int *PIDmap)
+int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int *PIDmap,unsigned int *Id;)
 {
   FILE *fd;
   char buf[200];
   long longdummy;
   int i, j, k, dummy, ntot_withmasses,NumPart,Ngas;
   int t, n, off, pc, pc_new, pc_sph,local_nids;
-  unsigned int *Id;
 #ifdef AQUARIUS
   double *tmp;
 #else
@@ -663,7 +666,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
   //printf("%d %f %f %f\n",Id[NumPart],P[NumPart].Pos[0],P[NumPart].Vel[0],P[NumPart].Mass);
   for(i=1;i<NumPart;i++)
     {
-      if(Id[i] > header1.npartTotal[1]) printf("%d %f %f %f\n",(int)Id[i],P[i].Pos[0],P[i].Vel[0],P[i].Mass);
+      if(Id[i] > header1.npartTotal[1]) printf("%d %d %f\n",(int)i,(int)Id[i],P[i].Mass);
       //printf("%d => %d\n",i,(int)Id[i]);
       PIDmap[Id[i]] = i;
     }
