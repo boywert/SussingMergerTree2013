@@ -211,7 +211,7 @@ void makeIDmap()
 void read_singlesnap(unsigned int snapnum)
 {
   int len;
-  unsigned int iFile, i;
+  unsigned int iFile, i,j,k;
   MyIDtype currentHalo, nHalos,iHalo,hosthalo;
   char filename[MAXSTRING];
   char buffer[MAXSTRING];
@@ -219,6 +219,7 @@ void read_singlesnap(unsigned int snapnum)
   FILE* fp;
   struct Gadget_particle *P;
   int *PIDmap;
+  int lowresflag;
   MyIDtype maxaquariusid;
   TotNhalos = 0;
   currentHalo = 0;
@@ -343,12 +344,20 @@ void read_singlesnap(unsigned int snapnum)
 
   read_particles(snapnum);
   sprintf(filename,"%s/snapdir_%03d/%s%03d",gadgetfolder,(int)snapnum,gadgetPrefix,(int)snapnum);
-  i = (MyIDtype) gadget_load_snapshot(filename,16,P,PIDmap );
+  //i = (MyIDtype) gadget_load_snapshot(filename,16,P,PIDmap );
   //printf("Total particle : %llu\n",i);
-  maxaquariusid = 0;
+  maxaquariusid = 18535972;
   for(iHalo=0;iHalo < TotNhalos;iHalo++)
     {
-     
+      lowresflag = 0;
+      for(j=0;j<HaloTable[iHalo].npart;j++)
+	{
+	  if(HaloTable[iHalo].Particles[j].ParticleID > maxaquariusid)
+	    lowresflag = 1;
+	}
+      if(lowresflag == 1)
+	printf("ID %llu = low res\n",iHalo);
+
     }
   
 
