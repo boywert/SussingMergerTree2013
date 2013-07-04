@@ -569,12 +569,14 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	      P[pc_new].Type = k;
 
 	      if(header1.mass[k] == 0)
+		{
 #ifdef AQUARIUS
-	      fread(&tmp[0], sizeof(double), 1, fd);
+		  fread(&tmp[0], sizeof(double), 1, fd);
 #else
-	      fread(&tmp[0], sizeof(float), 1, fd);
+		  fread(&tmp[0], sizeof(float), 1, fd);
 #endif
-	      P[pc_new].Mass = (float) tmp[0];
+		  P[pc_new].Mass = (float) tmp[0];
+		}
 	      else
 		P[pc_new].Mass = header1.mass[k];
 	      pc_new++;
