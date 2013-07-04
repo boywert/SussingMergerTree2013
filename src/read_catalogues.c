@@ -372,7 +372,7 @@ void read_singlesnap(unsigned int snapnum)
     {
       fprintf(fr,"%f %f %f\n",HaloTable[iHalo].Xc,HaloTable[iHalo].Yc,HaloTable[iHalo].Zc);
     }
-  fclose(fr)
+  fclose(fr);
   resetIDmap();
   printf("ration: %f\n",record/(float) TotNhalos);
   
@@ -385,7 +385,7 @@ void read_singlesnap(unsigned int snapnum)
     {
       fprintf(fr,"%f %f %f\n",HaloTable[iHalo].Xc,HaloTable[iHalo].Yc,HaloTable[iHalo].Zc);
     }
-  fclose(fr)
+  fclose(fr);
 }
 
 
