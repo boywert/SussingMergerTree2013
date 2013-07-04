@@ -548,18 +548,19 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
       fread(&dummy, sizeof(dummy), 1, fd);
       printf("dummy = %d\n",dummy);
 
-      fread(&dummy, sizeof(dummy), 1, fd);
-      printf("dummy = %d/%d\n",dummy, local_nids);
-#ifdef AQUARIUS
-      tmp = realloc(tmp,sizeof(double));
-#else
-      tmp = realloc(tmp,sizeof(float));
-#endif
+
       if(ntot_withmasses > 0)
 	{
 	  /* SKIP; */
 	  fread(&dummy, sizeof(dummy), 1, fd);
-	  printf("dummy = %d\n",dummy);
+	  printf("dummy = %d/%d\n",dummy, local_nids);
+#ifdef AQUARIUS
+	  tmp = realloc(tmp,sizeof(double));
+#else
+	  tmp = realloc(tmp,sizeof(float));
+#endif
+	  /* fread(&dummy, sizeof(dummy), 1, fd); */
+	  /* printf("dummy = %d\n",dummy); */
 	}
       for(k = 0, pc_new = pc; k < 6; k++)
 	{
