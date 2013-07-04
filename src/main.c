@@ -13,6 +13,7 @@ char inputFile[MAXSTRING];
 char *trimwhitespace(char *str);
 char gadgetfolder[MAXSTRING];
 char gadgetPrefix[MAXSTRING];
+char filteredFolder[MAXSTRING];
 int main(int argc, char **argv)
 {
   int isTree;

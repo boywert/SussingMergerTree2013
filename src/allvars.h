@@ -264,6 +264,7 @@ extern char TreeFolder[MAXSTRING];
 extern char ppFolder[MAXSTRING];
 extern char gadgetfolder[MAXSTRING];
 extern char gadgetPrefix[MAXSTRING];
+extern char filteredFolder[MAXSTRING];
 extern MyIDtype SnapNhalos[NSNAPS];
 extern float snapTime[NSNAPS];
 extern float snapTimeYear[NSNAPS];
@@ -309,7 +310,7 @@ extern MyIDtype Generalsearch( MyIDtype searchKey,MyIDtype n_array ,const void *
 extern MyIDtype findtoplevel(MyIDtype hid);
 extern void makesubfindout();
 extern void printoutprofile();
-extern void printoutfullAHF();
+extern void printoutfullAHF(char initfile[MAXSTRING]);
 extern void printouttrees();
 extern void printoutparticles_binary();
 

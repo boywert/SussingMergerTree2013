@@ -33,6 +33,7 @@ int main(int argc, char **argv)
   sprintf(SnapTimeFile,"/gpfs/data/Millgas/cs390/SUSSING2013/datasetIII_unfiltered/a4_data_snaplist.txt");
   sprintf(gadgetfolder,"/gpfs/data/aquarius/halo_data/Aq-A/4");
   sprintf(gadgetPrefix,"snap_C02_400_");
+  sprintf(filteredFolder,"/gpfs/data/Millgas/cs390/SUSSING2013/datasetIII_filtered");
 
 #else
   sprintf(FolderName,"/scratch/cs390/SUSSING2013/datasetI");
@@ -44,6 +45,5 @@ int main(int argc, char **argv)
   getSnapTime();
   sscanf(argv[1],"%d",&snapid);
   read_singlesnap(snapid);
-  printoutfullAHF();
   return 0;
 }

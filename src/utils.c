@@ -12,13 +12,13 @@ MyIDtype findtoplevel(MyIDtype hid)
     return hid;
 }
 
-void printoutfullAHF()
+void printoutfullAHF(char initfile[MAXSTRING])
 {
   MyIDtype ihalo;
   char header_out[MAXSTRING];
   char filename[MAXSTRING];
   FILE *fp;
-  sprintf(filename,"test.ahf");
+  sprintf(filename,"%s.AHF_halos",initfile);
   fp = fopen(filename,"w+");
   sprintf(header_out, 
 	  "#ID(1)\thostHalo(2)\t numSubStruct(3)\t Mvir(4)\t npart(5) \t       Xc(6)  \t Yc(7)  \t Zc(8)  \t VXc(9) \t VYc(10)\t VZc(11) \tRvir(12)     \t   Rmax(13)    \t    r2(14) \t mbp_offset(15) \t com_offset(16) \t Vmax(17)   \t     v_esc(18)   \t    sigV(19)      \t  lambda(20)   \t   lambdaE(21)    \t Lx(22) \t Ly(23)\t  Lz(24) \t b(25)  \t c(26)  \t Eax(27) Eay(28) \tEaz(29)\t Ebx(30) \tEby(31) \tEbz(32)\t Ecx(33)\t Ecy(34)\t Ecz(35) \tovdens(36)  \t    nbins(37)    \t   fMhires(38)  \t   Ekin(39)    \t    Epot(40)     \t   SurfP(41)  \t     Phi0(42)   \t     cNFW(43)");

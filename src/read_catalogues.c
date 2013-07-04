@@ -19,7 +19,7 @@ struct HALOPROPS *HaloTable;
 struct HALOPROPS *HBThaloTable;
 struct HBT_halos *HBT;
 
-
+void getFilteredFilename(char* filename,unsigned int snapnum);
 void read_particles(unsigned int slotid);
 void read_particles_binary();
 struct Gadget_particle *P;
@@ -411,6 +411,9 @@ void read_singlesnap(unsigned int snapnum)
   /*     fprintf(fr,"%f %f %f\n",HaloTable[iHalo].Xc,HaloTable[iHalo].Yc,HaloTable[iHalo].Zc); */
   /*   } */
   /* fclose(fr); */
+  strncpy(filename,"",sizeof(filename));
+  (void) getFilteredFilename(filename,snapnum);
+  printoutfullAHF(filename);
 }
 
 
@@ -1295,6 +1298,45 @@ void getFilename(char* filename,unsigned int snapnum)
 	strncpy(zstr,dummystr,len);
 	//printf("z=%s\n",zstr);
 	sprintf(filename,"%s/%s%s",FolderName,keyword,zstr);
+	break;
+      }
+  } 
+  closedir (pDir);
+}
+
+
+void getFilteredFilename(char* filename,unsigned int snapnum)
+{
+  char snapstr[MAXSTRING];
+  int len;
+  struct dirent *pDirent;
+  DIR *pDir;
+  unsigned int iFile, i;
+  MyIDtype currentHalo, nHalo;
+  char keyword[MAXSTRING];
+  char dummystr[MAXSTRING];
+  char zstr[MAXSTRING];
+  char *returnstr,*finalstr; 
+  //printf("getFilename %d\n",snapnum);
+  sprintf(keyword,"%s%03d.",FilePrefix,snapnum);
+  pDir = opendir(FolderName);
+  if (pDir == NULL) 
+    {
+      printf ("Cannot open directory '%s'\n", FolderName);
+      exit(0);
+    }
+  while ((pDirent = readdir(pDir)) != NULL) {
+    if((returnstr=strstr(pDirent->d_name,keyword)))
+      {
+	len = strlen(returnstr);
+	sprintf(dummystr,"%s",returnstr+strlen(keyword));
+	len = len - strlen(keyword);
+	returnstr = strstr(dummystr,".AHF_");
+	len = len - strlen(returnstr);
+	strncpy(zstr,"",sizeof(zstr));
+	strncpy(zstr,dummystr,len);
+	//printf("z=%s\n",zstr);
+	sprintf(filename,"%s/%s%s",filteredFolder,keyword,zstr);
 	break;
       }
   } 
