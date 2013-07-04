@@ -348,7 +348,7 @@ void read_singlesnap(unsigned int snapnum)
 
   read_particles(snapnum);
   sprintf(filename,"%s/snapdir_%03d/%s%03d",gadgetfolder,(int)snapnum,gadgetPrefix,(int)snapnum);
-  totalids =  (unsigned int) gadget_load_snapshot(filename,16,P,PIDmap,Id);
+  totalids =  (unsigned int) gadget_load_snapshot(filename,16);
   for (i=1;i<=totalids;i++)
     {
       printf("%d => %d\n",(int)i,(int)(PIDmap[i]));
