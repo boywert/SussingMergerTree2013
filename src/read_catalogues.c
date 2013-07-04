@@ -359,7 +359,7 @@ void read_singlesnap(unsigned int snapnum)
 	  pid = HaloTable[iHalo].Particles[j].ParticleID;
 	  printf("pid = %d\n",pid);
 	  pid= PIDmap[pid];
-	  
+	  printf("converted pid = %d\n",pid);
 	  if(P[pid].Type != 1)
 	    {
 	      printf("Halo: %llu => %llu\n",iHalo,HaloTable[iHalo].Particles[j].ParticleID);
