@@ -445,6 +445,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	  for(n = 0; n < header1.npart[k]; n++)
 	    {
 	      fread(&P[pc_new].Pos[0], sizeof(float), 3, fd);
+	      print("%d => %f\n",pc_new,P[pc_new].Pos[0]);
 	      pc_new++;
 	    }
 	}
