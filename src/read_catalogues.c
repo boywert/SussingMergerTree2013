@@ -417,15 +417,15 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
 	}
       for(k=0;k<6;k++)
 	{
-	  printf("N[%d] : %lf\n",k,header1.npart[k]);
+	  printf("N[%d] : %d\n",k,header1.npart[k]);
 	}
       for(k=0;k<6;k++)
 	{
-	  printf("Total N[%d] : %lf\n",k,header1.npartTotal[k]);
+	  printf("Total N[%d] : %d\n",k,header1.npartTotal[k]);
 	}
       for(k=0;k<6;k++)
 	{
-	  printf("mass[%d] : %lf\n",k,header1.mass[k]);
+	  printf("mass[%d] : %lf\n",k,(double)header1.mass[k]);
 	}
       printf("time : %lf\n",header1.time);
       printf("redshift : %lf\n",header1.redshift);
