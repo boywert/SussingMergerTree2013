@@ -211,7 +211,7 @@ void makeIDmap()
 void read_singlesnap(unsigned int snapnum)
 {
   int len;
-  unsigned int iFile, i,j,k;
+  unsigned int iFile, i,j,k,pid;
   MyIDtype currentHalo, nHalos,iHalo,hosthalo;
   char filename[MAXSTRING];
   char buffer[MAXSTRING];
@@ -355,7 +355,7 @@ void read_singlesnap(unsigned int snapnum)
       lowresflag = 0;
       for(j=0;j<HaloTable[iHalo].npart;j++)
 	{
-	  pid = HaloTable[iHalo].Particles[j].ParticleID;
+	  pid = (unsigned int) HaloTable[iHalo].Particles[j].ParticleID;
 	  pid= PIDmap[pid];
 	  
 	  if(P[pid].Type != 1)
