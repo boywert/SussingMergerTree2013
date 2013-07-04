@@ -439,7 +439,7 @@ int gadget_load_snapshot(char *fname, int files, struct Gadget_particle *P, int 
       printf("HubbleParam : %lf\n",header1.HubbleParam);
 
 
-      SKIP;
+      //SKIP;
       for(k = 0, pc_new = pc; k < 6; k++)
 	{
 	  for(n = 0; n < header1.npart[k]; n++)
