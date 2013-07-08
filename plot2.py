@@ -81,6 +81,7 @@ def make_plotdumbell():
     plotonepanel_id_fixpos(hid, 56, data, True, 650, [46301.99609375, 26823.99609375, 8579.7548828125])
 
 def plot_different_history():
+    epsilon = 0.1
     hid = 61000000000123
     ctid = 61000000000123
     hbtid = 61000000000887
@@ -92,9 +93,9 @@ def plot_different_history():
         print runlist[i]
         data = load(runlist[i])
         
-        if(runlist[i] == 'HBT.v3'):
+        if(runlist[i] == 'HBT'):
             haloid = UIDtoID(hbtid,data)
-        elif(runlist[i] == 'CONSITENT_TREES'):
+        elif(runlist[i] == 'Consitent_Trees'):
             haloid = UIDtoID(ctid,data)
         else:
             haloid = UIDtoID(hid,data)
@@ -105,7 +106,7 @@ def plot_different_history():
             masshalo = data.halo[haloid][2]
             snaphalo = data.halo[haloid][1]         
             mass.append(data.halo[haloid][2]/1.e12)
-            time.append(data.time[data.halo[haloid][1]][4]/1e14)
+            time.append(data.time[data.halo[haloid][1]][4]/1e10 +epsilon*i)
 
             cor.append([data.time[snaphalo][4]/1.e10,masshalo/1.e12])
 
@@ -114,11 +115,11 @@ def plot_different_history():
                 masshalo = data.halo[haloid][2]
                 snaphalo = data.halo[haloid][1]
                 mass.append(masshalo/1.e12)
-                time.append(data.time[snaphalo][4]/1.e10)
+                time.append(data.time[snaphalo][4]/1.e10+epsilon*i)
                 cor.append([data.time[snaphalo][4]/1.e10,masshalo/1.e12])
             if(snaphalo > 0):
                 mass.append(0.)
-                time.append(data.time[snaphalo-1][4]/1.e10)
+                time.append(data.time[snaphalo-1][4]/1.e10+epsilon*i)
                 cor.append([data.time[snaphalo-1][4]/1.e10,0.])
 
             #print cor
@@ -147,9 +148,9 @@ def plot_different_history():
         print runlist[i]
         data = load(runlist[i])
         
-        if(runlist[i] == 'HBT.v3'):
+        if(runlist[i] == 'HBT'):
             haloid = UIDtoID(hbtid,data)
-        elif(runlist[i] == 'CONSITENT_TREES'):
+        elif(runlist[i] == 'Consistent_Trees'):
             haloid = UIDtoID(ctid,data)
         else:
             haloid = UIDtoID(hid,data)
@@ -160,7 +161,7 @@ def plot_different_history():
             masshalo = data.halo[haloid][2]
             snaphalo = data.halo[haloid][1]         
             mass.append(data.halo[haloid][2]/1.e12)
-            time.append(data.time[data.halo[haloid][1]][4]/1e14)
+            time.append(data.time[data.halo[haloid][1]][4]/1e10+epsilon*i)
 
             cor.append([data.time[snaphalo][4]/1.e10,masshalo/1.e12])
 
@@ -169,11 +170,11 @@ def plot_different_history():
                 masshalo = data.halo[haloid][2]
                 snaphalo = data.halo[haloid][1]
                 mass.append(masshalo/1.e12)
-                time.append(data.time[snaphalo][4]/1.e10)
+                time.append(data.time[snaphalo][4]/1.e10+epsilon*i)
                 cor.append([data.time[snaphalo][4]/1.e10,masshalo/1.e12])
             if(snaphalo > 0):
                 mass.append(0.)
-                time.append(data.time[snaphalo-1][4]/1.e10)
+                time.append(data.time[snaphalo-1][4]/1.e10+epsilon*i)
                 cor.append([data.time[snaphalo-1][4]/1.e10,0.])
 
             print cor
@@ -481,8 +482,8 @@ def load(groupname):
         temp = data.zero_link[i].split()
         data.zero_link[i] = temp
         temp = None
-    if(os.path.exists(datfolder+groupname+"_100Lostmass_bin.dat") >= 1):
-        f = open(datfolder+groupname+"_100Lostmass_bin.dat")
+    if(os.path.exists(datfolder+groupname+"_1000Lostmass_bin.dat") >= 1):
+        f = open(datfolder+groupname+"_1000Lostmass_bin.dat")
         data.lost_bin = f.read().splitlines()
         f = None
         for i in range(len(data.lost_bin)):
@@ -490,7 +491,7 @@ def load(groupname):
             data.lost_bin[i] = temp
             temp = None
 
-    f = open(datfolder+groupname+"_100Nmergers_bin.dat")
+    f = open(datfolder+groupname+"_1000Nmergers_bin.dat")
     data.mergers_bin = f.read().splitlines()
     f = None
     for i in range(len(data.mergers_bin)):

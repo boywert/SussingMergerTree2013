@@ -1,8 +1,8 @@
 import numpy
 import pylab
 mapfile = 'Mapback_order.txt'
-klausfile = 'GarchingTreeMillenium.txt'
-outfile = 'GarchingTreeMillenium'
+klausfile = 'GarchingTreeMillenium_Klaus.txt'
+outfile = 'GarchingTreeMillenium_Klaus'
 
 map = {}
 used = {}

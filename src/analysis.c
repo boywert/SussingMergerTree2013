@@ -364,10 +364,13 @@ void count_mergers(MyIDtype haloid, int nStep, double binsize,float minmass, flo
 #endif
 	      if(SubTree[haloid] == NULLPOINT && SubTree[jhalo] == NULLPOINT)
 		{
-		  lostmass_host[block]++;
-		  //printf("realloc pp_lostmass %d\n",block);
-		  pp_lostmass[block] = realloc(pp_lostmass[block],lostmass_host[block]*sizeof(MyIDtype));
-		  pp_lostmass[block][lostmass_host[block]-1] = haloid;
+		  if(HaloTable[jhalo].Mvir > minmass && HaloTable[jhalo].Mvir < maxmass && HaloTable[haloid].Mvir > minmass && HaloTable[haloid].Mvir < maxmass)
+		    {
+		      lostmass_host[block]++;
+		      //printf("realloc pp_lostmass %d\n",block);
+		      pp_lostmass[block] = realloc(pp_lostmass[block],lostmass_host[block]*sizeof(MyIDtype));
+		      pp_lostmass[block][lostmass_host[block]-1] = haloid;
+		    }
 		}  
 	    }
 	}
@@ -380,7 +383,8 @@ void count_mergers(MyIDtype haloid, int nStep, double binsize,float minmass, flo
       block = (int) ((atan(mass_lost)/asin(1.) +1.)/binsize);
       if(SubTree[haloid] == NULLPOINT && SubTree[jhalo] == NULLPOINT)
 	{
-	  lostmass[block]++;
+	  if(HaloTable[jhalo].Mvir > minmass && HaloTable[jhalo].Mvir < maxmass && HaloTable[haloid].Mvir > minmass && HaloTable[haloid].Mvir < maxmass)
+	    lostmass[block]++;
 	} 
     }
   else
@@ -1006,14 +1010,17 @@ void main_branch_analysis(float minmass, float maxmass, int highlim_npart)
 
 		  if(SubTree[ihalo] < NULLPOINT)
 		    dispCorr_resi[block]++;
-		  else if(SubTree[ihalo] == NULLPOINT && SubTree[jhalo] == NULLPOINT)
+		  
+		  if(SubTree[ihalo] == NULLPOINT && SubTree[jhalo] == NULLPOINT)
 		    {
-		      dispCorr_host[block]++;
-		      if(distance > 1.)
+		      if(HaloTable[ihalo].Mvir < maxmass && HaloTable[ihalo].Mvir > minmass && HaloTable[jhalo].Mvir < maxmass && HaloTable[jhalo].Mvir > minmass)
 			{
-			  fprintf(fp2, "%llu\t %g\t %g \t %g\t %g\n", ihalo,(double)Radius,expected_R[0], expected_R[1],expected_R[2]);
+			  dispCorr_host[block]++;
+			  if(distance > 1.)
+			    {
+			      fprintf(fp2, "%llu\t %g\t %g \t %g\t %g\n", ihalo,(double)Radius,expected_R[0], expected_R[1],expected_R[2]);
+			    }
 			}
-
 		    }
 
 		  /* calculate beta */
@@ -1027,7 +1034,7 @@ void main_branch_analysis(float minmass, float maxmass, int highlim_npart)
 		  if(block == nStep) 
 		    block = nStep-1;
 		  /* discard when beta = 0 */
-		  if(HaloTable[ihalo].Mvir < maxmass && HaloTable[ihalo].Mvir > minmass)
+		  if(HaloTable[ihalo].Mvir < maxmass && HaloTable[ihalo].Mvir > minmass && HaloTable[jhalo].Mvir < maxmass && HaloTable[jhalo].Mvir > minmass)
 		    {
 		      if(SubTree[ihalo] == NULLPOINT && SubTree[jhalo] == NULLPOINT)
 			{
@@ -1090,9 +1097,11 @@ void main_branch_analysis(float minmass, float maxmass, int highlim_npart)
 			    block = nStep-1;
 
 
-			  if(HaloTable[jhalo].Mvir < maxmass && HaloTable[jhalo].Mvir > minmass )
+			  if(HaloTable[ihalo].Mvir < maxmass && HaloTable[ihalo].Mvir > minmass && HaloTable[jhalo].Mvir < maxmass && HaloTable[jhalo].Mvir > minmass && HaloTable[khalo].Mvir < maxmass && HaloTable[khalo].Mvir > minmass )
 			    {
-			      CorrBeta[block]++;
+			      if(SubTree[ihalo] == NULLPOINT && SubTree[jhalo] == NULLPOINT && SubTree[khalo] == NULLPOINT)
+				CorrBeta[block]++;
+			      
 			    }
 			  savedblock = block;
 			  saveddouble = corr_self;

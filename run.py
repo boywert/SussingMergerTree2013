@@ -1,4 +1,4 @@
-#!/usr/bin/python
+1;2c#!/usr/bin/python
 import os 
 import pylab
 import sys
@@ -184,7 +184,7 @@ for (i,item) in enumerate(line):
     data = None
     data = pylab.loadtxt(dat_folder + item + linkdepth_ext)
     print dat_folder + item + linkdepth_ext
-    print data
+    #print data
     ax1.plot(data[:,0],(data[:,1])+1,linestyles[i%len(linestyles)],color=colors[i%len(colors)],label = item.replace("_"," ") )
     pylab.hold(True)
 
@@ -336,7 +336,7 @@ pylab.hold(False)
 #pylab.hold(False)
 pylab.yscale('log')
 pylab.ylabel(r"$N+1$")
-pylab.xlabel(r"$N_{\rm{Mergers}}$")
+pylab.xlabel("Number of Direct Progenitors")
 leg = pylab.legend(loc='upper right', handlelength = 8,ncol=1, prop={'size':10})
 leg.get_frame().set_linewidth(0)
 pylab.savefig(pdf_folder+'Nmergers.pdf',bbox_inches='tight')
@@ -349,6 +349,24 @@ pre_ext = "_100"
 host_lostmass_ext = pre_ext+"Lostmass_host.dat"
 print 'Start plotting',host_lostmass_ext
 
+
+percent = pylab.loadtxt(dat_folder +'MergerTree'+ host_lostmass_ext)
+checkline = numpy.cumsum(percent[:,1])/sum(percent[:,1])
+print checkline
+print data[:,0]
+i = 0
+while checkline[i] < 0.9:
+    i+=1
+
+mark0 = percent[i,0]/2.
+print i,mark0
+
+i = 0
+while checkline[i] < 0.99:
+    i+=1
+mark1 = percent[i,0]/2.
+print i,mark1
+
 fig = pylab.figure()
 ax1 = fig.add_subplot(111)
 for (i,item) in enumerate(line):
@@ -360,8 +378,12 @@ for (i,item) in enumerate(line):
 pylab.hold(False)
 pylab.yscale('log')
 #pylab.xlim([0.,1.])
+ax1.annotate('0.90', xy=(mark0+0.01, 1000.),rotation=90)
+ax1.annotate('0.99', xy=(mark1+0.01, 1000.),rotation=90)
+pylab.axvline(x=mark0,color='r')
+pylab.axvline(x=mark1,color='b')
 pylab.ylabel(r"$N+1$")
-pylab.xlabel(r"$\Delta N_{\rm{merge}}$")
+pylab.xlabel(r"$\Delta_N$")
 leg = pylab.legend(loc='upper right', handlelength = 8,ncol=1, prop={'size':10})
 leg.get_frame().set_linewidth(0)
 pylab.savefig(pdf_folder+'Lost_N.pdf',bbox_inches='tight')
@@ -371,6 +393,11 @@ os.system('pdftops -eps '+pdf_folder+'Lost_N.pdf')
 pre_ext = "_100"
 lostmass_ext = pre_ext+"Lostmass.dat"
 print 'Start plotting',lostmass_ext
+
+# data = pylab.loadtxt(dat_folder +'MergerTree' + lostmass_ext)
+# cumdata = numpy.cumsum(data[:,1])/sum(data[:,1])
+# for i in range(len(cumdata)):
+#     print data[i,0]-1.,cumdata[i] 
 
 fig = pylab.figure()
 ax1 = fig.add_subplot(111)
@@ -396,6 +423,12 @@ pylab.savefig(pdf_folder+'Lostmass_dlog.pdf',bbox_inches='tight')
 pre_ext = "_1000"
 h_meanbeta_ext = pre_ext+"MeanBeta.dat"
 print "Start plotting",h_meanbeta_ext
+data = pylab.loadtxt(dat_folder +'MergerTree' + lostmass_ext)
+cumdata = numpy.cumsum(data[:,1])/sum(data[:,1])
+for i in range(len(cumdata)):
+    print data[i,0],cumdata[i]
+
+
 fig = pylab.figure()
 ax1 = fig.add_subplot(111)
 for (i,item) in enumerate(line):
@@ -410,7 +443,7 @@ new_tick_locations = numpy.array([math.atan(0.)*2/numpy.pi, math.atan(0.5)*2/num
 
 ax1.set_xticks(new_tick_locations)
 ax1.set_xticklabels(tick_function_half(new_tick_locations))
-pylab.xlabel(r"$d\log M/d\log t$")
+pylab.xlabel(r"$\alpha_{\rm{M}}$")
 pylab.ylabel(r"$N+1$")
 leg = pylab.legend(loc='lower center',handlelength = 8, ncol=2, prop={'size':10})
 leg.get_frame().set_linewidth(0)

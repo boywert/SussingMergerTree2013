@@ -49,9 +49,9 @@ void getSnapTime()
 
 void makeIDmap()
 {
-  int len;
-  unsigned int iFile, i;
-  MyIDtype currentHalo, nHalos,iHalo,hosthalo;
+  int len,is_exist;
+  unsigned int iFile;
+  MyIDtype currentHalo, nHalos,iHalo,hosthalo,i,j,k,ihalo,pid,jhalo,khalo;
   char filename[MAXSTRING];
   char buffer[MAXSTRING];
   char dummystr[MAXSTRING];
@@ -187,9 +187,47 @@ void makeIDmap()
     }
   if(output.outputFormat > 1.129 && output.outputFormat < 1.131)
     {
+      printf("start reading HBT\n");
       (void) hbtmaphalos(addFile);
 #ifdef READPARTICLE
+      printf("Start reading particles\n");
       read_particles_binary();
+      printf("finish reading particles\n");
+      for(ihalo=0;ihalo<TotNhalos;ihalo++)
+	{
+	  for(j=0;j<HaloTable[ihalo].nSubhalos;j++)
+	    {
+	      jhalo = HaloTable[ihalo].SubhaloList[j];
+	      for(k=0;k<HaloTable[jhalo].npart;k++)
+		{
+		  /* //printf("k = %llu/%llu\n",k,HaloTable[jhalo].npart); */
+		  /* is_exist = 0; */
+		  pid = HaloTable[jhalo].Particles[k].ParticleID;
+		  /* //printf("pid = %llu\n",pid); */
+		  /* i=0; */
+		  /* while(i < HaloTable[ihalo].npart) */
+		  /*   { */
+		  /*     //printf("i = %llu\n",i); */
+		  /*     if(pid == HaloTable[ihalo].Particles[i].ParticleID) */
+		  /* 	{ */
+		  /* 	  i=NULLPOINT; */
+		  /* 	  is_exist = 1; */
+		  /* 	} */
+		  /*     else */
+		  /* 	{ */
+		  /* 	  i++; */
+		  /* 	} */
+		  /*   } */
+		  /* if(is_exist==0) */
+		  /*   { */
+		  HaloTable[ihalo].npart++;
+		  HaloTable[ihalo].Particles = realloc(HaloTable[ihalo].Particles,sizeof(struct particle_data )*HaloTable[ihalo].npart);
+		  HaloTable[ihalo].Particles[HaloTable[ihalo].npart-1].ParticleID = pid;
+		  /* } */
+		}
+	    }
+	}
+
 #endif
       /* for(iFile=FIRSTSNAP;iFile<=LASTSNAP;iFile++) */
       /* 	{ */
@@ -697,17 +735,19 @@ int gadget_load_snapshot(char *fname, int files)
 
 void hbtmaphalos(char file[MAXSTRING])
 {
-  MyIDtype ihalo,jhalo,j,counthalo,ahf_haloid,countuseable;
+  MyIDtype ihalo,jhalo,j,k,i,pid,counthalo,ahf_haloid,countuseable;
   const unsigned long long MAXHBT = 2000000;
-  int *original_used;
+  int *original_used,is_exist;
   char line[MAXSTRING],buff[MAXSTRING];
   FILE* fp;
   
   sprintf(buff,"%s/HBT_added_halos.all",file);
+  printf("file = %s\n",buff);
   HBT = calloc(MAXHBT,sizeof(struct HBT_halos));
   fp = fopen(buff, "r");
   fgets(line,MAXSTRING,fp);
   counthalo = 0;
+  printf("Start sscanf\n");
   while((fgets(line,MAXSTRING,fp)) != NULL)
     {
       //printf("%s",line);
@@ -833,6 +873,8 @@ void hbtmaphalos(char file[MAXSTRING])
 	{
 	  jhalo = HaloTable[ihalo].SubhaloList[j];
 	  HaloTable[ihalo].Mvir += HaloTable[jhalo].oriMvir;
+	
+
 	}
     }
 #ifdef READPARTICLE

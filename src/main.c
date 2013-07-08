@@ -101,8 +101,8 @@ int main(int argc, char **argv)
   if(isTree)
     {
       merger_analysis(0.,1e11,100);
-      //merger_analysis(2e11,5e11,500);
-      //merger_analysis(1e12,1e30,1000);
+      merger_analysis(2e11,5e11,500);
+      merger_analysis(1e12,1e30,1000);
     }
   //snapshot_stats(61,0.,1e11,100);
   //snapshot_stats(61,2e11,5e11,500);
