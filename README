@@ -18,7 +18,7 @@ git clone https://github.com/boywert/SussingMergerTree2013.git
 - Check the flag in Makefile. You can comment out every OPT += to generate almost all the plots (except Lost_N.eps which needs -DREADPARTICLE (which requires RESETPARTICLECACHE before that)).
 
 - If everything is ready.
-	- run command 'python run.py --reset-data' to regenerate all data for the plots
+	- run command 'python run.py --reset-data' to regenerate all data for the plots and plot them.
 	- run command 'python run.py' to just re-plot the plots.
 
 - I will write some script to these all (obviously, I can't write scripts to change names).
