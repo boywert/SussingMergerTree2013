@@ -16,7 +16,7 @@
 #define MINCOMMON      10   // we only cross-correlate haloes if they at least share MINCOMMON particles
 #define NSATinHOSTfrac 0.5  // at least NSATinHOSTfrac the subhaloes particles need to be inside the prospective host
 
-#define SO_VEL_DISPERSIONS
+//#define SO_VEL_DISPERSIONS
 
 //#define DEBUG
 //#define MTREE_SELF
@@ -26,7 +26,7 @@
 
 #define CLUES_WM3
 
-#define NSNAPS 62
+#define NSNAPS 1200
 #define MAXSTRING 4096
 
 
@@ -36,6 +36,24 @@ static float kpc2km = 3.08567758e16;
 static float GagetUnit2Msun = 1e10;
 
 typedef unsigned int MyIDType;
+
+struct io_header
+{
+  int      npart[6];
+  double   mass[6];
+  double   time;
+  double   redshift;
+  int      flag_sfr;
+  int      flag_feedback;
+  int      npartTotal[6];
+  int      flag_cooling;
+  int      num_files;
+  double   BoxSize;
+  double   Omega0;
+  double   OmegaLambda;
+  double   HubbleParam; 
+  char     fill[256- 6*4- 6*8- 2*8- 2*4- 6*4- 2*4 - 4*8];  /* fills to 256 Bytes */
+};
 
 struct halo_catalogue
 {
@@ -120,7 +138,7 @@ long          *ihost;        // assigns one host to each halo
   
 size_t my_fread(void *ptr, size_t size, size_t nmemb, FILE * stream);
 void load_subhalo_catalogue(int num, struct halo_catalogue *cat);
-char  OutputDir[1000];
+char  OutputDir[MAXSTRING];
 void *mymalloc(size_t n);
 void myfree(void *ptr);
 void long_to_str(char *s, long long n);
@@ -136,7 +154,7 @@ float a[NSNAPS];
 char SnapTimeFile[MAXSTRING];
 char OUTfolder[MAXSTRING];
 void getSnapTime();
-
+double get_z_gadget(int snapid);
 
 int main(int argc, char **argv)
 {
@@ -144,23 +162,34 @@ int main(int argc, char **argv)
   int *subpergroup,numsub,snapid;
   char header_out[4096];
   char h_out[MAXSTRING], p_out[MAXSTRING];
-  FILE *fp1,*fp2;
-  double normalise;
+  FILE *fp1,*fp2,*fp3;
+  double normalise,factor;
+  
+  double a_c,z;
   strcpy(SnapTimeFile,"data_snaplist.txt");
-  strcpy(OUTfolder,"/mnt/lustre/scratch/cs390/datasetII");
-  getSnapTime();
+  //strcpy(OUTfolder,"/mnt/lustre/scratch/cs390/datasetIII");
+  sprintf(OUTfolder,"/gpfs/data/Millgas/cs390/SUSSING2013/datasetIII/");
+  // use this with datalist_snap
+  //getSnapTime();
 
   sscanf(argv[1],"%d",&snapid);
-
-  printf("%2.3f\n", z_list[snapid]);
-  sprintf(OutputDir,"/mnt/lustre/scratch/cs390/Sussing");
+  sprintf(OutputDir,"/gpfs/data/aquarius/halo_data/Aq-A/4/");
+  z = get_z_gadget(snapid);
+  a_c = 1./(1+z);
+  a[snapid] = (float)a_c;
+  z_list[snapid] = (float)z;
+  fp3 = fopen("snaplist.txt","a");
+  fprintf(fp3,"%d\t%lf\t%lf\n",snapid,a_c,z);
+  fclose(fp3);
+  //printf("%2.3f\n", z_list[snapid]);
+  //sprintf(OutputDir,"/gpfs/data/aquarius/halo_data/Aq-A/4/");
   //snapid = 8;
   maxhalopersnap = pow(10,12);
   load_subhalo_catalogue(snapid, &CatA);
   printf("%d\n",CatA.TotNgroups);
 
-  sprintf(h_out,"%s/datasetII_%03d.z%2.3f.AHF_halos",OUTfolder, snapid, z_list[snapid]);
-  sprintf(p_out,"%s/datasetII_%03d.z%2.3f.AHF_particles",OUTfolder, snapid, z_list[snapid]);
+  sprintf(h_out,"%s/datasetIII_%03d.z%2.3f.AHF_halos",OUTfolder, snapid, z_list[snapid]);
+  sprintf(p_out,"%s/datasetIII_%03d.z%2.3f.AHF_particles",OUTfolder, snapid, z_list[snapid]);
   fp1 = fopen(h_out,"w+");
   fp2 = fopen(p_out,"w+");
   k = 0;
@@ -175,6 +204,8 @@ int main(int argc, char **argv)
     {
       if(CatA.Group_M_Mean200[i] == 0)
 	printf("Mvir :%f Rvir :%f npart :%d\n",CatA.Group_M_Mean200[i],CatA.Group_R_Mean200[i],CatA.GroupLen[i]);
+      else
+	factor = CatA.Group_M_Mean200[i]/pow(CatA.Group_R_Mean200[i],3);
       for(j=0;j<CatA.GroupNsubs[i]; j++)
 	{
 	  if(k != CatA.GroupFirstSub[i]+j )
@@ -206,17 +237,18 @@ int main(int argc, char **argv)
 	  ahf_id.VZc = CatA.SubhaloVel[3*k+2];
 	  
 	  if(k == CatA.GroupFirstSub[i])
-	    ahf_id.Rvir = CatA.Group_R_Mean200[i]*Mpc2kpc/a[snapid];
+	    {
+	      printf("");
+	      ahf_id.Rvir = CatA.Group_R_Mean200[i]*Mpc2kpc/a[snapid];
+	    }
 	  else
 	    {
-	      ahf_id.Rvir = CatA.SubhaloVmaxRad[k]*Mpc2kpc/a[snapid];
+	      ahf_id.Rvir = pow(CatA.SubhaloMass[k]/factor,1./3.)*Mpc2kpc/a[snapid];
 	    }
-	  // use halfmass radius instead of Rmax
-	  ahf_id.Rmax = CatA.SubhaloHalfMass[k]*Mpc2kpc/a[snapid];
+	  
+	  ahf_id.Rmax = CatA.SubhaloVmaxRad[k]*Mpc2kpc/a[snapid];
 
-	  // use VmaxRad radius instead of r2
-	  //ahf_id.r2 = CatA.SubhaloHalfMass[k]*Mpc2kpc/a[snapid];
-	  ahf_id.r2 = CatA.SubhaloVmaxRad[k]*Mpc2kpc/a[snapid];
+       	  ahf_id.r2 = default_float;
 	  
 	  ahf_id.mbp_offset = default_float;
 	  ahf_id.com_offset = default_float;
@@ -226,14 +258,14 @@ int main(int argc, char **argv)
 	  ahf_id.lambda = default_float;
 	  ahf_id.lambdaE = default_float;
 	  
-	  ahf_id.Lx = CatA.SubhaloSpin[3*k];
-	  ahf_id.Ly = CatA.SubhaloSpin[3*k+1];
-	  ahf_id.Lz = CatA.SubhaloSpin[3*k+2];
+	  ahf_id.Lx = default_float;
+	  ahf_id.Ly = default_float;
+	  ahf_id.Lz = default_float;
 	  
-	  normalise = sqrt(ahf_id.Lx*ahf_id.Lx + ahf_id.Ly*ahf_id.Ly + ahf_id.Lz*ahf_id.Lz);
-	  ahf_id.Lx /= normalise;
-	  ahf_id.Ly /= normalise;
-	  ahf_id.Lz /= normalise;
+	  //normalise = sqrt(ahf_id.Lx*ahf_id.Lx + ahf_id.Ly*ahf_id.Ly + ahf_id.Lz*ahf_id.Lz);
+	  //ahf_id.Lx /= normalise;
+	  //ahf_id.Ly /= normalise;
+	  //ahf_id.Lz /= normalise;
 	  
 	  ahf_id.b = default_float;
 	  ahf_id.c = default_float;
@@ -305,6 +337,18 @@ int main(int argc, char **argv)
 	  for(l=0;l<CatA.SubLen[k];l++)
 	    {
 	      pid = CatA.SubOffset[k]+l;
+#ifndef SUBFIND_SAVE_PARTICLELISTS
+	      fprintf(fp2,"%lu\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\n",
+		      CatA.IdList[pid],
+		      default_float,
+		      default_float,
+		      default_float,
+		      default_float,
+		      default_float,
+		      default_float,
+		      default_float
+		      );
+#else
 	      fprintf(fp2,"%lu\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\n",
 		      CatA.IdList[pid],
 		      CatA.IdBindingEgy[pid],
@@ -315,11 +359,13 @@ int main(int argc, char **argv)
 		      CatA.IdVel[3*pid+1]*sqrt(a[snapid]),
 		      CatA.IdVel[3*pid+2]*sqrt(a[snapid])
 		      );
+#endif
 	    }
 	  k++;
 	}
     }
 }
+
 
 void getSnapTime()
 {
@@ -343,6 +389,32 @@ void getSnapTime()
     }
   
 }
+
+double get_z_gadget(int snapid)
+{
+  char filename[MAXSTRING];
+  struct io_header header;
+  int dummy;
+  FILE* fd;
+  sprintf(filename,"%s/snapdir_%03d/snap_C02_400_%03d.0",OutputDir,snapid,snapid);
+  if(!(fd=fopen(filename,"r")))  //error check and complain
+    {
+      printf("gadgetIO module can't open file: '%s'\n",filename);
+      fflush(stdout);
+      exit(0);
+    }
+
+  printf("reading: '%s'\n",filename); 
+  fflush(stdout);
+      
+  fread(&dummy, sizeof(dummy), 1, fd);
+  fread(&header, sizeof(header), 1, fd);
+  fread(&dummy, sizeof(dummy), 1, fd);
+  printf("a = %lf\n", header.redshift);
+  //exit(0);
+  return   header.redshift;
+}
+
 size_t my_fread(void *ptr, size_t size, size_t nmemb, FILE * stream)
 {
   size_t nread;
@@ -560,8 +632,8 @@ void load_subhalo_catalogue(int num, struct halo_catalogue *cat)
       idcount += nids;
     }
 
+#ifdef  SUBFIND_SAVE_PARTICLELISTS
   idcount = 0;
-
   for(i = 0; i < nFiles; i++)
     {
       sprintf(buf, "%s/groups_%03d/subhalo_posvel_%03d.%d", OutputDir, num, num, i);
@@ -595,7 +667,7 @@ void load_subhalo_catalogue(int num, struct halo_catalogue *cat)
 
       idcount += nids;
     }
-
+#endif //SUBFIND_SAVE_PARTICLELISTS
 
   //reassign_ids(cat->TotNids, cat->IdList);
 }

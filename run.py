@@ -1,4 +1,4 @@
-1;2c#!/usr/bin/python
+#!/usr/bin/python
 import os 
 import pylab
 import sys
@@ -67,7 +67,7 @@ def tick_function_full(X):
 
 ###########################################################################
 #plot mean displacement HOST
-pre_ext = "_100"
+pre_ext = "_1000"
 host_dispmain_ext = pre_ext+"DispMainHost.dat"
 print 'Start plotting',host_dispmain_ext
 
@@ -287,8 +287,11 @@ ax1.set_xticklabels([])
 ax2.set_xticklabels([])
 
 ax1.set_yticks(numpy.array([1,10,100,1000,10000]))
+ax1.text(1.5,3000,r"$M_{vir} < 10^{11}h^{-1}M_\odot$")
 ax2.set_yticks(numpy.array([1,10,100]))
+ax2.text(1.5,300,r"$2\times10^{11}h^{-1}M_\odot < M_{vir} < 5\times10^{11}h^{-1}M_\odot$")
 ax3.set_yticks(numpy.array([1,10,100]))
+ax3.text(1.5,300,r"$M_{vir} > 10^{12}h^{-1}M_\odot$")
 #ax1.set_xticklabels()
 
 pylab.subplots_adjust(hspace = 0.0001)
@@ -345,7 +348,7 @@ os.system('pdftops -eps '+pdf_folder+'Nmergers.pdf')
 
 ##############################################################################################
 #plot splash mass  host
-pre_ext = "_100"
+pre_ext = "_1000"
 host_lostmass_ext = pre_ext+"Lostmass_host.dat"
 print 'Start plotting',host_lostmass_ext
 
@@ -388,42 +391,42 @@ leg = pylab.legend(loc='upper right', handlelength = 8,ncol=1, prop={'size':10})
 leg.get_frame().set_linewidth(0)
 pylab.savefig(pdf_folder+'Lost_N.pdf',bbox_inches='tight')
 os.system('pdftops -eps '+pdf_folder+'Lost_N.pdf')
-##############################################################################################
-#plot splash mass  host
-pre_ext = "_100"
-lostmass_ext = pre_ext+"Lostmass.dat"
-print 'Start plotting',lostmass_ext
+# ##############################################################################################
+# #plot splash mass  host
+# pre_ext = "_100"
+# lostmass_ext = pre_ext+"Lostmass.dat"
+# print 'Start plotting',lostmass_ext
 
-# data = pylab.loadtxt(dat_folder +'MergerTree' + lostmass_ext)
-# cumdata = numpy.cumsum(data[:,1])/sum(data[:,1])
-# for i in range(len(cumdata)):
-#     print data[i,0]-1.,cumdata[i] 
+# # data = pylab.loadtxt(dat_folder +'MergerTree' + lostmass_ext)
+# # cumdata = numpy.cumsum(data[:,1])/sum(data[:,1])
+# # for i in range(len(cumdata)):
+# #     print data[i,0]-1.,cumdata[i] 
 
-fig = pylab.figure()
-ax1 = fig.add_subplot(111)
-for (i,item) in enumerate(line):
-    if(os.path.exists(dat_folder +item + lostmass_ext) >= 1):
-        data = pylab.loadtxt(dat_folder +item + lostmass_ext)
-        ax1.plot(data[:,0]-1.,data[:,1]/sum(data[:,1]),linestyles[i%len(linestyles)],color=colors[i%len(colors)],label = item.replace("_"," ") )
-        pylab.hold(True)
-new_tick_locations = numpy.array([math.atan(0.)*2/numpy.pi, math.atan(0.5)*2/numpy.pi, math.atan(1.)*2/numpy.pi, math.atan(2)*2/numpy.pi, math.atan(10.)*2/numpy.pi, math.atan(-0.5)*2/numpy.pi, math.atan(-1.)*2/numpy.pi, math.atan(-2.)*2/numpy.pi, math.atan(-10.)*2/numpy.pi])
+# fig = pylab.figure()
+# ax1 = fig.add_subplot(111)
+# for (i,item) in enumerate(line):
+#     if(os.path.exists(dat_folder +item + lostmass_ext) >= 1):
+#         data = pylab.loadtxt(dat_folder +item + lostmass_ext)
+#         ax1.plot(data[:,0]-1.,data[:,1]/sum(data[:,1]),linestyles[i%len(linestyles)],color=colors[i%len(colors)],label = item.replace("_"," ") )
+#         pylab.hold(True)
+# new_tick_locations = numpy.array([math.atan(0.)*2/numpy.pi, math.atan(0.5)*2/numpy.pi, math.atan(1.)*2/numpy.pi, math.atan(2)*2/numpy.pi, math.atan(10.)*2/numpy.pi, math.atan(-0.5)*2/numpy.pi, math.atan(-1.)*2/numpy.pi, math.atan(-2.)*2/numpy.pi, math.atan(-10.)*2/numpy.pi])
 
-ax1.set_xticks(new_tick_locations)
-ax1.set_xticklabels(tick_function_half(new_tick_locations))
+# ax1.set_xticks(new_tick_locations)
+# ax1.set_xticklabels(tick_function_half(new_tick_locations))
 
-pylab.hold(False)
-pylab.yscale('log')
-pylab.ylabel(r"$P(\Delta_{\rm{merge}})$")
-pylab.xlabel(r"$\Delta_{\rm{merge}}$")
-pylab.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1),
-          ncol=4, prop={'size':8})
-pylab.savefig(pdf_folder+'Lostmass_dlog.pdf',bbox_inches='tight')
+# pylab.hold(False)
+# pylab.yscale('log')
+# pylab.ylabel(r"$P(\Delta_{\rm{merge}})$")
+# pylab.xlabel(r"$\Delta_{\rm{merge}}$")
+# pylab.legend(loc='upper center', bbox_to_anchor=(0.5, 1.1),
+#           ncol=4, prop={'size':8})
+# pylab.savefig(pdf_folder+'Lostmass_dlog.pdf',bbox_inches='tight')
 ##############################################################################################
 #plot mean beta HIMASS
 pre_ext = "_1000"
 h_meanbeta_ext = pre_ext+"MeanBeta.dat"
 print "Start plotting",h_meanbeta_ext
-data = pylab.loadtxt(dat_folder +'MergerTree' + lostmass_ext)
+data = pylab.loadtxt(dat_folder +'MergerTree' + h_meanbeta_ext)
 cumdata = numpy.cumsum(data[:,1])/sum(data[:,1])
 for i in range(len(cumdata)):
     print data[i,0],cumdata[i]

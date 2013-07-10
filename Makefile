@@ -9,9 +9,11 @@ SRCALL = $(SRC)/allvars.h  $(SRC)/analysis.c  $(SRC)/read_catalogues.c  $(SRC)/r
 SO_FILES = $(LIB)/gadgetPyIO.so
 OPT = 
 #OPT += -DAQUARIUS000
-#OPT += -DREADPARTICLE 
+OPT += -DREADPARTICLE 
 #OPT += -DSUBFINDOUT
 OPT += -DSTORESUBIDINMOSTBOUNDID
+#OPT += -DHBTEXCLUSIVE
+#OPT += -DRESETPARTICLECACHE
 CC += $(OPT)
 
 all: read removelowres $(SO_FILES) 

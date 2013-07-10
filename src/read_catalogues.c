@@ -87,7 +87,9 @@ void makeIDmap()
     {
       strncpy(filename,"",sizeof(filename));
       (void) getFilename(filename,iFile);
-      fp = fopen(strcat(filename,".AHF_halos"), "r");
+      sprintf(filename,"%s.AHF_halos",filename);
+      printf("Reading %s\n",filename);
+      fp = fopen(filename, "r");
       fgets(buffer,MAXSTRING,fp);
       for(iHalo=0;iHalo<SnapNhalos[iFile];iHalo++)
 	{
@@ -115,7 +117,7 @@ void makeIDmap()
 		 &(HaloTable[currentHalo].lambdaE),
 		 &(HaloTable[currentHalo].Lx),
 		 &(HaloTable[currentHalo].Ly),
-		 &(HaloTable[currentHalo].Lx),
+		 &(HaloTable[currentHalo].Lz),
 		 &(HaloTable[currentHalo].b),
 		 &(HaloTable[currentHalo].c),
 		 &(HaloTable[currentHalo].Eax),
@@ -126,7 +128,7 @@ void makeIDmap()
 		 &(HaloTable[currentHalo].Ebz),
 		 &(HaloTable[currentHalo].Ecx), 
 		 &(HaloTable[currentHalo].Ecy), 
-		 &(HaloTable[currentHalo].Ecy),
+		 &(HaloTable[currentHalo].Ecz),
 		 &(HaloTable[currentHalo].ovdens),
 		 &(HaloTable[currentHalo].nbins),
 		 &(HaloTable[currentHalo].fMhires),
@@ -153,10 +155,6 @@ void makeIDmap()
       
     }
 
-  //for(iFile=FIRSTSNAP;iFile<=LASTSNAP;iFile++)
-  //  {
-  //    read_particles(iFile);
-  //  }
   if(TotNhalos != (currentHalo))
     {
       fprintf(stderr,"Error: Problem in halo catalogues: %llu,%llu\nExiting...\n",TotNhalos,currentHalo);
@@ -190,6 +188,15 @@ void makeIDmap()
       printf("start reading HBT\n");
       (void) hbtmaphalos(addFile);
 #ifdef READPARTICLE
+#ifdef RESETPARTICLECACHE
+  
+  for(iFile=FIRSTSNAP;iFile<=LASTSNAP;iFile++)
+    {
+      read_particles(iFile);
+    }
+  (void) printoutparticles_binary();
+#endif
+
       printf("Start reading particles\n");
       read_particles_binary();
       printf("finish reading particles\n");
@@ -201,29 +208,29 @@ void makeIDmap()
 	      for(k=0;k<HaloTable[jhalo].npart;k++)
 		{
 		  /* //printf("k = %llu/%llu\n",k,HaloTable[jhalo].npart); */
-		  /* is_exist = 0; */
+		  is_exist = 0;
 		  pid = HaloTable[jhalo].Particles[k].ParticleID;
-		  /* //printf("pid = %llu\n",pid); */
-		  /* i=0; */
-		  /* while(i < HaloTable[ihalo].npart) */
-		  /*   { */
-		  /*     //printf("i = %llu\n",i); */
-		  /*     if(pid == HaloTable[ihalo].Particles[i].ParticleID) */
-		  /* 	{ */
-		  /* 	  i=NULLPOINT; */
-		  /* 	  is_exist = 1; */
-		  /* 	} */
-		  /*     else */
-		  /* 	{ */
-		  /* 	  i++; */
-		  /* 	} */
-		  /*   } */
-		  /* if(is_exist==0) */
-		  /*   { */
-		  HaloTable[ihalo].npart++;
-		  HaloTable[ihalo].Particles = realloc(HaloTable[ihalo].Particles,sizeof(struct particle_data )*HaloTable[ihalo].npart);
-		  HaloTable[ihalo].Particles[HaloTable[ihalo].npart-1].ParticleID = pid;
-		  /* } */
+		  //printf("pid = %llu\n",pid); 
+		  i=0;
+		  while(i < HaloTable[ihalo].npart)
+		    {
+		      //printf("i = %llu\n",i);
+		      if(pid == HaloTable[ihalo].Particles[i].ParticleID)
+		  	{
+		  	  i=NULLPOINT;
+		  	  is_exist = 1;
+		  	}
+		      else
+		  	{
+		  	  i++;
+		  	}
+		    }
+		  if(is_exist==0)
+		    {
+		      HaloTable[ihalo].npart++;
+		      HaloTable[ihalo].Particles = realloc(HaloTable[ihalo].Particles,sizeof(struct particle_data )*HaloTable[ihalo].npart);
+		      HaloTable[ihalo].Particles[HaloTable[ihalo].npart-1].ParticleID = pid;
+		    }
 		}
 	    }
 	}
@@ -237,7 +244,17 @@ void makeIDmap()
     }
 #ifdef READPARTICLE
   if(output.outputFormat > 0.999 && output.outputFormat < 1.001)
-    read_particles_binary();
+    {
+#ifdef RESETPARTICLECACHE
+  
+      for(iFile=FIRSTSNAP;iFile<=LASTSNAP;iFile++)
+	{
+	  read_particles(iFile);
+	}
+      (void) printoutparticles_binary();
+#endif
+      read_particles_binary();
+    }
 #endif
   //(void) resetIDmap();
   printf("Output binary cache files\n");
@@ -323,7 +340,7 @@ void read_singlesnap(unsigned int snapnum)
 		 &(HaloTable[currentHalo].lambdaE),
 		 &(HaloTable[currentHalo].Lx),
 		 &(HaloTable[currentHalo].Ly),
-		 &(HaloTable[currentHalo].Lx),
+		 &(HaloTable[currentHalo].Lz),
 		 &(HaloTable[currentHalo].b),
 		 &(HaloTable[currentHalo].c),
 		 &(HaloTable[currentHalo].Eax),
@@ -334,7 +351,7 @@ void read_singlesnap(unsigned int snapnum)
 		 &(HaloTable[currentHalo].Ebz),
 		 &(HaloTable[currentHalo].Ecx), 
 		 &(HaloTable[currentHalo].Ecy), 
-		 &(HaloTable[currentHalo].Ecy),
+		 &(HaloTable[currentHalo].Ecz),
 		 &(HaloTable[currentHalo].ovdens),
 		 &(HaloTable[currentHalo].nbins),
 		 &(HaloTable[currentHalo].fMhires),
@@ -751,7 +768,7 @@ void hbtmaphalos(char file[MAXSTRING])
   while((fgets(line,MAXSTRING,fp)) != NULL)
     {
       //printf("%s",line);
-      sscanf(line,"%llu %llu %lld %llu %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g",
+      sscanf(line,"%llu %llu %lld %llu %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g",
 	     &(HBT[counthalo].SubHaloID),
 	     &(HBT[counthalo].HostID),
 	     &(HBT[counthalo].AHFID),
@@ -771,7 +788,9 @@ void hbtmaphalos(char file[MAXSTRING])
 	     &(HBT[counthalo].RPoisson),
 	     &(HBT[counthalo].R2Sig),
 	     &(HBT[counthalo].Req),
-	     &(HBT[counthalo].Rtidal)	     
+	     &(HBT[counthalo].Rtidal),
+	     &(HBT[counthalo].MvirSum),
+	     &(HBT[counthalo].RvirSum)
 	     );
       counthalo++;
     }
@@ -788,7 +807,9 @@ void hbtmaphalos(char file[MAXSTRING])
 	{
 	  ahf_haloid = (MyIDtype) HBT[ihalo].AHFID;
 	  //force to use HBT data
+#ifndef FORCEMAPHBT //need to fix the code if this one is defined
 	  ahf_haloid = NULLPOINT;
+#endif
 	  //ahf_haloid = IDsearch(ahf_haloid);
 	  if(ahf_haloid < NULLPOINT)
 	    {
@@ -798,7 +819,10 @@ void hbtmaphalos(char file[MAXSTRING])
 		  HBThaloTable[ihalo].ID = HBT[ihalo].SubHaloID;
 		  HBThaloTable[ihalo].SnapID = HaloTable[ahf_haloid].SnapID;
 		  HBThaloTable[ihalo].hostHalo = HBT[ihalo].HostID;
+
 		  HBThaloTable[ihalo].Mvir = HaloTable[ahf_haloid].Mvir;
+		  HBThaloTable[ihalo].Rvir = HaloTable[ahf_haloid].Rvir;
+
 		  HBThaloTable[ihalo].Xc = HaloTable[ahf_haloid].Xc;
 		  HBThaloTable[ihalo].Yc = HaloTable[ahf_haloid].Yc;
 		  HBThaloTable[ihalo].Zc = HaloTable[ahf_haloid].Zc;
@@ -806,7 +830,6 @@ void hbtmaphalos(char file[MAXSTRING])
 		  HBThaloTable[ihalo].VYc = HaloTable[ahf_haloid].VYc;
 		  HBThaloTable[ihalo].VZc = HaloTable[ahf_haloid].VZc;	
 		  HBThaloTable[ihalo].Vmax = HaloTable[ahf_haloid].Vmax;
-		  HBThaloTable[ihalo].Rvir = HaloTable[ahf_haloid].Rvir;
 		}
 	      else
 		{
@@ -823,7 +846,16 @@ void hbtmaphalos(char file[MAXSTRING])
 		HBThaloTable[ihalo].AHFID = HBT[ihalo].AHFID;
 	      else
 		HBThaloTable[ihalo].AHFID = NULLPOINT;
+#ifdef HBTEXCLUSIVE
 	      HBThaloTable[ihalo].Mvir = HBT[ihalo].Mvir*HBT2AHFmass;
+	      HBThaloTable[ihalo].Rvir = HBT[ihalo].Rvir;
+#else
+	      HBThaloTable[ihalo].Mvir = HBT[ihalo].MvirSum*HBT2AHFmass;
+	      HBThaloTable[ihalo].Rvir = HBT[ihalo].RvirSum;		  
+#endif
+	      //HBThaloTable[ihalo].Mvir = HBT[ahf_haloid].Mvir*HBT2AHFmass;
+	      //HBThaloTable[ihalo].Rvir = H[ahf_haloid].Rvir;		  
+	      //HBThaloTable[ihalo].Mvir = HBT[ihalo].Mvir*HBT2AHFmass;
 	      HBThaloTable[ihalo].npart = HBT[ihalo].Nbound;
 	      HBThaloTable[ihalo].Xc = HBT[ihalo].X;
 	      HBThaloTable[ihalo].Yc = HBT[ihalo].Y;
@@ -832,7 +864,7 @@ void hbtmaphalos(char file[MAXSTRING])
 	      HBThaloTable[ihalo].VYc = HBT[ihalo].Vy;
 	      HBThaloTable[ihalo].VZc = HBT[ihalo].Vz;
 	      HBThaloTable[ihalo].Vmax = HBT[ihalo].Vmax;
-	      HBThaloTable[ihalo].Rvir = HBT[ihalo].Rvir;
+	      //HBThaloTable[ihalo].Rvir = HBT[ihalo].Rvir;
 	      //printf("cannot find halo ID %llu %lld\n",HBT[ihalo].SubHaloID, HBT[ihalo].AHFID);
 	      //exit(0);
 	    }
@@ -848,7 +880,14 @@ void hbtmaphalos(char file[MAXSTRING])
 	  else
 	    HBThaloTable[ihalo].AHFID = NULLPOINT;
 
+#ifdef HBTEXCLUSIVE
 	  HBThaloTable[ihalo].Mvir = HBT[ihalo].Mvir*HBT2AHFmass;
+	  HBThaloTable[ihalo].Rvir = HBT[ihalo].Rvir;
+#else
+	  HBThaloTable[ihalo].Mvir = HBT[ihalo].MvirSum*HBT2AHFmass;
+	  HBThaloTable[ihalo].Rvir = HBT[ihalo].RvirSum;		  
+#endif
+	  //HBThaloTable[ihalo].Mvir = HBT[ihalo].Mvir*HBT2AHFmass;
 	  HBThaloTable[ihalo].npart = HBT[ihalo].Nbound;
 	  HBThaloTable[ihalo].Xc = HBT[ihalo].X;
 	  HBThaloTable[ihalo].Yc = HBT[ihalo].Y;
@@ -857,7 +896,7 @@ void hbtmaphalos(char file[MAXSTRING])
 	  HBThaloTable[ihalo].VYc = HBT[ihalo].Vy;
 	  HBThaloTable[ihalo].VZc = HBT[ihalo].Vz;
 	  HBThaloTable[ihalo].Vmax = HBT[ihalo].Vmax;
-	  HBThaloTable[ihalo].Rvir = HBT[ihalo].Rvir;
+	  //HBThaloTable[ihalo].Rvir = HBT[ihalo].Rvir;
 	}
     }
   printf("total halo = %llu\n",counthalo);
@@ -867,16 +906,14 @@ void hbtmaphalos(char file[MAXSTRING])
   TotNhalos = counthalo;
   HaloTable = HBThaloTable;
   resetIDmap();
-  for(ihalo=0;ihalo<TotNhalos;ihalo++)
-    {
-      for(j=0;j<HaloTable[ihalo].nSubhalos;j++)
-	{
-	  jhalo = HaloTable[ihalo].SubhaloList[j];
-	  HaloTable[ihalo].Mvir += HaloTable[jhalo].oriMvir;
-	
-
-	}
-    }
+  /* for(ihalo=0;ihalo<TotNhalos;ihalo++) */
+  /*   { */
+  /*     for(j=0;j<HaloTable[ihalo].nSubhalos;j++) */
+  /* 	{ */
+  /* 	  jhalo = HaloTable[ihalo].SubhaloList[j]; */
+  /* 	  HaloTable[ihalo].Mvir += HaloTable[jhalo].oriMvir; */
+  /* 	} */
+  /*   } */
 #ifdef READPARTICLE
 #endif
 }
@@ -1211,7 +1248,7 @@ void read_particles(unsigned int slotid)
   MyIDtype i, j, dummyID,haloid,u_haloid,nhalos,nparts;
   unsigned int snapid;
   struct particle_data dummyhalo;
-
+  printf("Start reading particle files %d\n",(int) slotid);
   snapid =  slotid;
   strncpy(filename,"",sizeof(filename));
 
@@ -1232,8 +1269,10 @@ void read_particles(unsigned int slotid)
       printf("could not open %s\nABORTING\n",filename);
       exit(1);
     }
+  printf("Succesfully opened file\n");
   //fgets(dummystr,MAXSTRING,f);
   fscanf(f, "%llu", &nhalos);
+  printf("Total halos : %llu\n",nhalos);
   if(nhalos != SnapNhalos[snapid])
     {
       printf("Mismatch total halos in snapshot %d\n",snapid);
@@ -1271,7 +1310,7 @@ void read_particles(unsigned int slotid)
       qsort(HaloTable[haloid].Particles,nparts, sizeof(struct particle_data), compareParticleEnergy);
     }
   fclose(f);
-  
+  printf("finish reading particle file %d\n",(int)slotid);
 }
 void read_particles_binary()
 {

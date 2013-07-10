@@ -299,24 +299,32 @@ void count_mergers(MyIDtype haloid, int nStep, double binsize,float minmass, flo
 #ifdef VERBOSE2
 	  printf("start omp loop\n");
 #endif
-#pragma omp parallel for default(shared) private(jid) reduction(+:lostpart) 
-	  for(j = 0; j< count_particle; j++)
+	  if(SubTree[haloid] == NULLPOINT && SubTree[jhalo] == NULLPOINT)
 	    {
-	      jid = inputlist[j];
-	      if(Generalsearch(jid,HaloTable[haloid].npart,outputlist) < NULLPOINT)
-		lostpart++;
-	      //printf("jid = %llu\n",jid);
-	      /*
-		for(k = 0; k < HaloTable[haloid].npart; k++)
+	      if(HaloTable[jhalo].Mvir > minmass && HaloTable[jhalo].Mvir < maxmass && HaloTable[haloid].Mvir > minmass && HaloTable[haloid].Mvir < maxmass)
 		{
-		kid = outputlist[k];
-		if(kid == jid)
-		{
-		lostpart++;
-		break;
+#pragma omp parallel for default(shared) private(jid) reduction(+:lostpart) 
+		  for(j = 0; j< count_particle; j++)
+		    {
+		      jid = inputlist[j];
+		      if(Generalsearch(jid,HaloTable[haloid].npart,outputlist) < NULLPOINT)
+			{
+			  lostpart++;
+			  //printf("haloid = %llu\n",haloid);
+			}
+		      /*
+			for(k = 0; k < HaloTable[haloid].npart; k++)
+			{
+			kid = outputlist[k];
+			if(kid == jid)
+			{
+			lostpart++;
+			break;
+			}
+			}
+		      */
+		    }
 		}
-		}
-	      */
 	    }
 #ifdef VERBOSE2
 	  printf("stop omp loop\n");
@@ -965,9 +973,9 @@ void main_branch_analysis(float minmass, float maxmass, int highlim_npart)
 		  for(k=0;k<3;k++)
 		    {
 		      // change a\dot{x} => \dot{x}/h as well (r is in kpc/h)
-		      avg_V[k] = 0.5/h*(V_i[k]/expansion_factor[iSnap]+V_j[k]/expansion_factor[jSnap]);
+		      avg_V[k] = 0.5*h*(V_i[k]/expansion_factor[iSnap]+V_j[k]/expansion_factor[jSnap]);
 		      //avg_V[k] = V_j[k]/expansion_factor[jSnap];
-		      //avg_V[k] = 0.5/h*(V_i[k]+V_j[k]);
+		      //avg_V[k] = 0.5*h*(V_i[k]+V_j[k]);
 		      //avg_V[k] = snap_stats[jsnap].Vrms/expansion_factor[jSnap]/h;
 		      expected_R[k] = fmod((R_j[k] + avg_V[k]*(snapTimeYear[iSnap] - snapTimeYear[jSnap])*year2second/kpc2km) + Boxsize,Boxsize);
 		      sum_R = (avg_V[k])*(snapTimeYear[iSnap] - snapTimeYear[jSnap])*year2second/kpc2km;
@@ -1016,9 +1024,9 @@ void main_branch_analysis(float minmass, float maxmass, int highlim_npart)
 		      if(HaloTable[ihalo].Mvir < maxmass && HaloTable[ihalo].Mvir > minmass && HaloTable[jhalo].Mvir < maxmass && HaloTable[jhalo].Mvir > minmass)
 			{
 			  dispCorr_host[block]++;
-			  if(distance > 1.)
+			  if(distance > 0.5)
 			    {
-			      fprintf(fp2, "%llu\t %g\t %g \t %g\t %g\n", ihalo,(double)Radius,expected_R[0], expected_R[1],expected_R[2]);
+			      fprintf(fp2, "%llu\t %g\t %g \t %g\t %g %d\n", ihalo,(double)Radius,expected_R[0], expected_R[1],expected_R[2], block);
 			    }
 			}
 		    }

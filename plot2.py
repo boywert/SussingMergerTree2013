@@ -52,6 +52,7 @@ class output(object):
     time = None
     branch_length = None
     descendant = None
+
 def load_group_list():
     f = open(runlist_file)
     line = f.read().splitlines()
@@ -81,7 +82,7 @@ def make_plotdumbell():
     plotonepanel_id_fixpos(hid, 56, data, True, 650, [46301.99609375, 26823.99609375, 8579.7548828125])
 
 def plot_different_history():
-    epsilon = 0.1
+    epsilon = 0.
     hid = 61000000000123
     ctid = 61000000000123
     hbtid = 61000000000887
@@ -95,10 +96,11 @@ def plot_different_history():
         
         if(runlist[i] == 'HBT'):
             haloid = UIDtoID(hbtid,data)
-        elif(runlist[i] == 'Consitent_Trees'):
+        elif(runlist[i] == 'Consistent_Trees'):
             haloid = UIDtoID(ctid,data)
         else:
             haloid = UIDtoID(hid,data)
+        print data.halo[haloid][0]
         if(haloid != False):
             mass = []
             time = []
@@ -127,7 +129,7 @@ def plot_different_history():
             
             time = [cor[ix][0] for ix in range(len(cor))]
             mass = [cor[ix][1] for ix in range(len(cor))]
-            print time,mass
+            #print time,mass
             ax0.plot(time,mass,color=plot_config.colours[i],label = runlist[i].replace("_"," "))
             pylab.hold(True)
             mass = None
@@ -154,6 +156,7 @@ def plot_different_history():
             haloid = UIDtoID(ctid,data)
         else:
             haloid = UIDtoID(hid,data)
+        print data.halo[haloid][0]
         if(haloid != False):
             mass = []
             time = []
@@ -177,9 +180,9 @@ def plot_different_history():
                 time.append(data.time[snaphalo-1][4]/1.e10+epsilon*i)
                 cor.append([data.time[snaphalo-1][4]/1.e10,0.])
 
-            print cor
+            #print cor
             cor = sorted(cor, key=itemgetter(0))
-            print cor
+            #print cor
             time = [cor[ix][0] for ix in range(len(cor))]
             mass = [cor[ix][1] for ix in range(len(cor))]
             
@@ -198,12 +201,47 @@ def plot_different_history():
     yl = ax1.set_ylabel(r"$\mathrm{M_{vir}\, (10^{12}\, h^{-1}M_{\odot}})$")
     yl.set_verticalalignment('center')
     position = yl.get_position()
-    print position
+    #print position
     yl.set_position([0.0,1.0])
     pylab.savefig(str(hid)+'_history.pdf',bbox_inches='tight')
     os.system("pdftops -eps "+str(hid)+'_history.pdf')
     os.system("rm -f *.png *.pdf")
-
+  
+def plot_swap_mass_paper():
+    hid = {}
+    ctid = {}
+    hbtid = {}
+    hid[0] = 59000000000490
+    ctid[0] = 59000000000490
+    hbtid[0] = 59000000001701
+    runlist = load_group_list()
+    save = True
+    pos = [49031.37109375, 30610.4042968, 56049.984375]
+    zoomsize = 370.
+    n = 3
+    for i in range(len(runlist)):
+        print runlist[i]
+        data = load(runlist[i])
+        
+        if(runlist[i] == 'HBT'):
+            haloid = dict(hbtid)
+        elif(runlist[i] == 'Consistent_Trees'):
+            haloid = dict(ctid)
+        else:
+            haloid = dict(hid)
+        check = 1
+        if(runlist[i] == 'MergerTree'):
+            data.groupname = 'Particle_Identifiers'
+        print haloid
+        for j in haloid.keys():
+            haloid[j] = UIDtoID(haloid[j],data)
+            if(haloid[j] == False):
+                check = 0
+        if (check == 0) :
+            return False
+        else:
+            plotserial_id_fixpos(haloid,n,data,save,zoomsize,pos)
+    os.system("rm -f *.png *.pdf")
 
 def makemultipanels_paper():
     hid = {}
@@ -224,9 +262,9 @@ def makemultipanels_paper():
         print runlist[i]
         data = load(runlist[i])
         
-        if(runlist[i] == 'HBT.v3'):
+        if(runlist[i] == 'HBT'):
             haloid = dict(hbtid)
-        elif(runlist[i] == 'CONSITENT_TREES'):
+        elif(runlist[i] == 'Consistent_Trees'):
             haloid = dict(ctid)
         else:
             haloid = dict(hid)
@@ -633,6 +671,9 @@ def plotmergers(n,data,Radius,expected_pos,flag,save,zoom):
     r1 = numpy.array([x1,y1,z1])
 
     x_axis = r1 - r0
+    x_axis = numpy.array([1.,0.,0.])
+    y_axis = numpy.array([0.,1.,0.])
+    z_axis = numpy.array([0.,0.,1.])
     for j in range(3):
         if(x_axis[j] > boxsize/2.):
             x_axis[j] -= boxsize

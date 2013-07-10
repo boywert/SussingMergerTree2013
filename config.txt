@@ -1,6 +1,6 @@
-/scratch/cs390/SUSSING2013/datasetI
+/home/sussing/ANALYSIS/DATASET_I/scratch/200RhoCrit
 62.5_dm_
-/scratch/cs390/SUSSING2013/datasetI/data_snaplist.txt
-/scratch/cs390/SUSSING2013/datasetI_trees
-/scratch/cs390/SUSSING2013/62.5_ori
-/scratch/cs390/SUSSING2013/datasetI_histograms
+/home/sussing/ANALYSIS/DATASET_I/scratch/200RhoCrit/data_snaplist.txt
+/home/sussing/ANALYSIS/DATASET_I/scratch/datasetI_trees
+/home/sussing/ANALYSIS/DATASET_I/scratch/62.5_dm
+/home/sussing/ANALYSIS/DATASET_I/scratch/datasetI_histograms

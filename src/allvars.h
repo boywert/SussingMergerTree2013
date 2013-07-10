@@ -240,6 +240,8 @@ struct HBT_halos
   float R2Sig;
   float Req;
   float Rtidal;
+  float MvirSum;
+  float RvirSum;
 };
 extern struct HBT_halos *HBT;
 

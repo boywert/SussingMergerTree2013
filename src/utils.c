@@ -427,12 +427,12 @@ void makesubfindout()
 	      data.GroupPos[3*j] = (float) (HaloTable[subid].Xc/Mpc2kpc);
 	      data.GroupPos[3*j+1] = (float) (HaloTable[subid].Yc/Mpc2kpc);
 	      data.GroupPos[3*j+2] = (float) (HaloTable[subid].Zc/Mpc2kpc);
-	      data.Group_M_Mean200[j] = (float) (HaloTable[subid].Mvir/GagetUnit2Msun);
-	      data.Group_R_Mean200[j] = (float) (HaloTable[subid].Rvir);
+	      data.Group_M_Mean200[j] = (float) (default_float);
+	      data.Group_R_Mean200[j] = (float) (default_float);
 	      /* skip  Group_M_Crit200 */
-	      data.Group_M_Crit200[j] = (float) default_float;
+	      data.Group_M_Crit200[j] = (float) (HaloTable[subid].Mvir/GagetUnit2Msun);
 	      /* skip  Group_R_Crit200 */
-	      data.Group_R_Crit200[j] = (float) default_float;
+	      data.Group_R_Crit200[j] = (float) (HaloTable[subid].Rvir);
 	      /* skip  Group_M_TopHat200 */
 	      data.Group_M_TopHat200[j] = (float) default_float;
 	      /* skip  Group_R_TopHat200 */
@@ -626,6 +626,7 @@ void printoutparticles_binary()
   fclose(fp_uid);
   fclose(fp_npart);
   fclose(fp_particle);
+  exit(0);
 }
 
 
