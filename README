@@ -1,0 +1,30 @@
+You can download the codes using git.
+
+git clone https://github.com/boywert/SussingMergerTree2013.git
+
+- Warning: There is almost no comment or label in the source codes (I will do it, eventually).
+- Copy all tree results into SussingMergerTree2013 which was just created by git.
+- Rename of the result tree files to the name which will appear on the plots (use '_' for blank space)
+- Edit config.txt file (must be line by line without any comments since I just read them in naively). If you look in the current folder
+
+/home/sussing/ANALYSIS/DATASET_I/scratch/200RhoCrit   [Directory contains all AHF files, MUST BE WRITEABLE]
+62.5_dm_	[prefix of the files]
+/home/sussing/ANALYSIS/DATASET_I/scratch/200RhoCrit/data_snaplist.txt    [snapshot info file]
+/home/sussing/ANALYSIS/DATASET_I/scratch/datasetI_trees                              [Blank folder to store cache files]
+/home/sussing/ANALYSIS/DATASET_I/scratch/62.5_dm                                        [Folder contain Gadget outputs]
+/home/sussing/ANALYSIS/DATASET_I/scratch/datasetI_histograms                   [Blank folder to store some more cache file]
+
+- Edit the contents of run.list to the list of the tree files (except some exception for HBT and Consistent_Tree) [see the sample in the file]
+- Check the flag in Makefile. You can comment out every OPT += to generate almost all the plots (except Lost_N.eps which needs -DREADPARTICLE (which requires RESETPARTICLECACHE before that)).
+
+- If everything is ready.
+	- run command 'python run.py --reset-data' to regenerate all data for the plots
+	- run command 'python run.py' to just re-plot the plots.
+
+- I will write some script to these all (obviously, I can't write scripts to change names).
+- Please you see any bugs, please tell me.
+- There are tools to generate something like Figure 3 in plot2.py
+- The main plots code is run.py
+
+
+Boyd
