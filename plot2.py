@@ -1,3 +1,5 @@
+import matplotlib 
+matplotlib.use('PS')
 import pylab 
 import sys
 import numpy
