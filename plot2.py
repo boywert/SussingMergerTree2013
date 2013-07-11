@@ -1,5 +1,5 @@
 import matplotlib 
-matplotlib.use('PS')
+matplotlib.use('PDF')
 import pylab 
 import sys
 import numpy

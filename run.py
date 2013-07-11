@@ -1,5 +1,7 @@
 #!/usr/bin/python
 import os 
+import matplotlib
+matplotlib.use('PDF')
 import pylab
 import sys
 import numpy
