@@ -55,6 +55,7 @@ void makeIDmap()
   char filename[MAXSTRING];
   char buffer[MAXSTRING];
   char dummystr[MAXSTRING];
+  long long templong1,templong2;
   FILE* fp;
   TotNhalos = 0;
   currentHalo = 0;
@@ -93,10 +94,12 @@ void makeIDmap()
       fgets(buffer,MAXSTRING,fp);
       for(iHalo=0;iHalo<SnapNhalos[iFile];iHalo++)
 	{
-	  fscanf(fp,"%llu %llu %llu %g %llu %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g",
+	  fscanf(fp,"%llu %lld %lld %g %llu %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g %g",
 		 &(HaloTable[currentHalo].ID),
-		 &(HaloTable[currentHalo].hostHalo),
-		 &(HaloTable[currentHalo].numSubStruct),
+		 &(templong1),
+		 &(templong2),
+		 //&(HaloTable[currentHalo].hostHalo),
+		 //&(HaloTable[currentHalo].numSubStruct),
 		 &(HaloTable[currentHalo].Mvir),
 		 &(HaloTable[currentHalo].npart),
 		 &(HaloTable[currentHalo].Xc),
@@ -138,6 +141,15 @@ void makeIDmap()
 		 &(HaloTable[currentHalo].Phi0),
 		 &(HaloTable[currentHalo].cNFW) 
 		 );
+	  if(templong1 < 0) 
+	    HaloTable[currentHalo].hostHalo = 0;
+	  else
+	    HaloTable[currentHalo].hostHalo = (MyIDtype) templong1;
+	  if(templong2 < 1)
+	    HaloTable[currentHalo].numSubStruct = 0;
+	  else
+	    HaloTable[currentHalo].numSubStruct = (MyIDtype) templong2;
+
 	  IDmap[currentHalo] = HaloTable[currentHalo].ID;
 	  HaloTable[currentHalo].AHFID = HaloTable[currentHalo].ID; 
 	  HaloTable[currentHalo].SnapID = iFile;

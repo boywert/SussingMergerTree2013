@@ -210,7 +210,7 @@ void makeIDmap()
 		  /* //printf("k = %llu/%llu\n",k,HaloTable[jhalo].npart); */
 		  is_exist = 0;
 		  pid = HaloTable[jhalo].Particles[k].ParticleID;
-		  printf("pid = %llu\n",pid); 
+		  //printf("pid = %llu\n",pid); 
 		  i=0;
 		  while(i < HaloTable[ihalo].npart)
 		    {
