@@ -25,10 +25,10 @@
 //#define MERGER_RATIO   0.25
 
 #define CLUES_WM3
-
+#define FIXOLD
 #define NSNAPS 1200
 #define MAXSTRING 4096
-
+#define MaxHiResID 18535972
 
 static float default_float = 2e38; 
 static float Mpc2kpc = 1000.;
@@ -68,8 +68,8 @@ struct halo_catalogue
   int *SubLen;
   int *SubParentHalo;
   int *IdToHalo;
-  float *Group_M_Mean200;
-  float *Group_R_Mean200;
+  float *Group_M_Crit200;
+  float *Group_R_Crit200;
   int *GroupNsubs;
   int *GroupLen;
   int *GroupFirstSub;
@@ -94,7 +94,7 @@ struct halo_catalogue
   }    
     *Descendant;
   int *CountProgenitors;
-} CatA;
+} CatA,CatB;
 
 struct ahf_halos 
 {
@@ -164,11 +164,11 @@ int main(int argc, char **argv)
   char h_out[MAXSTRING], p_out[MAXSTRING];
   FILE *fp1,*fp2,*fp3;
   double normalise,factor;
-  
+  long long groupNsubs,groupNids,groupfirstsub,groupfirstid;
   double a_c,z;
   strcpy(SnapTimeFile,"data_snaplist.txt");
   //strcpy(OUTfolder,"/mnt/lustre/scratch/cs390/datasetIII");
-  sprintf(OUTfolder,"/gpfs/data/Millgas/cs390/SUSSING2013/datasetIII/");
+  sprintf(OUTfolder,"/gpfs/data/Millgas/cs390/SUSSING2013/datasetIII_Crit200/");
   // use this with datalist_snap
   //getSnapTime();
 
@@ -186,20 +186,32 @@ int main(int argc, char **argv)
   //snapid = 8;
   maxhalopersnap = pow(10,12);
   load_subhalo_catalogue(snapid, &CatA);
+
   printf("%d\n",CatA.TotNgroups);
 
-  sprintf(h_out,"%s/datasetIII_%03d.z%2.3f.AHF_halos",OUTfolder, snapid, z_list[snapid]);
+  sprintf(h_out,"%s/datasetIII_%04d.z%2.3f.AHF_halos",OUTfolder, snapid, z_list[snapid]);
+#ifndef FIXOLD
   sprintf(p_out,"%s/datasetIII_%03d.z%2.3f.AHF_particles",OUTfolder, snapid, z_list[snapid]);
+#endif
   fp1 = fopen(h_out,"w+");
+  if (fp1 == NULL) 
+    {
+      printf("Error: cannot open %s\n",h_out);
+    }
+#ifndef FIXOLD 
   fp2 = fopen(p_out,"w+");
+#endif
   k = 0;
   
-  subpergroup = calloc(CatA.TotNgroups,sizeof(int));
+  //subpergroup = calloc(CatA.TotNgroups,sizeof(int));
   sprintf(header_out, 
 	  "#ID(1)     hostHalo(2)     numSubStruct(3) Mvir(4) npart(5)        Xc(6)   Yc(7)   Zc(8)   VXc(9)  VYc(10) VZc(11) Rvir(12)        Rmax(13)        r2(14)  mbp_offset(15)  com_offset(16)  Vmax(17)        v_esc(18)       sigV(19)        lambda(20)      lambdaE(21)     Lx(22)  Ly(23)  Lz(24)  b(25)   c(26)   Eax(27) Eay(28) Eaz(29) Ebx(30) Eby(31) Ebz(32) Ecx(33) Ecy(34) Ecz(35) ovdens(36)      nbins(37)       fMhires(38)     Ekin(39)        Epot(40)        SurfP(41)       Phi0(42)        cNFW(43)");
   //printf("%s\n",header_out);
   fprintf(fp1,"%s\n", header_out);
+#ifndef FIXOLD
   fprintf(fp2,"%d\n", CatA.TotNsubhalos);
+#endif
+  printf("start for loop\n");
   for(i=0;i<CatA.TotNgroups;i++)
     {
       if(CatA.Group_M_Crit200[i] == 0)
@@ -208,6 +220,7 @@ int main(int argc, char **argv)
 	factor = CatA.Group_M_Crit200[i]/pow(CatA.Group_R_Crit200[i],3);
       for(j=0;j<CatA.GroupNsubs[i]; j++)
 	{
+	  //printf("output %ld\n",(long) j)
 	  if(k != CatA.GroupFirstSub[i]+j )
 	    exit(0);
 	  ahf_id.ID = snapid*maxhalopersnap + k + 1;
@@ -332,35 +345,38 @@ int main(int argc, char **argv)
 		  ahf_id.Phi0,
 		  ahf_id.cNFW 
 		  );
-
-	  fprintf(fp2,"%d\t%llu\n",CatA.SubLen[k],ahf_id.ID);	  
-	  for(l=0;l<CatA.SubLen[k];l++)
-	    {
-	      pid = CatA.SubOffset[k]+l;
-#ifndef SUBFIND_SAVE_PARTICLELISTS
-	      fprintf(fp2,"%lu\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\n",
-		      CatA.IdList[pid],
-		      default_float,
-		      default_float,
-		      default_float,
-		      default_float,
-		      default_float,
-		      default_float,
-		      default_float
-		      );
-#else
-	      fprintf(fp2,"%lu\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\n",
-		      CatA.IdList[pid],
-		      CatA.IdBindingEgy[pid],
-		      CatA.IdPos[3*pid]*Mpc2kpc,
-		      CatA.IdPos[3*pid+1]*Mpc2kpc,
-		      CatA.IdPos[3*pid+2]*Mpc2kpc,
-		      CatA.IdVel[3*pid]*sqrt(a[snapid]),
-		      CatA.IdVel[3*pid+1]*sqrt(a[snapid]),
-		      CatA.IdVel[3*pid+2]*sqrt(a[snapid])
-		      );
-#endif
-	    }
+/* #ifndef FIXOLD */
+/* 	  fprintf(fp2,"%d\t%llu\n",CatA.SubLen[k],ahf_id.ID);	   */
+/* #endif */
+/* 	  for(l=0;l<CatA.SubLen[k];l++) */
+/* 	    { */
+/* 	      pid = CatA.SubOffset[k]+l; */
+/* #ifndef FIXOLD */
+/* #ifndef SUBFIND_SAVE_PARTICLELISTS */
+/* 	      fprintf(fp2,"%lu\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\n", */
+/* 		      CatA.IdList[pid], */
+/* 		      default_float, */
+/* 		      default_float, */
+/* 		      default_float, */
+/* 		      default_float, */
+/* 		      default_float, */
+/* 		      default_float, */
+/* 		      default_float */
+/* 		      ); */
+/* #else */
+/* 	      fprintf(fp2,"%lu\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\n", */
+/* 		      CatA.IdList[pid], */
+/* 		      CatA.IdBindingEgy[pid], */
+/* 		      CatA.IdPos[3*pid]*Mpc2kpc, */
+/* 		      CatA.IdPos[3*pid+1]*Mpc2kpc, */
+/* 		      CatA.IdPos[3*pid+2]*Mpc2kpc, */
+/* 		      CatA.IdVel[3*pid]*sqrt(a[snapid]), */
+/* 		      CatA.IdVel[3*pid+1]*sqrt(a[snapid]), */
+/* 		      CatA.IdVel[3*pid+2]*sqrt(a[snapid]) */
+/* 		      ); */
+/* #endif */
+/* #endif //FIXOLD */
+/* 	    } */
 	  k++;
 	}
     }
@@ -504,8 +520,8 @@ void load_subhalo_catalogue(int num, struct halo_catalogue *cat)
 
 	  cat->GroupNsubs = mymalloc(sizeof(int) * cat->TotNgroups);
 	  cat->GroupLen = mymalloc(sizeof(int) * cat->TotNgroups);
-	  cat->Group_M_Mean200 = mymalloc(sizeof(float) * cat->TotNgroups);
-	  cat->Group_R_Mean200 = mymalloc(sizeof(float) * cat->TotNgroups);
+	  cat->Group_M_Crit200 = mymalloc(sizeof(float) * cat->TotNgroups);
+	  cat->Group_R_Crit200 = mymalloc(sizeof(float) * cat->TotNgroups);
 	  cat->GroupFirstSub = mymalloc(sizeof(int) * cat->TotNgroups);
 	  cat->Descendant = mymalloc(sizeof(struct descendant_data) * cat->TotNsubhalos);
 	  cat->CountProgenitors = mymalloc(sizeof(int) * cat->TotNsubhalos);
@@ -516,12 +532,14 @@ void load_subhalo_catalogue(int num, struct halo_catalogue *cat)
       fseek(fd, sizeof(int) * ngroups, SEEK_CUR);	/* skip  GroupOffset  */
       fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  GroupMass  */
       fseek(fd, 3 * sizeof(float) * ngroups, SEEK_CUR);	/* skip  GroupPos */
-      //fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_M_Mean200 */
-      my_fread(&cat->Group_M_Mean200[groupcount], sizeof(float), ngroups, fd);
-      //fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_R_Mean200 */
-      my_fread(&cat->Group_R_Mean200[groupcount], sizeof(float), ngroups, fd);
-      fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_M_Crit200 */
-      fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_R_Crit200 */
+      fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_M_Mean200 */
+      //my_fread(&cat->Group_M_Mean200[groupcount], sizeof(float), ngroups, fd);
+      fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_R_Mean200 */
+      //my_fread(&cat->Group_R_Mean200[groupcount], sizeof(float), ngroups, fd);
+      //fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_M_Crit200 */
+      my_fread(&cat->Group_M_Crit200[groupcount], sizeof(float), ngroups, fd);
+      //fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_R_Crit200 */
+      my_fread(&cat->Group_R_Crit200[groupcount], sizeof(float), ngroups, fd); 
       fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_M_TopHat200 */
       fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_R_TopHat200 */
 #ifdef SO_VEL_DISPERSIONS
