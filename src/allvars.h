@@ -50,13 +50,13 @@ static double Boxsize= 62500.;
 #define FIRSTSNAP 0
 #define LASTSNAP 1023
 #define NSNAPS 1024
-
+#define SNAPDIGIT 4
 #else
 
 #define FIRSTSNAP 0
 #define LASTSNAP 61
 #define NSNAPS 62
-
+#define SNAPDIGIT 3
 #endif
 struct progtable 
 {
@@ -256,6 +256,7 @@ extern MyIDtype *Avatar;
 
 extern char delFile[MAXSTRING];
 extern char addFile[MAXSTRING];
+extern char hostInfoFile[MAXSTRING];
 extern char SnapTimeFile[MAXSTRING];
 
 extern char FilePrefix[MAXSTRING];

@@ -3,6 +3,7 @@
 
 char delFile[MAXSTRING];
 char addFile[MAXSTRING];
+char hostInfoFile[MAXSTRING];
 char SnapTimeFile[MAXSTRING];
 MyIDtype SnapNhalos[NSNAPS];
 float snapTime[NSNAPS];
@@ -141,15 +142,20 @@ void makeIDmap()
 		 &(HaloTable[currentHalo].Phi0),
 		 &(HaloTable[currentHalo].cNFW) 
 		 );
-	  if(templong1 < 0) 
-	    HaloTable[currentHalo].hostHalo = 0;
+
+	  if(templong1 < 0)
+	    //point SubTree to itself in Rockstar
+	    HaloTable[currentHalo].hostHalo = HaloTable[currentHalo].ID;
 	  else
 	    HaloTable[currentHalo].hostHalo = (MyIDtype) templong1;
+
 	  if(templong2 < 1)
 	    HaloTable[currentHalo].numSubStruct = 0;
 	  else
 	    HaloTable[currentHalo].numSubStruct = (MyIDtype) templong2;
 
+	  //	  printf("ID = %llu\n",HaloTable[0].ID);
+	  //exit(0);
 	  IDmap[currentHalo] = HaloTable[currentHalo].ID;
 	  HaloTable[currentHalo].AHFID = HaloTable[currentHalo].ID; 
 	  HaloTable[currentHalo].SnapID = iFile;
@@ -166,6 +172,7 @@ void makeIDmap()
       fclose(fp);
       
     }
+  resetIDmap();  
 
   if(TotNhalos != (currentHalo))
     {
@@ -273,8 +280,7 @@ void makeIDmap()
   (void) get_snap_stats();
   (void) printoutprofile();
 
-#ifdef SUBFINDOUT
-  (void) makesubfindout();
+#ifdef SUBFINDOUT  (void) makesubfindout();
 #endif
 }
 void read_singlesnap(unsigned int snapnum)
@@ -382,7 +388,7 @@ void read_singlesnap(unsigned int snapnum)
 	  Avatar[currentHalo] = currentHalo;
 	  HaloTable[currentHalo].ProgAvatarFlag = 0;
 	  HaloTable[currentHalo].TroubleFlag = 0;
-
+	 
 	  //printf("%llu : %llu\n", currentHalo,IDmap[currentHalo]);
 	  currentHalo++;
 	}
@@ -765,7 +771,7 @@ int gadget_load_snapshot(char *fname, int files)
 void hbtmaphalos(char file[MAXSTRING])
 {
   MyIDtype ihalo,jhalo,j,k,i,pid,counthalo,ahf_haloid,countuseable;
-  const unsigned long long MAXHBT = 2000000;
+  const unsigned long long MAXHBT = 10000000;
   int *original_used,is_exist;
   char line[MAXSTRING],buff[MAXSTRING];
   FILE* fp;
@@ -913,7 +919,9 @@ void hbtmaphalos(char file[MAXSTRING])
     }
   printf("total halo = %llu\n",counthalo);
   //printf("useable halo = %llu\n",countuseable);
+  printf("First halo id %llu\n",HaloTable[0].ID);
   free(HBT);
+  printf("First halo id %llu\n",HaloTable[0].ID);
   free(HaloTable);
   TotNhalos = counthalo;
   HaloTable = HBThaloTable;
@@ -1091,6 +1099,23 @@ void resetIDmap()
     }
   printf("Finish Reset IDmap\n");
 }
+/* void ConsistentTreeHostIDfilter(char file[MAXSTRING]) */
+/* { */
+/*   FILE* fp; */
+/*   MyIDtype ihalo,count; */
+/*   char line[MAXSTRING]; */
+/*   printf("Start assigning hostHaloID\n"); */
+/*   fp = fopen(file,'r'); */
+/*   count = 0; */
+/*   while((fgets(line,MAXSTRING,fp)) != NULL) */
+/*     { */
+/*       count++; */
+/*     } */
+/*   if(count != TotNhalos) */
+/*     { */
+/*       printf("The number of halo in hostID file: %llu does not match the ori") */
+/*     } */
+/* } */
 
 void addHalo_v1(char file[MAXSTRING])
 {
@@ -1372,7 +1397,14 @@ void getFilename(char* filename,unsigned int snapnum)
   char zstr[MAXSTRING];
   char *returnstr,*finalstr; 
   //printf("getFilename %d\n",snapnum);
+#if SNAPDIGIT==4
+  sprintf(keyword,"%s%04d.",FilePrefix,snapnum);
+#elif SNAPDIGIT==3
   sprintf(keyword,"%s%03d.",FilePrefix,snapnum);
+#else
+  printf("SNAPDIGIT not valid\n");
+  exit(1);
+#endif
   pDir = opendir(FolderName);
   if (pDir == NULL) 
     {

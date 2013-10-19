@@ -4,12 +4,16 @@ void SubtreeFilter();
 void resetHaloTable();
 
 char FilePrefix[MAXSTRING];
+char HBTFilePrefix[MAXSTRING];
 char FolderName[MAXSTRING];
+char HBTFolderName[MAXSTRING];
 char TreeFolder[MAXSTRING];
 char ppFolder[MAXSTRING];
 char inputFile[MAXSTRING];
 char *trimwhitespace(char *str);
-
+char gadgetfolder[MAXSTRING];
+char gadgetPrefix[MAXSTRING];
+char filteredFolder[MAXSTRING];
 int main(int argc, char **argv)
 {
   int isTree;
@@ -56,11 +60,20 @@ int main(int argc, char **argv)
       strcpy(delFile,argv[2]);
       strcpy(addFile,argv[3]);
     }
+  if(argc == 5)
+    {
+      strcpy(delFile,argv[2]);
+      strcpy(addFile,argv[3]);
+      strcpy(hostInfoFile,argv[4]);
+    }
+  
   if(argc == 3)
     {
       strcpy(addFile,argv[2]);
     }
   strcpy(inputFile,argv[1]);
+  sprintf(HBTFolderName,"%s",addFile);
+  sprintf(HBTFilePrefix,"%s",FilePrefix);
   if(readRawOutputs(argv[1]) == 0)
     {
       fprintf(stderr,"The output: %s is valid\n",argv[1]);
@@ -74,8 +87,9 @@ int main(int argc, char **argv)
   //SubtreeFilter();
   if(assignAvatarMain() != 0)
     {
-      printf("Not trees\n");
+      printf("%s output are not trees\nExiting...\n",argv[1]);
       isTree = 0;
+      exit(1);
     }
   qsort(output.progs,output.nHalos, sizeof(struct progtable), compareHaloID);
 #ifdef datasetII
@@ -86,21 +100,21 @@ int main(int argc, char **argv)
     }
 #endif
   (void) printouttrees();
-  printoutparticles_binary();
-  exit(0);
+  //printoutparticles_binary();
+  //exit(0);
   //mean_main_branch_mass();
   main_branch_analysis(0.,1e11,100);  
   main_branch_analysis(2e11,5e11,500);
   main_branch_analysis(1e12,1e30,1000);
   if(isTree)
     {
-      merger_analysis(0.,1e11,100);
-      merger_analysis(2e11,5e11,500);
+      //  merger_analysis(0.,1e11,100);
+      // merger_analysis(2e11,5e11,500);
       merger_analysis(1e12,1e30,1000);
     }
-  snapshot_stats(61,0.,1e11,100);
-  snapshot_stats(61,2e11,5e11,500);
-  snapshot_stats(61,1e12,1e30,1000);
+  //snapshot_stats(61,0.,1e11,100);
+  //snapshot_stats(61,2e11,5e11,500);
+  //snapshot_stats(61,1e12,1e30,1000);
   //calculateMassFunction();
   return 0;
 }

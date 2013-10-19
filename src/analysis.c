@@ -1090,13 +1090,13 @@ void main_branch_analysis(float minmass, float maxmass, int highlim_npart)
 			  //printf("%llu %llu %llu\n",ihalo,jhalo,khalo);
 			  //printf("%f %f %f\n",HaloTable[ihalo].Mvir,HaloTable[jhalo].Mvir,HaloTable[khalo].Mvir);
 
-			  /* calculate beta_{n-1,n+1} */
-			  firstslope = atan((HaloTable[ihalo].Mvir - HaloTable[khalo].Mvir) / (HaloTable[ihalo].Mvir + HaloTable[khalo].Mvir) /(snapTime[iSnap] - snapTime[kSnap]) * (snapTime[iSnap] + snapTime[kSnap]) ); 
+			  /* calculate beta_{n,n+1} */
+			  firstslope = atan((HaloTable[ihalo].Mvir - HaloTable[jhalo].Mvir) / (HaloTable[ihalo].Mvir + HaloTable[jhalo].Mvir) /(snapTime[iSnap] - snapTime[jSnap]) * (snapTime[iSnap] + snapTime[jSnap]) ); 
 			  /* calculate beta_{n-1,n} */
 			  secondslope = atan((HaloTable[jhalo].Mvir - HaloTable[khalo].Mvir)/ (HaloTable[jhalo].Mvir + HaloTable[khalo].Mvir) /(snapTime[jSnap] - snapTime[kSnap]) * (snapTime[jSnap] + snapTime[kSnap]));
 
-			  /* beta_{n-1,n} - beta_{n-1,n+1} */
-			  corr_self = (secondslope-firstslope)/asin(1.)/2.;
+			  /* beta_{n,n+1} - beta_{n-1,n} */
+			  corr_self = -1.*(secondslope-firstslope)/asin(1.)/2.;
 	      
 
 			  block = (int) ((corr_self + 1.)/binsize);

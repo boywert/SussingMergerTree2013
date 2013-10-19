@@ -239,7 +239,7 @@ MyIDtype assignAvatarMain()
       if(HaloTable[i].nAvatars > 1)
       	{
 	  avatardup++;
-	  printf("ID: %llu has %d avatars (%d descendants)\n",HaloTable[i].ID,(int)HaloTable[i].nAvatars,(int)HaloTable[i].nAvatars+1);
+	  printf("ID: %llu has %d avatars\n",HaloTable[i].ID,(int)HaloTable[i].nAvatars);
 	  //printf("%f\t%llu\n",HaloTable[i].Mvir,HaloTable[i].nAvatars);
 	}
     }

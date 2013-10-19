@@ -310,7 +310,7 @@ void count_mergers(MyIDtype haloid, int nStep, double binsize,float minmass, flo
 		      if(Generalsearch(jid,HaloTable[haloid].npart,outputlist) < NULLPOINT)
 			{
 			  lostpart++;
-			  printf("haloid = %llu\n",haloid);
+			  //printf("haloid = %llu\n",haloid);
 			}
 		      /*
 			for(k = 0; k < HaloTable[haloid].npart; k++)

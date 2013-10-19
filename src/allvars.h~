@@ -240,6 +240,8 @@ struct HBT_halos
   float R2Sig;
   float Req;
   float Rtidal;
+  float MvirSum;
+  float RvirSum;
 };
 extern struct HBT_halos *HBT;
 
@@ -254,6 +256,7 @@ extern MyIDtype *Avatar;
 
 extern char delFile[MAXSTRING];
 extern char addFile[MAXSTRING];
+extern char hostInfoFile[MAXSTRING];
 extern char SnapTimeFile[MAXSTRING];
 
 extern char FilePrefix[MAXSTRING];

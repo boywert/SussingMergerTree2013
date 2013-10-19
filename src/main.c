@@ -60,6 +60,13 @@ int main(int argc, char **argv)
       strcpy(delFile,argv[2]);
       strcpy(addFile,argv[3]);
     }
+  if(argc == 5)
+    {
+      strcpy(delFile,argv[2]);
+      strcpy(addFile,argv[3]);
+      strcpy(hostInfoFile,argv[4]);
+    }
+  
   if(argc == 3)
     {
       strcpy(addFile,argv[2]);
@@ -80,8 +87,9 @@ int main(int argc, char **argv)
   //SubtreeFilter();
   if(assignAvatarMain() != 0)
     {
-      printf("Not trees\n");
+      printf("%s output are not trees\nExiting...\n",argv[1]);
       isTree = 0;
+      exit(1);
     }
   qsort(output.progs,output.nHalos, sizeof(struct progtable), compareHaloID);
 #ifdef datasetII

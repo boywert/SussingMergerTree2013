@@ -202,10 +202,10 @@ int main(int argc, char **argv)
   fprintf(fp2,"%d\n", CatA.TotNsubhalos);
   for(i=0;i<CatA.TotNgroups;i++)
     {
-      if(CatA.Group_M_Crit200[i] == 0)
-	printf("Mvir :%f Rvir :%f npart :%d\n",CatA.Group_M_Crit200[i],CatA.Group_R_Crit200[i],CatA.GroupLen[i]);
+      if(CatA.Group_M_Mean200[i] == 0)
+	printf("Mvir :%f Rvir :%f npart :%d\n",CatA.Group_M_Mean200[i],CatA.Group_R_Mean200[i],CatA.GroupLen[i]);
       else
-	factor = CatA.Group_M_Crit200[i]/pow(CatA.Group_R_Crit200[i],3);
+	factor = CatA.Group_M_Mean200[i]/pow(CatA.Group_R_Mean200[i],3);
       for(j=0;j<CatA.GroupNsubs[i]; j++)
 	{
 	  if(k != CatA.GroupFirstSub[i]+j )
@@ -223,7 +223,7 @@ int main(int argc, char **argv)
 	    ahf_id.numSubStruct = 0;
 
 	  if(k == CatA.GroupFirstSub[i])
-	    ahf_id.Mvir = CatA.Group_M_Crit200[i] * GagetUnit2Msun;
+	    ahf_id.Mvir = CatA.Group_M_Mean200[i] * GagetUnit2Msun;
 	  else
 	    ahf_id.Mvir = CatA.SubhaloMass[k] * GagetUnit2Msun;
 	  //	  if(k == CatA.GroupFirstSub[i])
@@ -239,14 +239,14 @@ int main(int argc, char **argv)
 	  if(k == CatA.GroupFirstSub[i])
 	    {
 	      printf("");
-	      ahf_id.Rvir = CatA.Group_R_Crit200[i]*Mpc2kpc;
+	      ahf_id.Rvir = CatA.Group_R_Mean200[i]*Mpc2kpc/a[snapid];
 	    }
 	  else
 	    {
-	      ahf_id.Rvir = pow(CatA.SubhaloMass[k]/factor,1./3.)*Mpc2kpc;
+	      ahf_id.Rvir = pow(CatA.SubhaloMass[k]/factor,1./3.)*Mpc2kpc/a[snapid];
 	    }
 	  
-	  ahf_id.Rmax = CatA.SubhaloVmaxRad[k]*Mpc2kpc;
+	  ahf_id.Rmax = CatA.SubhaloVmaxRad[k]*Mpc2kpc/a[snapid];
 
        	  ahf_id.r2 = default_float;
 	  
