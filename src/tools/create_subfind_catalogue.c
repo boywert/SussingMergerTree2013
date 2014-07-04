@@ -129,6 +129,7 @@ long    *main_progeniter;
 long    nHalos[2];
 long    PidMax=-1;
 long    PidMin=1234567890;
+double particlemass = 0.0936136179255;
 double *merging_rate, *delta_out, *forming_rate;
 
 long unsigned  nlines;       // number of lines in *_mtree file
@@ -202,8 +203,12 @@ int main(int argc, char **argv)
   fprintf(fp2,"%d\n", CatA.TotNsubhalos);
   for(i=0;i<CatA.TotNgroups;i++)
     {
-      if(CatA.Group_M_Crit200[i] == 0)
-	printf("Mvir :%f Rvir :%f npart :%d\n",CatA.Group_M_Crit200[i],CatA.Group_R_Crit200[i],CatA.GroupLen[i]);
+      if(CatA.Group_M_Crit200[i] == 0.)
+	{
+	  printf("Mvir :%f Rvir :%f npart :%d\n",CatA.Group_M_Crit200[i],CatA.Group_R_Crit200[i],CatA.GroupLen[i]);
+	  CatA.Group_M_Crit200[i] = particlemass*CarA.GroupLen[i];
+	  CatA.Group_R_Crit200[i] = pow(CatA.Group_M_Crit200[i]/factor,1./3.);
+	}
       else
 	factor = CatA.Group_M_Crit200[i]/pow(CatA.Group_R_Crit200[i],3);
       for(j=0;j<CatA.GroupNsubs[i]; j++)
