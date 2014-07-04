@@ -175,12 +175,12 @@ int main(int argc, char **argv)
 
   sscanf(argv[1],"%d",&snapid);
   sprintf(OutputDir,"");
-  z = get_z_gadget(snapid);
-  a_c = 1./(1+z);
-  a[snapid] = (float)a_c;
-  z_list[snapid] = (float)z;
-  fp3 = fopen("snaplist.txt","a");
-  fprintf(fp3,"%d\t%lf\t%lf\n",snapid,a_c,z);
+  // z = get_z_gadget(snapid);
+  // a_c = 1./(1+z);
+  // a[snapid] = (float)a_c;
+  // z_list[snapid] = (float)z;
+  // fp3 = fopen("snaplist.txt","a");
+  // fprintf(fp3,"%d\t%lf\t%lf\n",snapid,a_c,z);
   fclose(fp3);
   //printf("%2.3f\n", z_list[snapid]);
   sprintf(OutputDir,"/mnt/lustre/scratch/cs390/SUSSING2013_DATA/datasetII_spin");
