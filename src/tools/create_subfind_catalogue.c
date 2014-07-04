@@ -269,18 +269,20 @@ int main(int argc, char **argv)
 	  ahf_id.Ly = CatA.SubhaloSpin[3*k+1];
 	  ahf_id.Lz = CatA.SubhaloSpin[3*k+2];
 	  
-	  normalise = sqrt(ahf_id.Lx*ahf_id.Lx + ahf_id.Ly*ahf_id.Ly + ahf_id.Lz*ahf_id.Lz)*Mpc2kpc*Mpc2kpc;
+	  normalise = sqrt(ahf_id.Lx*ahf_id.Lx + ahf_id.Ly*ahf_id.Ly + ahf_id.Lz*ahf_id.Lz)*Mpc2kpc;
+
 	  // printf("normalise = %g\n",normalise);
 	  ahf_id.Lx /= normalise;
 	  ahf_id.Ly /= normalise;
 	  ahf_id.Lz /= normalise;
 	  
-	  double G = 6.67384e-11; // m^3/(kgs^2
-	  double m2kpc = 1./3.08567758e19;
-	  double m2km = 0.001;
+	  double G       = 6.67384e-11; // m^3/(kgs^2)
+	  double m2kpc   = 1./3.08567758e19;
+	  double m2km    = 0.001;
 	  double kg2Msun = 1./1.989e30;
 	  
 	  G *= m2kpc * (double)pow(m2km,2.) / kg2Msun;
+	  printf("G = %lf\n",G);
 	  printf("devide  = %lf, mvir = %f \n",sqrt(2. * G * ahf_id.Mvir * ahf_id.Rvir), ahf_id.Mvir);
 	  double lambda = (double) normalise / ahf_id.Mvir / sqrt(2. * G * ahf_id.Mvir * ahf_id.Rvir);
 	  ahf_id.lambda = lambda;
