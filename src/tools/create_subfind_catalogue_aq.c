@@ -307,16 +307,18 @@ int main(int argc, char **argv)
 	  ahf_id.Vmax = CatA.SubhaloVmax[k];
 	  ahf_id.v_esc = default_float;
 	  ahf_id.sigV = CatA.SubhaloVelDisp[k];
+	  ahf_id.lambdaE = default_float;
 	  ahf_id.lambda = default_float;
 
 	  normalise = sqrt(ahf_id.Lx*ahf_id.Lx + ahf_id.Ly*ahf_id.Ly + ahf_id.Lz*ahf_id.Lz);
+
 	  double G = 6.67384e-11; // m^3/(kgs^2
 	  double m2kpc = 1./3.08567758e19;
 	  double m2km = 0.001;
 	  double kg2Msun = 1./1.989e30;
 
 	  G *= m2kpc*pow(m2km,2.)/(kg2Msun);
-	  ahf_id.lambdaE = normalise / ahf_id.Mvir / sqrt(2. * G * ahf_id.Mvir * ahf_id.Rvir);
+	  ahf_id.lambda = normalise / ahf_id.Mvir / sqrt(2. * G * ahf_id.Mvir * ahf_id.Rvir);
 
 	  /* ahf_id.Lx = default_float; */
 	  /* ahf_id.Ly = default_float; */
