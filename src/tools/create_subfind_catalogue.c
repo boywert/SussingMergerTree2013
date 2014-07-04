@@ -226,8 +226,8 @@ int main(int argc, char **argv)
 	    ahf_id.Mvir = CatA.Group_M_Crit200[i] * GagetUnit2Msun;
 	  else
 	    ahf_id.Mvir = CatA.SubhaloMass[k] * GagetUnit2Msun;
-	  //	  if(k == CatA.GroupFirstSub[i])
-	  //  printf("halo %ld: M:Mvir = %f Mvir:Rvir^3 = %f\n",k,CatA.Group_M_Mean200[i], pow(CatA.Group_R_Mean200[i],3));
+	  //  if(k == CatA.GroupFirstSub[i])
+	  //   printf("halo %ld: M:Mvir = %f Mvir:Rvir^3 = %f\n",k,CatA.Group_M_Mean200[i], pow(CatA.Group_R_Mean200[i],3));
 	  ahf_id.npart = CatA.SubLen[k];
 	  ahf_id.Xc = CatA.SubhaloPos[3*k]*Mpc2kpc;
 	  ahf_id.Yc = CatA.SubhaloPos[3*k+1]*Mpc2kpc;
@@ -528,8 +528,8 @@ void load_subhalo_catalogue(int num, struct halo_catalogue *cat)
       fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_M_Mean200 */
       fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_R_Mean200 */
       my_fread(&cat->Group_M_Crit200[groupcount], sizeof(float), ngroups, fd);
-      my_fread(&cat->Group_R_Crit200[groupcount], sizeof(float), ngroups, fd);
       // fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_M_Crit200 */
+      my_fread(&cat->Group_R_Crit200[groupcount], sizeof(float), ngroups, fd);
       // fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_R_Crit200 */
       fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_M_TopHat200 */
       fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_R_TopHat200 */
