@@ -187,57 +187,7 @@ int main(int argc, char **argv)
   maxhalopersnap = pow(10,12);
   load_subhalo_catalogue(snapid, &CatA);
 
-  //create hires only catalogue
-  CatB.TotNids = 0;
-  CatB.TotNgroups = 0;
-  CatB.TotNsubhalos = 0;
-  CatB.IdList = mymalloc(sizeof(MyIDType) * CatB.TotNids);
-  CatB.IdPos =  mymalloc(3 * sizeof(float) * CatB.TotNids);
-  CatB.IdVel =  mymalloc(3 * sizeof(float) * CatB.TotNids);
-  CatB.IdBindingEgy =  mymalloc(sizeof(float) * CatB.TotNids);
 
-  CatB.SubLen = mymalloc(sizeof(int) * CatB.TotNsubhalos);
-  CatB.SubOffset = mymalloc(sizeof(MyIDType) * CatB.TotNsubhalos);
-
-  CatB.SubParentHalo = mymalloc(sizeof(int) * CatB.TotNsubhalos);
-  CatB.SubhaloMass = mymalloc(sizeof(float) * CatB.TotNsubhalos);
-
-  CatB.SubhaloPos = mymalloc(3 * sizeof(float ) * CatB.TotNsubhalos);
-  CatB.SubhaloVel = mymalloc(3 * sizeof(float ) * CatB.TotNsubhalos);
-  CatB.SubhaloCM = mymalloc(3 * sizeof(float ) * CatB.TotNsubhalos);
-  CatB.SubhaloSpin = mymalloc(3 * sizeof(float ) * CatB.TotNsubhalos);
-
-
-  CatB.SubhaloVelDisp = mymalloc(sizeof(float) * CatB.TotNsubhalos);
-  CatB.SubhaloVmax = mymalloc(sizeof(float) * CatB.TotNsubhalos);
-  CatB.SubhaloVmaxRad = mymalloc(sizeof(float) * CatB.TotNsubhalos);
-  CatB.SubhaloHalfMass = mymalloc(sizeof(float) * CatB.TotNsubhalos);
-
-  CatB.SubhaloMostBoundID = mymalloc(sizeof(MyIDType) * CatB.TotNsubhalos);
-  CatB.SubhaloGrNr = mymalloc(sizeof(int) * CatB.TotNsubhalos);
-
-  CatB.GroupNsubs = mymalloc(sizeof(int) * CatB.TotNgroups);
-  CatB.GroupLen = mymalloc(sizeof(int) * CatB.TotNgroups);
-  CatB.Group_M_Crit200 = mymalloc(sizeof(float) * CatB.TotNgroups);
-  CatB.Group_R_Crit200 = mymalloc(sizeof(float) * CatB.TotNgroups);
-  CatB.GroupFirstSub = mymalloc(sizeof(int) * CatB.TotNgroups);
-  CatB.Descendant = mymalloc(sizeof(struct descendant_data) * CatB.TotNsubhalos);
-  CatB.CountProgenitors = mymalloc(sizeof(int) * CatB.TotNsubhalos);
-  for(i=0;i<CatA.TotNgroups;i++)
-    {
-      groupNsubs = 0;
-      groupNids = 0;
-      groupfirstsub = CatA.GroupFirstSub[i];
-      groupfirstid = CatA.SubhaloMostBoundID[groupfirstsub];
-      for(k=0;k<CatA.SubLen[groupfirstsub];k++)
-	{
-	  
-	}
-      for(j=0;j<CatA.GroupNsubs[i]; j++)
-	{
-	  
-	}
-    }
   printf("%d\n", CatA.TotNgroups);
 
   sprintf(h_out,"%s/datasetII_%03d.z%2.3f.AHF_halos",OUTfolder, snapid, z_list[snapid]);
