@@ -270,7 +270,7 @@ int main(int argc, char **argv)
 	  ahf_id.Lz = CatA.SubhaloSpin[3*k+2];
 	  
 	  normalise = sqrt(ahf_id.Lx*ahf_id.Lx + ahf_id.Ly*ahf_id.Ly + ahf_id.Lz*ahf_id.Lz)*Mpc2kpc;
-	  printf("normalise = %g\n",normalise);
+	  // printf("normalise = %g\n",normalise);
 	  ahf_id.Lx /= normalise;
 	  ahf_id.Ly /= normalise;
 	  ahf_id.Lz /= normalise;
@@ -282,8 +282,8 @@ int main(int argc, char **argv)
 	  
 	  G *= m2kpc * (double)pow(m2km,2.) / kg2Msun;
 	  printf("devide  = %lf, mvir = %f \n",sqrt(2. * G * ahf_id.Mvir * ahf_id.Rvir), ahf_id.Mvir);
-	  ahf_id.lambda = normalise / ahf_id.Mvir / sqrt(2. * G * ahf_id.Mvir * ahf_id.Rvir);
-	  
+	  double lambda = normalise / ahf_id.Mvir / GagetUnit2Msun / sqrt(2. * G * ahf_id.Mvir * ahf_id.Rvir);
+	  ahf_id.lambda = lambda;
 	  printf ("lambda = %f\n",ahf_id.lambda);
 
 	  ahf_id.b = default_float;
