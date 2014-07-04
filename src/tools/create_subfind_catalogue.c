@@ -277,7 +277,8 @@ int main(int argc, char **argv)
 	  double m2km = 0.001;
 	  double kg2Msun = 1./1.989e30;
 
-	  G *= m2kpc*pow(m2km,2.)/(kg2Msun);
+	  G *= m2kpc*(double)pow(m2km,2.)/kg2Msun;
+	  printf ("devide  = %lf\n",sqrt(2. * G * ahf_id.Mvir * ahf_id.Rvir));
 	  ahf_id.lambda = normalise / ahf_id.Mvir / sqrt(2. * G * ahf_id.Mvir * ahf_id.Rvir);
 	  
 	  printf ("lambda = %f\n",ahf_id.lambda);
