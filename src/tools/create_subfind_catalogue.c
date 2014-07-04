@@ -265,11 +265,11 @@ int main(int argc, char **argv)
 
 	  ahf_id.lambdaE = default_float;
 	  
-	  ahf_id.Lx = CatA.SubhaloSpin[3*k];
-	  ahf_id.Ly = CatA.SubhaloSpin[3*k+1];
-	  ahf_id.Lz = CatA.SubhaloSpin[3*k+2];
+	  ahf_id.Lx = CatA.SubhaloSpin[3*k]*Mpc2kpc;
+	  ahf_id.Ly = CatA.SubhaloSpin[3*k+1]*Mpc2kpc;
+	  ahf_id.Lz = CatA.SubhaloSpin[3*k+2]*Mpc2kpc;
 	  
-	  normalise = sqrt(ahf_id.Lx*ahf_id.Lx + ahf_id.Ly*ahf_id.Ly + ahf_id.Lz*ahf_id.Lz)*Mpc2kpc;
+	  normalise = sqrt(ahf_id.Lx*ahf_id.Lx + ahf_id.Ly*ahf_id.Ly + ahf_id.Lz*ahf_id.Lz);
 
 	  // printf("normalise = %g\n",normalise);
 	  ahf_id.Lx /= normalise;
