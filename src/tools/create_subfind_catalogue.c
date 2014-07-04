@@ -282,9 +282,9 @@ int main(int argc, char **argv)
 	  
 	  G *= m2kpc * (double)pow(m2km,2.) / kg2Msun;
 	  printf("devide  = %lf, mvir = %f \n",sqrt(2. * G * ahf_id.Mvir * ahf_id.Rvir), ahf_id.Mvir);
-	  double lambda = normalise / ahf_id.Mvir / GagetUnit2Msun / sqrt(2. * G * ahf_id.Mvir * ahf_id.Rvir);
+	  double lambda = (double) normalise / ahf_id.Mvir / sqrt(2. * G * ahf_id.Mvir * ahf_id.Rvir);
 	  ahf_id.lambda = lambda;
-	  printf ("lambda = %f\n",ahf_id.lambda);
+	  printf ("lambda = %g\n",ahf_id.lambda);
 
 	  ahf_id.b = default_float;
 	  ahf_id.c = default_float;
