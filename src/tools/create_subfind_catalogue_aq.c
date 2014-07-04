@@ -218,8 +218,8 @@ int main(int argc, char **argv)
 
   CatB.GroupNsubs = mymalloc(sizeof(int) * CatB.TotNgroups);
   CatB.GroupLen = mymalloc(sizeof(int) * CatB.TotNgroups);
-  CatB.Group_M_Mean200 = mymalloc(sizeof(float) * CatB.TotNgroups);
-  CatB.Group_R_Mean200 = mymalloc(sizeof(float) * CatB.TotNgroups);
+  CatB.Group_M_Crit200 = mymalloc(sizeof(float) * CatB.TotNgroups);
+  CatB.Group_R_Crit200 = mymalloc(sizeof(float) * CatB.TotNgroups);
   CatB.GroupFirstSub = mymalloc(sizeof(int) * CatB.TotNgroups);
   CatB.Descendant = mymalloc(sizeof(struct descendant_data) * CatB.TotNsubhalos);
   CatB.CountProgenitors = mymalloc(sizeof(int) * CatB.TotNsubhalos);
@@ -566,8 +566,8 @@ void load_subhalo_catalogue(int num, struct halo_catalogue *cat)
 
 	  cat->GroupNsubs = mymalloc(sizeof(int) * cat->TotNgroups);
 	  cat->GroupLen = mymalloc(sizeof(int) * cat->TotNgroups);
-	  cat->Group_M_Mean200 = mymalloc(sizeof(float) * cat->TotNgroups);
-	  cat->Group_R_Mean200 = mymalloc(sizeof(float) * cat->TotNgroups);
+	  cat->Group_M_Crit200 = mymalloc(sizeof(float) * cat->TotNgroups);
+	  cat->Group_R_Crit200 = mymalloc(sizeof(float) * cat->TotNgroups);
 	  cat->GroupFirstSub = mymalloc(sizeof(int) * cat->TotNgroups);
 	  cat->Descendant = mymalloc(sizeof(struct descendant_data) * cat->TotNsubhalos);
 	  cat->CountProgenitors = mymalloc(sizeof(int) * cat->TotNsubhalos);
