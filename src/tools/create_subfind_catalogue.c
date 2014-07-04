@@ -26,7 +26,7 @@
 
 #define CLUES_WM3
 
-#define NSNAPS 1000
+#define NSNAPS 62
 #define MAXSTRING 4096
 
 
@@ -183,7 +183,7 @@ int main(int argc, char **argv)
   fclose(fp3);
   //printf("%2.3f\n", z_list[snapid]);
   sprintf(OutputDir,"/mnt/lustre/scratch/cs390/SUSSING2013_DATA/datasetII_spin");
-  //snapid = 8;
+  snapid = 8;
   maxhalopersnap = pow(10,12);
   load_subhalo_catalogue(snapid, &CatA);
   printf("%d\n",CatA.TotNgroups);
