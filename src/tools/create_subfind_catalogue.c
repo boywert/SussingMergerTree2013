@@ -201,17 +201,17 @@ int main(int argc, char **argv)
   //printf("%s\n",header_out);
   fprintf(fp1,"%s\n", header_out);
   fprintf(fp2,"%d\n", CatA.TotNsubhalos);
+  factor = 6392.483101;
   for(i=0;i<CatA.TotNgroups;i++)
     {
-      if(CatA.Group_M_Crit200[i] == 0.)
-	{
-	  printf("Mvir :%f Rvir :%f npart :%d\n",CatA.Group_M_Crit200[i],CatA.Group_R_Crit200[i],CatA.GroupLen[i]);
-	  CatA.Group_M_Crit200[i] = particlemass*CatA.GroupLen[i];
-	  CatA.Group_R_Crit200[i] = pow(CatA.Group_M_Crit200[i]/factor,1./3.);
-	}
-      else
-	factor = CatA.Group_M_Crit200[i]/pow(CatA.Group_R_Crit200[i],3);
-      printf("factor = %f\n",factor);
+      /* if(CatA.Group_M_Crit200[i] == 0.) */
+      /* 	{ */
+      /* 	  printf("Mvir :%f Rvir :%f npart :%d\n",CatA.Group_M_Crit200[i],CatA.Group_R_Crit200[i],CatA.GroupLen[i]); */
+      /* 	  CatA.Group_M_Crit200[i] = particlemass*CatA.GroupLen[i]; */
+      /* 	  CatA.Group_R_Crit200[i] = pow(CatA.Group_M_Crit200[i]/factor,1./3.); */
+      /* 	} */
+      /* else */
+      /* 	factor = CatA.Group_M_Crit200[i]/pow(CatA.Group_R_Crit200[i],3); */
       for(j=0;j<CatA.GroupNsubs[i]; j++)
 	{
 	  if(k != CatA.GroupFirstSub[i]+j )
@@ -260,12 +260,12 @@ int main(int argc, char **argv)
 	  ahf_id.Vmax = CatA.SubhaloVmax[k];
 	  ahf_id.v_esc = default_float;
 	  ahf_id.sigV = CatA.SubhaloVelDisp[k];
-	  ahf_id.lambda = default_float;
+	  /* ahf_id.lambda = default_float; */
 	  ahf_id.lambdaE = default_float;
 	  
-	  ahf_id.Lx = default_float;
-	  ahf_id.Ly = default_float;
-	  ahf_id.Lz = default_float;
+	  /* ahf_id.Lx = default_float; */
+	  /* ahf_id.Ly = default_float; */
+	  /* ahf_id.Lz = default_float; */
 	  
 	  normalise = sqrt(ahf_id.Lx*ahf_id.Lx + ahf_id.Ly*ahf_id.Ly + ahf_id.Lz*ahf_id.Lz);
 	  ahf_id.Lx /= normalise;
@@ -280,6 +280,7 @@ int main(int argc, char **argv)
 	  G *= m2kpc*pow(m2km,2.)/(kg2Msun);
 	  ahf_id.lambda = normalise / ahf_id.Mvir / sqrt(2. * G * ahf_id.Mvir * ahf_id.Rvir);
 	  
+	  printf ("lambda = %f\n",ahf_id.lambda);
 
 	  ahf_id.b = default_float;
 	  ahf_id.c = default_float;
