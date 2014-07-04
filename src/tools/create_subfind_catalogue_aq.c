@@ -238,10 +238,10 @@ int main(int argc, char **argv)
 	  
 	}
     }
-  printf("%d\n",CatA.TotNgroups);
+  printf("%d\n", CatA.TotNgroups);
 
-  sprintf(h_out,"%s/datasetIII_%03d.z%2.3f.AHF_halos",OUTfolder, snapid, z_list[snapid]);
-  sprintf(p_out,"%s/datasetIII_%03d.z%2.3f.AHF_particles",OUTfolder, snapid, z_list[snapid]);
+  sprintf(h_out,"%s/datasetII_%03d.z%2.3f.AHF_halos",OUTfolder, snapid, z_list[snapid]);
+  sprintf(p_out,"%s/datasetII_%03d.z%2.3f.AHF_particles",OUTfolder, snapid, z_list[snapid]);
   fp1 = fopen(h_out,"w+");
   fp2 = fopen(p_out,"w+");
   k = 0;

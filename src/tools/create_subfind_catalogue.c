@@ -16,7 +16,7 @@
 #define MINCOMMON      10   // we only cross-correlate haloes if they at least share MINCOMMON particles
 #define NSATinHOSTfrac 0.5  // at least NSATinHOSTfrac the subhaloes particles need to be inside the prospective host
 
-//#define SO_VEL_DISPERSIONS
+#define SO_VEL_DISPERSIONS
 
 //#define DEBUG
 //#define MTREE_SELF
@@ -26,7 +26,7 @@
 
 #define CLUES_WM3
 
-#define NSNAPS 1200
+#define NSNAPS 62
 #define MAXSTRING 4096
 
 
@@ -167,13 +167,13 @@ int main(int argc, char **argv)
   
   double a_c,z;
   strcpy(SnapTimeFile,"data_snaplist.txt");
-  //strcpy(OUTfolder,"/mnt/lustre/scratch/cs390/datasetIII");
-  sprintf(OUTfolder,"/gpfs/data/Millgas/cs390/SUSSING2013/datasetIII/");
+  sprintf(OUTfolder,"/mnt/lustre/scratch/cs390/SUSSING2013_DATA/raw_subfind/");
+  // sprintf(OUTfolder,"/gpfs/data/Millgas/cs390/SUSSING2013/datasetIII/");
   // use this with datalist_snap
-  //getSnapTime();
+  getSnapTime();
 
   sscanf(argv[1],"%d",&snapid);
-  sprintf(OutputDir,"/gpfs/data/aquarius/halo_data/Aq-A/4/");
+  sprintf(OutputDir,"");
   z = get_z_gadget(snapid);
   a_c = 1./(1+z);
   a[snapid] = (float)a_c;
@@ -182,14 +182,14 @@ int main(int argc, char **argv)
   fprintf(fp3,"%d\t%lf\t%lf\n",snapid,a_c,z);
   fclose(fp3);
   //printf("%2.3f\n", z_list[snapid]);
-  //sprintf(OutputDir,"/gpfs/data/aquarius/halo_data/Aq-A/4/");
+  sprintf(OutputDir,"/mnt/lustre/scratch/cs390/SUSSING2013_DATA/datasetII_spin");
   //snapid = 8;
   maxhalopersnap = pow(10,12);
   load_subhalo_catalogue(snapid, &CatA);
   printf("%d\n",CatA.TotNgroups);
 
-  sprintf(h_out,"%s/datasetIII_%03d.z%2.3f.AHF_halos",OUTfolder, snapid, z_list[snapid]);
-  sprintf(p_out,"%s/datasetIII_%03d.z%2.3f.AHF_particles",OUTfolder, snapid, z_list[snapid]);
+  sprintf(h_out,"%s/62.5_dm_%03d.z%2.3f.AHF_halos",OUTfolder, snapid, z_list[snapid]);
+  sprintf(p_out,"%s/62.5_dm_%03d.z%2.3f.AHF_particles",OUTfolder, snapid, z_list[snapid]);
   fp1 = fopen(h_out,"w+");
   fp2 = fopen(p_out,"w+");
   k = 0;
@@ -262,11 +262,20 @@ int main(int argc, char **argv)
 	  ahf_id.Ly = default_float;
 	  ahf_id.Lz = default_float;
 	  
-	  //normalise = sqrt(ahf_id.Lx*ahf_id.Lx + ahf_id.Ly*ahf_id.Ly + ahf_id.Lz*ahf_id.Lz);
-	  //ahf_id.Lx /= normalise;
-	  //ahf_id.Ly /= normalise;
-	  //ahf_id.Lz /= normalise;
+	  normalise = sqrt(ahf_id.Lx*ahf_id.Lx + ahf_id.Ly*ahf_id.Ly + ahf_id.Lz*ahf_id.Lz);
+	  ahf_id.Lx /= normalise;
+	  ahf_id.Ly /= normalise;
+	  ahf_id.Lz /= normalise;
+
+	  double G = 6.67384e-11; // m^3/(kgs^2
+	  double m2kpc = 1./3.08567758e19;
+	  double m2km = 0.001;
+	  double kg2Msun = 1./1.989e30;
+
+	  G *= m2kpc*pow(m2km,2.)/(kg2Msun);
+	  ahf_id.lambda = normalise / ahf_id.Mvir / sqrt(2. * G * ahf_id.Mvir * ahf_id.Rvir);
 	  
+
 	  ahf_id.b = default_float;
 	  ahf_id.c = default_float;
 	  ahf_id.Eax = default_float;
