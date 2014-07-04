@@ -184,7 +184,6 @@ int main(int argc, char **argv)
   /* fclose(fp3); */
   printf("%2.3f\n", z_list[snapid]);
   sprintf(OutputDir,"/mnt/lustre/scratch/cs390/SUSSING2013_DATA/raw_subfind/");
-  snapid = 8;
   maxhalopersnap = pow(10,12);
   load_subhalo_catalogue(snapid, &CatA);
   printf("%d\n",CatA.TotNgroups);
