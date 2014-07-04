@@ -26,7 +26,7 @@
 
 #define CLUES_WM3
 
-#define NSNAPS 62
+#define NSNAPS 1000
 #define MAXSTRING 4096
 
 
