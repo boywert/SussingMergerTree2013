@@ -529,8 +529,8 @@ void load_subhalo_catalogue(int num, struct halo_catalogue *cat)
       fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_R_Mean200 */
       my_fread(&cat->Group_M_Crit200[groupcount], sizeof(float), ngroups, fd);
       my_fread(&cat->Group_R_Crit200[groupcount], sizeof(float), ngroups, fd);
-      fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_M_Crit200 */
-      fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_R_Crit200 */
+      // fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_M_Crit200 */
+      // fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_R_Crit200 */
       fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_M_TopHat200 */
       fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_R_TopHat200 */
 #ifdef SO_VEL_DISPERSIONS
