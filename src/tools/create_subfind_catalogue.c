@@ -269,7 +269,7 @@ int main(int argc, char **argv)
 	  ahf_id.Ly = CatA.SubhaloSpin[3*k+1];
 	  ahf_id.Lz = CatA.SubhaloSpin[3*k+2];
 	  
-	  normalise = sqrt(ahf_id.Lx*ahf_id.Lx + ahf_id.Ly*ahf_id.Ly + ahf_id.Lz*ahf_id.Lz)*Mpc2kpc;
+	  normalise = sqrt(ahf_id.Lx*ahf_id.Lx + ahf_id.Ly*ahf_id.Ly + ahf_id.Lz*ahf_id.Lz)*Mpc2kpc*Mpc2kpc;
 	  // printf("normalise = %g\n",normalise);
 	  ahf_id.Lx /= normalise;
 	  ahf_id.Ly /= normalise;
