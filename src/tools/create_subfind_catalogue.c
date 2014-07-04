@@ -271,19 +271,19 @@ int main(int argc, char **argv)
 	  
 	  normalise = sqrt(ahf_id.Lx*ahf_id.Lx + ahf_id.Ly*ahf_id.Ly + ahf_id.Lz*ahf_id.Lz);
 
-	  printf("normalise = %g\n",normalise);
+	  // printf("normalise = %g\n",normalise);
 	  ahf_id.Lx /= normalise;
 	  ahf_id.Ly /= normalise;
 	  ahf_id.Lz /= normalise;
 	  
-	  double G       = 6.67384e-11; // m^3/(kgs^2)
+	  double G       = 6.67384e-11; // m^3/(kg s^2)
 	  double m2kpc   = 1./3.08567758e19;
 	  double m2km    = 0.001;
 	  double kg2Msun = 1./1.989e30;
 	  
-	  G *= m2kpc * pow(m2km,2.) / kg2Msun;
-	  printf("G = %g\n",G);
-	  printf("devide  = %lf",sqrt(2. * G * ahf_id.Mvir * ahf_id.Rvir));
+	  G *= m2kpc * m2km * m2km/ kg2Msun;
+	  // printf("G = %g\n",G);
+	  printf("m=%f,r=%f\n",ahf_id.Mvir,ahf_id.Rvir);
 	  double lambda = (double) normalise / sqrt(2. * G * ahf_id.Mvir * ahf_id.Rvir);
 	  ahf_id.lambda = lambda;
 	  printf ("lambda = %g\n",ahf_id.lambda);
