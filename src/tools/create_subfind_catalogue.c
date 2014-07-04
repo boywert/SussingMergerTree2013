@@ -271,7 +271,7 @@ int main(int argc, char **argv)
 	  
 	  normalise = sqrt(ahf_id.Lx*ahf_id.Lx + ahf_id.Ly*ahf_id.Ly + ahf_id.Lz*ahf_id.Lz);
 
-	  // printf("normalise = %g\n",normalise);
+	  printf("normalise = %g\n",normalise);
 	  ahf_id.Lx /= normalise;
 	  ahf_id.Ly /= normalise;
 	  ahf_id.Lz /= normalise;
