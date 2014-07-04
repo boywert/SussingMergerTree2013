@@ -263,9 +263,9 @@ int main(int argc, char **argv)
 	  /* ahf_id.lambda = default_float; */
 	  ahf_id.lambdaE = default_float;
 	  
-	  /* ahf_id.Lx = default_float; */
-	  /* ahf_id.Ly = default_float; */
-	  /* ahf_id.Lz = default_float; */
+	  ahf_id.Lx = CatA.SubhaloSpin[0];
+	  ahf_id.Ly = CatA.SubhaloSpin[1];
+	  ahf_id.Lz = CatA.SubhaloSpin[2];
 	  
 	  normalise = sqrt(ahf_id.Lx*ahf_id.Lx + ahf_id.Ly*ahf_id.Ly + ahf_id.Lz*ahf_id.Lz);
 	  ahf_id.Lx /= normalise;
