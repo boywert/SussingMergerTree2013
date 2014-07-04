@@ -174,16 +174,16 @@ int main(int argc, char **argv)
 
 
   sscanf(argv[1],"%d",&snapid);
-  sprintf(OutputDir,"");
-  // z = get_z_gadget(snapid);
-  // a_c = 1./(1+z);
-  // a[snapid] = (float)a_c;
-  // z_list[snapid] = (float)z;
-  // fp3 = fopen("snaplist.txt","a");
-  // fprintf(fp3,"%d\t%lf\t%lf\n",snapid,a_c,z);
-  fclose(fp3);
-  //printf("%2.3f\n", z_list[snapid]);
-  sprintf(OutputDir,"/mnt/lustre/scratch/cs390/SUSSING2013_DATA/datasetII_spin");
+
+  /* z = get_z_gadget(snapid); */
+  /* a_c = 1./(1+z); */
+  /* a[snapid] = (float)a_c; */
+  /* z_list[snapid] = (float)z; */
+  /* fp3 = fopen("snaplist.txt","a"); */
+  /* fprintf(fp3,"%d\t%lf\t%lf\n",snapid,a_c,z); */
+  /* fclose(fp3); */
+  printf("%2.3f\n", z_list[snapid]);
+  sprintf(OutputDir,"/mnt/lustre/scratch/cs390/SUSSING2013_DATA/datasetII_spin/");
   snapid = 8;
   maxhalopersnap = pow(10,12);
   load_subhalo_catalogue(snapid, &CatA);
@@ -406,7 +406,7 @@ double get_z_gadget(int snapid)
   struct io_header header;
   int dummy;
   FILE* fd;
-  sprintf(filename,"%s/snapdir_%03d/snap_C02_400_%03d.0",OutputDir,snapid,snapid);
+  sprintf(filename,"%s/snapdir_%03d/62.5_dm_%03d.0",OutputDir,snapid,snapid);
   if(!(fd=fopen(filename,"r")))  //error check and complain
     {
       printf("gadgetIO module can't open file: '%s'\n",filename);
