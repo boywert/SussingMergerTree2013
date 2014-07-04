@@ -171,6 +171,7 @@ int main(int argc, char **argv)
   // sprintf(OUTfolder,"/gpfs/data/Millgas/cs390/SUSSING2013/datasetIII/");
   // use this with datalist_snap
   getSnapTime();
+  exit(1);
 
   sscanf(argv[1],"%d",&snapid);
   sprintf(OutputDir,"");
