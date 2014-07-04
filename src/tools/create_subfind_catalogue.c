@@ -68,8 +68,8 @@ struct halo_catalogue
   int *SubLen;
   int *SubParentHalo;
   int *IdToHalo;
-  float *Group_M_Mean200;
-  float *Group_R_Mean200;
+  float *Group_M_Crit200;
+  float *Group_R_Crit200;
   int *GroupNsubs;
   int *GroupLen;
   int *GroupFirstSub;
@@ -513,8 +513,8 @@ void load_subhalo_catalogue(int num, struct halo_catalogue *cat)
 
 	  cat->GroupNsubs = mymalloc(sizeof(int) * cat->TotNgroups);
 	  cat->GroupLen = mymalloc(sizeof(int) * cat->TotNgroups);
-	  cat->Group_M_Mean200 = mymalloc(sizeof(float) * cat->TotNgroups);
-	  cat->Group_R_Mean200 = mymalloc(sizeof(float) * cat->TotNgroups);
+	  cat->Group_M_Crit200 = mymalloc(sizeof(float) * cat->TotNgroups);
+	  cat->Group_R_Crit200 = mymalloc(sizeof(float) * cat->TotNgroups);
 	  cat->GroupFirstSub = mymalloc(sizeof(int) * cat->TotNgroups);
 	  cat->Descendant = mymalloc(sizeof(struct descendant_data) * cat->TotNsubhalos);
 	  cat->CountProgenitors = mymalloc(sizeof(int) * cat->TotNsubhalos);
@@ -525,10 +525,10 @@ void load_subhalo_catalogue(int num, struct halo_catalogue *cat)
       fseek(fd, sizeof(int) * ngroups, SEEK_CUR);	/* skip  GroupOffset  */
       fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  GroupMass  */
       fseek(fd, 3 * sizeof(float) * ngroups, SEEK_CUR);	/* skip  GroupPos */
-      //fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_M_Mean200 */
-      my_fread(&cat->Group_M_Mean200[groupcount], sizeof(float), ngroups, fd);
-      //fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_R_Mean200 */
-      my_fread(&cat->Group_R_Mean200[groupcount], sizeof(float), ngroups, fd);
+      fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_M_Mean200 */
+      fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_R_Mean200 */
+      my_fread(&cat->Group_M_Crit200[groupcount], sizeof(float), ngroups, fd);
+      my_fread(&cat->Group_R_Crit200[groupcount], sizeof(float), ngroups, fd);
       fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_M_Crit200 */
       fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_R_Crit200 */
       fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_M_TopHat200 */
