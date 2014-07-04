@@ -167,7 +167,7 @@ int main(int argc, char **argv)
   
   double a_c,z;
   strcpy(SnapTimeFile,"data_snaplist.txt");
-  sprintf(OUTfolder,"/mnt/lustre/scratch/cs390/SUSSING2013_DATA/raw_subfind/");
+  sprintf(OUTfolder,"/mnt/lustre/scratch/cs390/SUSSING2013_DATA/datasetII_spin/");
   // sprintf(OUTfolder,"/gpfs/data/Millgas/cs390/SUSSING2013/datasetIII/");
   // use this with datalist_snap
   getSnapTime();
@@ -183,7 +183,7 @@ int main(int argc, char **argv)
   /* fprintf(fp3,"%d\t%lf\t%lf\n",snapid,a_c,z); */
   /* fclose(fp3); */
   printf("%2.3f\n", z_list[snapid]);
-  sprintf(OutputDir,"/mnt/lustre/scratch/cs390/SUSSING2013_DATA/datasetII_spin/");
+  sprintf(OutputDir,"/mnt/lustre/scratch/cs390/SUSSING2013_DATA/raw_subfind/");
   snapid = 8;
   maxhalopersnap = pow(10,12);
   load_subhalo_catalogue(snapid, &CatA);
