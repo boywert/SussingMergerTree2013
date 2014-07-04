@@ -193,7 +193,7 @@ int main(int argc, char **argv)
   fp1 = fopen(h_out,"w+");
   fp2 = fopen(p_out,"w+");
   k = 0;
-  exit(1);
+
   subpergroup = calloc(CatA.TotNgroups,sizeof(int));
   sprintf(header_out, 
 	  "#ID(1)     hostHalo(2)     numSubStruct(3) Mvir(4) npart(5)        Xc(6)   Yc(7)   Zc(8)   VXc(9)  VYc(10) VZc(11) Rvir(12)        Rmax(13)        r2(14)  mbp_offset(15)  com_offset(16)  Vmax(17)        v_esc(18)       sigV(19)        lambda(20)      lambdaE(21)     Lx(22)  Ly(23)  Lz(24)  b(25)   c(26)   Eax(27) Eay(28) Eaz(29) Ebx(30) Eby(31) Ebz(32) Ecx(33) Ecy(34) Ecz(35) ovdens(36)      nbins(37)       fMhires(38)     Ekin(39)        Epot(40)        SurfP(41)       Phi0(42)        cNFW(43)");
