@@ -317,7 +317,7 @@ int main(int argc, char **argv)
 
 	  G *= m2kpc*pow(m2km,2.)/(kg2Msun);
 	  ahf_id.lambdaE = normalise / ahf_id.Mvir / sqrt(2. * G * ahf_id.Mvir * ahf_id.Rvir);
-	  absAngMom / halo->M_vir / sqrt(2. * Grav * halo->M_vir * halo->R_vir);
+
 	  /* ahf_id.Lx = default_float; */
 	  /* ahf_id.Ly = default_float; */
 	  /* ahf_id.Lz = default_float; */
