@@ -206,7 +206,7 @@ int main(int argc, char **argv)
       if(CatA.Group_M_Crit200[i] == 0.)
 	{
 	  printf("Mvir :%f Rvir :%f npart :%d\n",CatA.Group_M_Crit200[i],CatA.Group_R_Crit200[i],CatA.GroupLen[i]);
-	  CatA.Group_M_Crit200[i] = particlemass*CarA.GroupLen[i];
+	  CatA.Group_M_Crit200[i] = particlemass*CatA.GroupLen[i];
 	  CatA.Group_R_Crit200[i] = pow(CatA.Group_M_Crit200[i]/factor,1./3.);
 	}
       else
@@ -243,7 +243,6 @@ int main(int argc, char **argv)
 	  
 	  if(k == CatA.GroupFirstSub[i])
 	    {
-	      printf("");
 	      ahf_id.Rvir = CatA.Group_R_Crit200[i]*Mpc2kpc;
 	    }
 	  else
