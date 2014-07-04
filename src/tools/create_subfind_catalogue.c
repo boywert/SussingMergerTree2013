@@ -211,6 +211,7 @@ int main(int argc, char **argv)
 	}
       else
 	factor = CatA.Group_M_Crit200[i]/pow(CatA.Group_R_Crit200[i],3);
+      printf("factor = %f\n",factor);
       for(j=0;j<CatA.GroupNsubs[i]; j++)
 	{
 	  if(k != CatA.GroupFirstSub[i]+j )
@@ -228,7 +229,7 @@ int main(int argc, char **argv)
 	    ahf_id.numSubStruct = 0;
 
 	  if(k == CatA.GroupFirstSub[i])
-	    ahf_id.Mvir = CatA.Group_M_Crit200[i] * GagetUnit2Msun;
+	    ahf_id.Mvir = CatA.SubhaloMass[k] * GagetUnit2Msun;
 	  else
 	    ahf_id.Mvir = CatA.SubhaloMass[k] * GagetUnit2Msun;
 	  //  if(k == CatA.GroupFirstSub[i])
@@ -243,7 +244,7 @@ int main(int argc, char **argv)
 	  
 	  if(k == CatA.GroupFirstSub[i])
 	    {
-	      ahf_id.Rvir = CatA.Group_R_Crit200[i]*Mpc2kpc;
+	      ahf_id.Rvir = pow(CatA.SubhaloMass[k]/factor,1./3.)*Mpc2kpc;
 	    }
 	  else
 	    {
