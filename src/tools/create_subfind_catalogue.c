@@ -280,15 +280,13 @@ int main(int argc, char **argv)
 	  double m2kpc   = 1./3.08567758e19;
 	  double m2km    = 0.001;
 	  double kg2Msun = 1./1.989e30;
-	  
-	  ahf_id.Mvir = 2.4265e+14;
-	  ahf_id.Rvir = 1014.32;
+
 	  G *= m2kpc * m2km * m2km / kg2Msun;
-	  printf("G = %g\n",G);
-	  printf("m=%f,r=%f\n",ahf_id.Mvir,ahf_id.Rvir);
+	  /* printf("G = %g\n",G); */
+	  /* printf("m=%f,r=%f\n",ahf_id.Mvir,ahf_id.Rvir); */
 	  ahf_id.lambda = normalise / sqrt(2. * G * ahf_id.Mvir * ahf_id.Rvir);
 	  printf ("lambda = %g\n",ahf_id.lambda);
-	  exit(1);
+
 	  ahf_id.b = default_float;
 	  ahf_id.c = default_float;
 	  ahf_id.Eax = default_float;
