@@ -285,7 +285,7 @@ int main(int argc, char **argv)
 	  /* printf("G = %g\n",G); */
 	  /* printf("m=%f,r=%f\n",ahf_id.Mvir,ahf_id.Rvir); */
 	  ahf_id.lambda = normalise / sqrt(2. * G * ahf_id.Mvir * ahf_id.Rvir);
-	  printf ("lambda = %g\n",ahf_id.lambda);
+	  // printf ("lambda = %g\n",ahf_id.lambda);
 
 	  ahf_id.b = default_float;
 	  ahf_id.c = default_float;
