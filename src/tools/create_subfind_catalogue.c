@@ -421,7 +421,7 @@ int main(int argc, char **argv)
 		  ahf_id.Zcm,
 		  ahf_id.Xgroup,
 		  ahf_id.Ygroup,
-		  ahf_id.Zgroup,
+		  ahf_id.Zgroup
 		  );
 
 	  fprintf(fp2,"%d\t%llu\n",CatA.SubLen[k],ahf_id.ID);	  
