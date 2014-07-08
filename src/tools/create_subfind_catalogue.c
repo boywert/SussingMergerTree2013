@@ -261,7 +261,7 @@ int main(int argc, char **argv)
 	      ahf_id.FoFMass = CatA.GroupMass[i]*GagetUnit2Msun;
 	      ahf_id.M_200Mean = CatA.Group_M_Mean200[i]*GagetUnit2Msun;
 	      ahf_id.M_200Crit = CatA.Group_M_Crit200[i]*GagetUnit2Msun;
-	      ahf_id.M_TopHat = CatA.Group_M_TopHat[i]*Mpc2kpc;
+	      ahf_id.M_TopHat = CatA.Group_M_TopHat[i]*GagetUnit2Msun;
 	      ahf_id.R_200Mean = CatA.Group_R_Mean200[i]*Mpc2kpc;
 	      ahf_id.R_200Crit = CatA.Group_R_Crit200[i]*Mpc2kpc;
 	      ahf_id.R_TopHat = CatA.Group_R_TopHat[i]*Mpc2kpc;
