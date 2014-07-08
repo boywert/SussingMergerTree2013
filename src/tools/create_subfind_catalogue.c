@@ -408,7 +408,7 @@ int main(int argc, char **argv)
 		  ahf_id.FoFMass,
 		  ahf_id.M_200Mean,
 		  ahf_id.M_200Crit,
-		  ahf_id.M_Tophat,
+		  ahf_id.M_TopHat,
 		  ahf_id.R_200Mean,
 		  ahf_id.R_200Crit,
 		  ahf_id.R_TopHat,
