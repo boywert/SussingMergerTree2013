@@ -135,7 +135,7 @@ struct ahf_halos
   float FoFMass;
   float M_200Mean;
   float M_200Crit;
-  float M_Tophat;
+  float M_TopHat;
   float R_200Mean;
   float R_200Crit;
   float R_TopHat;
