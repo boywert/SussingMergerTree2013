@@ -70,8 +70,17 @@ struct halo_catalogue
   int *IdToHalo;
   float *Group_M_Crit200;
   float *Group_R_Crit200;
+  float *Group_M_Mean200;
+  float *Group_R_Mean200;
+  float *Group_M_TopHat;
+  float *Group_R_TopHat;
+  float *Group_VelDisp_Crit200;
+  float *Group_VelDisp_Mean200;
+  float *Group_VelDisp_TopHat;
+  float *GroupPos;
   int *GroupNsubs;
   int *GroupLen;
+  float *GroupMass;
   int *GroupFirstSub;
   float *SubhaloMass;
   float *SubhaloPos;
@@ -121,7 +130,25 @@ struct ahf_halos
   float Ekin, Epot;
   float SurfP;
   float Phi0;
-  float cNFW; 
+  float cNFW;
+  /* addition */
+  float FoFMass;
+  float M_200Mean;
+  float M_200Crit;
+  float M_Tophat;
+  float R_200Mean;
+  float R_200Crit;
+  float R_TopHat;
+  float HalfMassRadius;
+  float sigV_200Mean;
+  float sigV_200Crit;
+  float sigV_TopHat;
+  float Xcm;
+  float Ycm;
+  float Zcm;
+  float Xgroup;
+  float Ygroup;
+  float Zgroup;
 } ahf_id; 
 
 
@@ -167,8 +194,17 @@ int main(int argc, char **argv)
   double normalise,factor;
   
   double a_c,z;
+
+  double G       = 6.67384e-11; // m^3/(kg s^2)
+  double m2kpc   = 1./3.08567758e19;
+  double m2km    = 0.001;
+  double kg2Msun = 1./1.989e30;
+
+  G *= m2kpc * m2km * m2km / kg2Msun;
+
   strcpy(SnapTimeFile,"data_snaplist.txt");
-  sprintf(OUTfolder,"/mnt/lustre/scratch/cs390/SUSSING2013_DATA/datasetII_spin/");
+  sprintf(OUTfolder,"/mnt/lustre/scratch/cs390/SUSSING2013_DATA/SUBFIND/");
+  
   // sprintf(OUTfolder,"/gpfs/data/Millgas/cs390/SUSSING2013/datasetIII/");
   // use this with datalist_snap
   getSnapTime();
@@ -197,11 +233,11 @@ int main(int argc, char **argv)
 
   subpergroup = calloc(CatA.TotNgroups,sizeof(int));
   sprintf(header_out, 
-	  "#ID(1)     hostHalo(2)     numSubStruct(3) Mvir(4) npart(5)        Xc(6)   Yc(7)   Zc(8)   VXc(9)  VYc(10) VZc(11) Rvir(12)        Rmax(13)        r2(14)  mbp_offset(15)  com_offset(16)  Vmax(17)        v_esc(18)       sigV(19)        lambda(20)      lambdaE(21)     Lx(22)  Ly(23)  Lz(24)  b(25)   c(26)   Eax(27) Eay(28) Eaz(29) Ebx(30) Eby(31) Ebz(32) Ecx(33) Ecy(34) Ecz(35) ovdens(36)      nbins(37)       fMhires(38)     Ekin(39)        Epot(40)        SurfP(41)       Phi0(42)        cNFW(43)");
+	  "#ID(1)     hostHalo(2)     numSubStruct(3) BoundMass(4) npart(5)        Xc(6)   Yc(7)   Zc(8)   VXc(9)  VYc(10) VZc(11) EffectiveRvir_200Crit(12)        Rmax(13)        r2(14)  mbp_offset(15)  com_offset(16)  Vmax(17)        v_esc(18)       sigV(19)        lambda(20)      lambdaE(21)     Lx(22)  Ly(23)  Lz(24)  b(25)   c(26)   Eax(27) Eay(28) Eaz(29) Ebx(30) Eby(31) Ebz(32) Ecx(33) Ecy(34) Ecz(35) ovdens(36)      nbins(37)       fMhires(38)     Ekin(39)        Epot(40)        SurfP(41)       Phi0(42)        cNFW(43)  FoFMass(44)  M_200Mean(45) M_200Crit(46) M_TopHat(47) R_200Mean(48) R_200Crit(49) R_TopHat(50) HalfMassRadius(51) sigV_200Mean(52)  sigV_200Crit(53)  sigV_TopHat(54)  Xcm(55)  Ycm(56)  Zcm(57)  Xgroup(58) Ygroup(59) Zgroup(60)");
   //printf("%s\n",header_out);
   fprintf(fp1,"%s\n", header_out);
   fprintf(fp2,"%d\n", CatA.TotNsubhalos);
-  factor = 6392.483101;
+  factor = 6392.483101; // roughly...... +/- 5.0
   for(i=0;i<CatA.TotNgroups;i++)
     {
       /* if(CatA.Group_M_Crit200[i] == 0.) */
@@ -219,19 +255,47 @@ int main(int argc, char **argv)
 	  ahf_id.ID = snapid*maxhalopersnap + k + 1;
 	  
 	  if(k == CatA.GroupFirstSub[i])
-	    ahf_id.hostHalo = 0;
+	    {
+	      ahf_id.hostHalo = 0;
+	      ahf_id.numSubStruct = CatA.GroupNsubs[i];
+	      ahf_id.FoFMass = CatA.GroupMass[i]*GagetUnit2Msun;
+	      ahf_id.M_200Mean = CatA.Group_M_Mean200[i]*GagetUnit2Msun;
+	      ahf_id.M_200Crit = CatA.Group_M_Crit200[i]*GagetUnit2Msun;
+	      ahf_id.M_TopHat = CatA.Group_M_TopHat[i]*Mpc2kpc;
+	      ahf_id.R_200Mean = CatA.Group_R_Mean200[i]*Mpc2kpc;
+	      ahf_id.R_200Crit = CatA.Group_R_Crit200[i]*Mpc2kpc;
+	      ahf_id.R_TopHat = CatA.Group_R_TopHat[i]*Mpc2kpc;
+	      ahf_id.sigV_200Mean = CatA.Group_VelDisp_Mean200[i];
+	      ahf_id.sigV_200Crit = CatA.Group_VelDisp_Crit200[i];
+	      ahf_id.sigV_TopHat = CatA.Group_VelDisp_TopHat[i];
+	      ahf_id.Xgroup = CatA.GroupPos[3*i]*Mpc2kpc;
+	      ahf_id.Ygroup = CatA.GroupPos[3*i+1]*Mpc2kpc;
+	      ahf_id.Zgroup = CatA.GroupPos[3*i+2]*Mpc2kpc;
+	    }
 	  else
-	    ahf_id.hostHalo = snapid*maxhalopersnap + CatA.GroupFirstSub[i] + 1;
+	    {
+	      ahf_id.hostHalo = snapid*maxhalopersnap + CatA.GroupFirstSub[i] + 1;
+	      ahf_id.numSubStruct = 0;
+	      ahf_id.FoFMass = default_float;
+	      ahf_id.M_200Mean = default_float;
+	      ahf_id.M_200Crit = default_float;
+	      ahf_id.M_TopHat = default_float;
+	      ahf_id.R_200Mean = default_float;
+	      ahf_id.R_200Crit = default_float;
+	      ahf_id.R_TopHat = default_float;
+	      ahf_id.sigV_200Mean = default_float;
+	      ahf_id.sigV_200Crit = default_float;
+	      ahf_id.sigV_TopHat = default_float;
+	      ahf_id.Xgroup = default_float;
+	      ahf_id.Ygroup = default_float;
+	      ahf_id.Zgroup = default_float;
+	    }
 
-	  if(k == CatA.GroupFirstSub[i])
-	    ahf_id.numSubStruct = CatA.GroupNsubs[i];
-	  else
-	    ahf_id.numSubStruct = 0;
-
-	  if(k == CatA.GroupFirstSub[i])
-	    ahf_id.Mvir = CatA.SubhaloMass[k] * GagetUnit2Msun;
-	  else
-	    ahf_id.Mvir = CatA.SubhaloMass[k] * GagetUnit2Msun;
+	  ahf_id.Mvir = CatA.SubhaloMass[k] * GagetUnit2Msun; //bound mass
+	  ahf_id.HalfMassRadius = CatA.SubhaloHalfMass[k]*Mpc2kpc;
+	  ahf_id.Xcm = CatA.SubhaloCM[3*k]*Mpc2kpc;
+	  ahf_id.Ycm = CatA.SubhaloCM[3*k+1]*Mpc2kpc;
+	  ahf_id.Zcm = CatA.SubhaloCM[3*k+2]*Mpc2kpc;
 	  //  if(k == CatA.GroupFirstSub[i])
 	  //   printf("halo %ld: M:Mvir = %f Mvir:Rvir^3 = %f\n",k,CatA.Group_M_Mean200[i], pow(CatA.Group_R_Mean200[i],3));
 	  ahf_id.npart = CatA.SubLen[k];
@@ -242,14 +306,9 @@ int main(int argc, char **argv)
 	  ahf_id.VYc = CatA.SubhaloVel[3*k+1];
 	  ahf_id.VZc = CatA.SubhaloVel[3*k+2];
 	  
-	  if(k == CatA.GroupFirstSub[i])
-	    {
-	      ahf_id.Rvir = pow(CatA.SubhaloMass[k]/factor,1./3.)*Mpc2kpc;
-	    }
-	  else
-	    {
-	      ahf_id.Rvir = pow(CatA.SubhaloMass[k]/factor,1./3.)*Mpc2kpc;
-	    }
+
+	  ahf_id.Rvir = pow(CatA.SubhaloMass[k]/factor,1./3.)*Mpc2kpc; // effective
+
 	  
 	  ahf_id.Rmax = CatA.SubhaloVmaxRad[k]*Mpc2kpc;
 
@@ -276,12 +335,7 @@ int main(int argc, char **argv)
 	  ahf_id.Ly /= normalise;
 	  ahf_id.Lz /= normalise;
 	  
-	  double G       = 6.67384e-11; // m^3/(kg s^2)
-	  double m2kpc   = 1./3.08567758e19;
-	  double m2km    = 0.001;
-	  double kg2Msun = 1./1.989e30;
 
-	  G *= m2kpc * m2km * m2km / kg2Msun;
 	  /* printf("G = %g\n",G); */
 	  /* printf("m=%f,r=%f\n",ahf_id.Mvir,ahf_id.Rvir); */
 	  ahf_id.lambda = normalise / sqrt(2. * G * ahf_id.Mvir * ahf_id.Rvir);
@@ -307,7 +361,7 @@ int main(int argc, char **argv)
 	  ahf_id.Phi0 = default_float;
 	  ahf_id.cNFW = default_float; 
 
-	  fprintf(fp1,"%llu\t%llu\t%lu\t%.8g\t%lu\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\n",
+	  fprintf(fp1,"%llu\t%llu\t%lu\t%.8g\t%lu\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t %.8g\t  %.8g\t %.8g\t %.8g\t %.8g\t %.8g\t %.8g\t %.8g\t %.8g\t  %.8g\t  %.8g\t %.8g\t  %.8g\t  %.8g\t  %.8g\t %.8g\t %.8g\t",
 		  ahf_id.ID,
 		  ahf_id.hostHalo,
 		  ahf_id.numSubStruct,
@@ -350,7 +404,24 @@ int main(int argc, char **argv)
 		  ahf_id.Epot,
 		  ahf_id.SurfP,
 		  ahf_id.Phi0,
-		  ahf_id.cNFW 
+		  ahf_id.cNFW,
+		  ahf_id.FoFMass,
+		  ahf_id.M_200Mean,
+		  ahf_id.M_200Crit,
+		  ahf_id.M_Tophat,
+		  ahf_id.R_200Mean,
+		  ahf_id.R_200Crit,
+		  ahf_id.R_TopHat,
+		  ahf_id.HalfMassRadius,
+		  ahf_id.sigV_200Mean,
+		  ahf_id.sigV_200Crit,
+		  ahf_id.sigV_TopHat,
+		  ahf_id.Xcm,
+		  ahf_id.Ycm,
+		  ahf_id.Zcm,
+		  ahf_id.Xgroup,
+		  ahf_id.Ygroup,
+		  ahf_id.Zgroup,
 		  );
 
 	  fprintf(fp2,"%d\t%llu\n",CatA.SubLen[k],ahf_id.ID);	  
@@ -524,36 +595,43 @@ void load_subhalo_catalogue(int num, struct halo_catalogue *cat)
 
 	  cat->GroupNsubs = mymalloc(sizeof(int) * cat->TotNgroups);
 	  cat->GroupLen = mymalloc(sizeof(int) * cat->TotNgroups);
+	  cat->GroupMass = mymalloc(sizeof(int) * cat->TotNgroups);
 	  cat->Group_M_Crit200 = mymalloc(sizeof(float) * cat->TotNgroups);
 	  cat->Group_R_Crit200 = mymalloc(sizeof(float) * cat->TotNgroups);
+	  cat->Group_M_Mean200 = mymalloc(sizeof(float) * cat->TotNgroups);
+	  cat->Group_R_Mean200 = mymalloc(sizeof(float) * cat->TotNgroups);
+	  cat->Group_M_TopHat = mymalloc(sizeof(float) * cat->TotNgroups);
+	  cat->Group_R_TopHat = mymalloc(sizeof(float) * cat->TotNgroups);
+	  cat->Group_VelDisp_Crit200 = mymalloc(sizeof(float) * cat->TotNgroups);
+	  cat->Group_VelDisp_Mean200 = mymalloc(sizeof(float) * cat->TotNgroups);
+	  cat->Group_VelDisp_TopHat = mymalloc(sizeof(float) * cat->TotNgroups);
+	  cat->GroupPos = mymalloc(3*sizeof(float) * cat->TotNgroups);
+
 	  cat->GroupFirstSub = mymalloc(sizeof(int) * cat->TotNgroups);
 	  cat->Descendant = mymalloc(sizeof(struct descendant_data) * cat->TotNsubhalos);
 	  cat->CountProgenitors = mymalloc(sizeof(int) * cat->TotNsubhalos);
 	}
 
-      //fseek(fd, sizeof(int) * ngroups, SEEK_CUR);	/* skip  GroupLen  */
+
       my_fread(&cat->GroupLen[groupcount], sizeof(int), ngroups, fd);
       fseek(fd, sizeof(int) * ngroups, SEEK_CUR);	/* skip  GroupOffset  */
-      fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  GroupMass  */
-      fseek(fd, 3 * sizeof(float) * ngroups, SEEK_CUR);	/* skip  GroupPos */
-      fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_M_Mean200 */
-      fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_R_Mean200 */
+      my_fread(&cat->GroupMass[groupcount], sizeof(float), ngroups, fd);
+      my_fread(&cat->GroupPos[3*groupcount], 3*sizeof(float), ngroups, fd);
+      my_fread(&cat->Group_M_Mean200[groupcount], sizeof(float), ngroups, fd);
+      my_fread(&cat->Group_R_Mean200[groupcount], sizeof(float), ngroups, fd);
       my_fread(&cat->Group_M_Crit200[groupcount], sizeof(float), ngroups, fd);
-      // fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_M_Crit200 */
       my_fread(&cat->Group_R_Crit200[groupcount], sizeof(float), ngroups, fd);
-      // fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_R_Crit200 */
-      fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_M_TopHat200 */
-      fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_R_TopHat200 */
+      my_fread(&cat->Group_M_TopHat[groupcount], sizeof(float), ngroups, fd);
+      my_fread(&cat->Group_R_TopHat[groupcount], sizeof(float), ngroups, fd);
+
 #ifdef SO_VEL_DISPERSIONS
-      fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_VelDisp_Mean200 */
-      fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_VelDisp_Crit200 */
-      fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  Group_VelDisp_TopHat200 */
+      my_fread(&cat->Group_VelDisp_Mean200[groupcount], sizeof(float), ngroups, fd);
+      my_fread(&cat->Group_VelDisp_Crit200[groupcount], sizeof(float), ngroups, fd);
+      my_fread(&cat->Group_VelDisp_TopHat[groupcount], sizeof(float), ngroups, fd);
 #endif
       fseek(fd, sizeof(int) * ngroups, SEEK_CUR);	/* skip  GroupContaminationCount */
       fseek(fd, sizeof(float) * ngroups, SEEK_CUR);	/* skip  GroupContaminationMass */
-      //fseek(fd, sizeof(int) * ngroups, SEEK_CUR);	/* skip  GroupNsubs */
       my_fread(&cat->GroupNsubs[groupcount], sizeof(int), ngroups, fd);
-      //fseek(fd, sizeof(int) * ngroups, SEEK_CUR);	/* skip  GroupFirstsub */
       my_fread(&cat->GroupFirstSub[groupcount], sizeof(int), ngroups, fd); 
       
       my_fread(&cat->SubLen[subcount], sizeof(int), nsubhalos, fd);
@@ -569,20 +647,16 @@ void load_subhalo_catalogue(int num, struct halo_catalogue *cat)
 
       my_fread(&cat->SubParentHalo[subcount], sizeof(int), nsubhalos, fd);
       my_fread(&cat->SubhaloMass[subcount], sizeof(float), nsubhalos, fd);
-      //fseek(fd, sizeof(float) * nsubhalos, SEEK_CUR);	/* skip  SubhaloMass */
 
       my_fread(&cat->SubhaloPos[3 * subcount], 3 * sizeof(float), nsubhalos, fd);
       my_fread(&cat->SubhaloVel[3 * subcount], 3 * sizeof(float), nsubhalos, fd);
 
-      //fseek(fd, 3 * sizeof(float) * nsubhalos, SEEK_CUR);	/* skip  SubhaloCM */
       my_fread(&cat->SubhaloCM[3 * subcount], 3 * sizeof(float), nsubhalos, fd);
       my_fread(&cat->SubhaloSpin[3 * subcount], 3 * sizeof(float), nsubhalos, fd);
       my_fread(&cat->SubhaloVelDisp[subcount], sizeof(float), nsubhalos, fd);
       my_fread(&cat->SubhaloVmax[subcount], sizeof(float), nsubhalos, fd);
 
       my_fread(&cat->SubhaloVmaxRad[subcount], sizeof(float), nsubhalos, fd);
-
-      //fseek(fd, sizeof(float) * nsubhalos, SEEK_CUR);	/* skip  SubhaloVmaxRad */
 
       my_fread(&cat->SubhaloHalfMass[subcount], sizeof(float), nsubhalos, fd);
 
