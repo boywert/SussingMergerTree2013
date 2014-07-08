@@ -361,7 +361,7 @@ int main(int argc, char **argv)
 	  ahf_id.Phi0 = default_float;
 	  ahf_id.cNFW = default_float; 
 
-	  fprintf(fp1,"%llu\t%llu\t%lu\t%.8g\t%lu\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t %.8g\t  %.8g\t %.8g\t %.8g\t %.8g\t %.8g\t %.8g\t %.8g\t %.8g\t  %.8g\t  %.8g\t %.8g\t  %.8g\t  %.8g\t  %.8g\t %.8g\t %.8g\t",
+	  fprintf(fp1,"%llu\t%llu\t%lu\t%.8g\t%lu\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t%.8g\t %.8g\t  %.8g\t %.8g\t %.8g\t %.8g\t %.8g\t %.8g\t %.8g\t %.8g\t  %.8g\t  %.8g\t %.8g\t  %.8g\t  %.8g\t  %.8g\t %.8g\t %.8g\n",
 		  ahf_id.ID,
 		  ahf_id.hostHalo,
 		  ahf_id.numSubStruct,
