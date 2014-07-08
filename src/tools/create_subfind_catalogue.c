@@ -237,17 +237,11 @@ int main(int argc, char **argv)
   //printf("%s\n",header_out);
   fprintf(fp1,"%s\n", header_out);
   fprintf(fp2,"%d\n", CatA.TotNsubhalos);
-  factor = 6392.483101; // roughly...... +/- 5.0
+  
   for(i=0;i<CatA.TotNgroups;i++)
     {
-      /* if(CatA.Group_M_Crit200[i] == 0.) */
-      /* 	{ */
-      /* 	  printf("Mvir :%f Rvir :%f npart :%d\n",CatA.Group_M_Crit200[i],CatA.Group_R_Crit200[i],CatA.GroupLen[i]); */
-      /* 	  CatA.Group_M_Crit200[i] = particlemass*CatA.GroupLen[i]; */
-      /* 	  CatA.Group_R_Crit200[i] = pow(CatA.Group_M_Crit200[i]/factor,1./3.); */
-      /* 	} */
-      /* else */
-      /* 	factor = CatA.Group_M_Crit200[i]/pow(CatA.Group_R_Crit200[i],3); */
+      if(CatA.Group_M_Crit200[i] > 0.)
+      	factor = CatA.Group_M_Crit200[i]/pow(CatA.Group_R_Crit200[i],3);
       for(j=0;j<CatA.GroupNsubs[i]; j++)
 	{
 	  if(k != CatA.GroupFirstSub[i]+j )
